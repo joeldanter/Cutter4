@@ -38,7 +38,7 @@ namespace Cutter4
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             storage = new Storage();
-            solver = new Solver(storage);
+            solver = new Solver();
             
             kapuk = new List<Kapu>()
             {
@@ -49,8 +49,8 @@ namespace Cutter4
                 new Kapu(5050, 2150, "F100", "Kapu5"),
                 new Kapu(5070, 2200, "F301", "Kapu6")
             };
-            confs = solver.Solve(kapuk);
-            Console.WriteLine(solver.WriteOutput(kapuk, confs));
+            confs = solver.Solve(kapuk, storage);
+            Console.WriteLine(solver.GenerateOutput(kapuk, confs));
             Console.WriteLine();
             storage.BetterSave(kapuk, confs);
         }

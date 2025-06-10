@@ -8,9 +8,9 @@ using MySql.Data.MySqlClient;
 
 namespace Cutter4.DataBase
 {
-    public class DBConnection
+    public class DBConnectionSingleton
     {
-        private DBConnection()
+        private DBConnectionSingleton()
         {
         }
 
@@ -21,11 +21,11 @@ namespace Cutter4.DataBase
 
         public MySqlConnection Connection { get; set; }
 
-        private static DBConnection _instance = null;
-        public static DBConnection Instance()
+        private static DBConnectionSingleton _instance = null;
+        public static DBConnectionSingleton Instance()
         {
             if (_instance == null)
-                _instance = new DBConnection();
+                _instance = new DBConnectionSingleton();
             return _instance;
         }
 

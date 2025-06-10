@@ -132,7 +132,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Cutting\Variables.cs" />
-    <Compile Include="DataBase\DBConnection.cs" />
+    <Compile Include="DataBase\DBConnectionSingleton.cs" />
     <Compile Include="DataBase\Storage.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

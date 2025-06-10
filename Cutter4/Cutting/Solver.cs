@@ -10,13 +10,12 @@ namespace Cutter4.Cutting
 {
     class Solver
     {
-        Storage storage;
-        public Solver(Storage storage)
+        public Solver()
         {
-            this.storage = storage;
+            
         }
 
-        public PanelCollection<Configuration> Solve(IList<Kapu> kapuk)
+        public PanelCollection<Configuration> Solve(IList<Kapu> kapuk, Storage storage)
         {
             PanelCollection<Panel> panels = Kapu.ProcessPanels(kapuk);
             PanelCollection<Configuration> configurations = new PanelCollection<Configuration>();
@@ -69,7 +68,7 @@ namespace Cutter4.Cutting
             return configurations;
         }
 
-        public string WriteOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations)
+        public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations)
         {
             string outputStr = "";
 

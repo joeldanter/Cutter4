@@ -12,10 +12,10 @@ namespace Cutter4.DataBase
 {
     public class Storage
     {
-        DBConnection dbCon;
+        DBConnectionSingleton dbCon;
         public Storage()
         {
-            dbCon = DBConnection.Instance();
+            dbCon = DBConnectionSingleton.Instance();
             dbCon.Server = "127.0.0.1";
             dbCon.DatabaseName = "cutter";
             dbCon.UserName = "main";
@@ -50,65 +50,7 @@ namespace Cutter4.DataBase
             command.Connection = dbCon.Connection;
             command.Transaction = transaction;
         }
-        #region illegal
-        /*
-        public void SaveOrder(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
-        {
-            // order
-            long orderID = CommandExecutor($"INSERT INTO orders (date) VALUES (NOW());");
-            
-            //kapuk
-            foreach (Kapu kapu in kapuk)
-            {
-                int colorID = Convert.ToInt32(QueryExecutor($"SELECT * FROM colors WHERE name=\'{kapu.Color}\';").Tables[0].Rows[0]["id"]);
-                CommandExecutor($"INSERT INTO kapuk (length, height, serial_number, color_id, order_id) VALUES ({kapu.Length}, {kapu.Height}, \'{kapu.SerialNumber}\', {colorID}, {orderID});");
-            }
 
-            // panels and configurations
-            foreach (KeyValuePair<PanelType, List<Configuration>> item in confs)
-            {
-                PanelType type = item.Key;
-                string colorID = Convert.ToString(QueryExecutor($"SELECT * FROM colors WHERE name=\'{type.Color}\';").Tables[0].Rows[0]["id"]);
-                foreach (Configuration configuration in item.Value)
-                {
-                    // remove used panel
-                    CommandExecutor($"UPDATE panels SET storage_count=storage_count-1 WHERE length={configuration.Capacity} AND color_id={colorID} AND width=\'{type.Width}\';");
-                    string usedPanelID = Convert.ToString(QueryExecutor($"SELECT (id) FROM panels WHERE length={configuration.Capacity} AND color_id={colorID} AND width=\'{type.Width}\';").Tables[0].Rows[0]["id"]);
-
-                    // add leftover panel and configuration
-                    long configID;
-                    if (configuration.Waste != 0)
-                    {
-                        long remainderPanelID;
-                        bool exists = Convert.ToString(QueryExecutor($"SELECT EXISTS(SELECT * FROM panels WHERE length={configuration.Waste} AND color_id={colorID} AND width=\'{type.Width}\' limit 1);").Tables[0].Rows[0][0]) == "1";
-                        if (exists)
-                        {
-                            CommandExecutor($"UPDATE panels SET storage_count=storage_count+1 WHERE length={configuration.Waste} AND color_id={colorID} AND width=\'{type.Width}\';");
-                            remainderPanelID = Convert.ToInt64(QueryExecutor($"SELECT (id) FROM panels WHERE length={configuration.Waste} AND color_id={colorID} AND width=\'{type.Width}\';").Tables[0].Rows[0]["id"]);
-                        }
-                        else
-                        {
-                            remainderPanelID = CommandExecutor($"INSERT INTO panels (length, color_id, width, storage_count) VALUES ({configuration.Waste}, {colorID}, \'{type.Width}\', 1);");
-                        }
-                        
-                        configID = CommandExecutor($"INSERT INTO cut_configurations (order_id, used_panel_id, remainder_panel_id) VALUES ({orderID}, {usedPanelID}, {remainderPanelID});");
-                    }
-                    else
-                    {
-                        configID = CommandExecutor($"INSERT INTO cut_configurations (order_id, used_panel_id, remainder_panel_id) VALUES ({orderID}, {usedPanelID}, NULL);");
-                    }
-
-                    // add cut elements
-                    foreach (Panel panel in configuration.Panels)
-                    {
-                        string kapuID = Convert.ToString(QueryExecutor($"SELECT * FROM kapuk WHERE serial_number=\'{panel.SerialNumber}\' limit 1;").Tables[0].Rows[0]["id"]);
-                        CommandExecutor($"INSERT INTO cut_elements (length, kapu_id, configuration_id) VALUES ({panel.Length}, {kapuID}, {configID});");
-                    }
-                }
-            }
-        }
-        */
-        #endregion
         public void BetterSave(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
         {
             CreateCommandAndTrans(out MySqlCommand myCommand, out MySqlTransaction myTrans);
