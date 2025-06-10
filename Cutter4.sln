@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.34729.46
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cutter4", "Cutter4\Cutter4.csproj", "{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5FDE2B3F-AD3A-4A03-B5F4-56AA2EC7FF83}
+	EndGlobalSection
+EndGlobal

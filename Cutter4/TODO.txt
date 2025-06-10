@@ -1,0 +1,5 @@
+﻿Solver class only request storage when solving
+rename writeoutput cuz it doesnt "write"
+rename DBconnection to DBconnectionSingleton
+wth is bettersave in storage
+storage *executora - a? A??? => -a

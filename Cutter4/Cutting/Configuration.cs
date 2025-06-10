@@ -1,0 +1,113 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Cutter4.Cutting
+{
+    public class Configuration
+    {
+        public List<Panel> Panels { get; }
+        public int Capacity;
+        public int Used
+        {
+            get
+            {
+                int used = 0;
+                foreach (Panel panel in Panels)
+                {
+                    used += panel.Length;
+                }
+                return used;
+            }
+        }
+        public int Waste
+        {
+            get
+            {
+                return Capacity - Used;
+            }
+        }
+
+        public Configuration(List<Panel> panels, int capacity)
+        {
+            Panels = panels;
+            Capacity = capacity;
+        }
+
+        // igazabol csak lemasoltam egy csavo programjat es atirtam: https://www.youtube.com/watch?v=cJ21moQpofY
+        // kiadja a legjobb konfiguraciot a megadott panelokkal
+        public static Configuration BestConfiguration(List<Panel> values, int capacity)
+        {
+            if (values == null)
+                throw new ArgumentException("Invalid input");
+
+            if (!values.Any(x => x.Length <= capacity))
+                return new Configuration(new List<Panel>(), capacity);
+
+            int N = values.Count;
+
+            // Initialize a table where individual rows represent items
+            // and columns represent the weight of the knapsack
+            int[,] DP = new int[N + 1, capacity + 1];
+            int sz;
+
+            for (int i = 1; i <= N; i++)
+            {
+                // Get the value of the item
+                int v = values[i - 1].Length;
+
+                for (sz = 1; sz <= capacity; sz++)
+                {
+                    // Consider not picking this element
+                    DP[i, sz] = DP[i - 1, sz];
+
+                    // Consider including the current element and
+                    // see if this would be more profitable
+                    if (sz >= v && DP[i - 1, sz - v] + v > DP[i, sz])
+                        DP[i, sz] = DP[i - 1, sz - v] + v;
+                }
+            }
+
+            sz = capacity;
+            List<Panel> itemsSelected = new List<Panel>();
+
+            // Using the information inside the table we can backtrack and determine
+            // which items were selected during the dynamic programming phase. The idea
+            // is that if DP[i][sz] != DP[i-1][sz] then the item was selected
+            for (int i = N; i > 0; i--)
+            {
+                if (DP[i, sz] != DP[i - 1, sz])
+                {
+                    int itemIndex = i - 1;
+                    itemsSelected.Add(values[itemIndex]);
+                    sz -= values[itemIndex].Length;
+                }
+            }
+
+            // Return the items that were selected
+            //itemsSelected.Reverse();
+            return new Configuration(itemsSelected, capacity);
+
+            // Return the maximum profit
+            //return DP[N, capacity];
+        }
+
+        public override string ToString()
+        {
+            string result = "";
+            for (int i = 0; i < Panels.Count; i++)
+            {
+                result += Panels[i].Length + "-" + Panels[i].SerialNumber;
+
+                if (i != Panels.Count - 1)
+                {
+                    result += ", ";
+                }
+            }
+
+            return result;
+        }
+    }
+}
