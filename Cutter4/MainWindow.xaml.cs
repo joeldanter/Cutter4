@@ -27,8 +27,6 @@ namespace Cutter4
     {
         Storage storage;
         Solver solver;
-        List<Kapu> kapuk;
-        PanelCollection<Configuration> confs;
 
         public MainWindow()
         {
@@ -39,8 +37,13 @@ namespace Cutter4
         {
             storage = new Storage();
             solver = new Solver();
-            
-            kapuk = new List<Kapu>()
+
+            showStorage();
+        }
+
+        void saveCut()
+        {
+            List<Kapu> kapuk = new List<Kapu>()
             {
                 new Kapu(2920, 2420, "F100", "Kapu1"),
                 new Kapu(3700, 2950, "F100", "Kapu2"),
@@ -49,10 +52,27 @@ namespace Cutter4
                 new Kapu(5050, 2150, "F100", "Kapu5"),
                 new Kapu(5070, 2200, "F301", "Kapu6")
             };
-            confs = solver.Solve(kapuk, storage);
+            PanelCollection<Configuration> confs = solver.Solve(kapuk, storage);
             Console.WriteLine(solver.GenerateOutput(kapuk, confs));
             Console.WriteLine();
-            storage.BetterSave(kapuk, confs);
+            storage.SaveNewCut(kapuk, confs);
+        }
+
+        void showStorage()
+        {
+            foreach (string colorName in Cutting.Colors.ColorNames)
+            {
+                foreach (string width in new string[] { "500mm", "610mm" })
+                {
+                    PanelType type = new PanelType(width, colorName);
+                    List<StoragePanel> storagePanels = storage.LeftOvers(type);
+                    foreach(StoragePanel storagePanel in storagePanels)
+                    {
+                        Console.WriteLine($"{colorName} {width} - { storagePanel.Count}x {storagePanel.Length}mm");
+                    }
+                    Console.WriteLine();
+                }
+            }
         }
     }
 }
