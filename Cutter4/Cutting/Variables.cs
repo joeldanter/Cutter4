@@ -19,11 +19,20 @@ namespace Cutter4.Cutting
     
     public struct PanelType
     {
-        public readonly string Width;
-        public readonly string Color;
+        public string Width { get; }
+        public string Color { get; }
 
         public PanelType(string width, string color)
         {
+            if (width != "500mm" && width != "610mm")
+            {
+                throw new ArgumentException("Invalid width value was given: " + width);
+            }
+            if (!PanelColors.ColorNames.Contains(color))
+            {
+                throw new ArgumentException("Invalid color value was given: " + color);
+            }
+
             Width = width;
             Color = color;
         }
