@@ -134,6 +134,7 @@
     <Compile Include="Cutting\Variables.cs" />
     <Compile Include="DataBase\DBConnectionSingleton.cs" />
     <Compile Include="DataBase\Storage.cs" />
+    <Compile Include="DataBase\StoragePanel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -172,6 +173,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="queries.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
