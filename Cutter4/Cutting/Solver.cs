@@ -30,10 +30,10 @@ namespace Cutter4.Cutting
                 {
                     Configuration bestConfiguration = new Configuration(new List<Panel> { }, 99999);
 
-                    foreach (DataRow row in storage.LeftOvers(type).Tables[0].Rows)
+                    foreach (StoragePanel storagePanel in storage.LeftOvers(type))
                     {
-                        int length = Convert.ToInt32(row["length"]);
-                        int count = Convert.ToInt32(row["storage_count"]) - (usedPanelCounts.ContainsKey(length) ? usedPanelCounts[length] : 0);
+                        int length = storagePanel.Length;
+                        int count = storagePanel.Count - (usedPanelCounts.ContainsKey(length) ? usedPanelCounts[length] : 0);
 
                         if (count > 0)
                         {
