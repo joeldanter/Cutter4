@@ -300,12 +300,13 @@ LEFT JOIN kapuk
             MySqlDataAdapter adapter = new MySqlDataAdapter("SELECT (name) FROM colors;", dbCon.Connection);
             DataSet dataSet = new DataSet();
             adapter.Fill(dataSet);
-            Colors.ColorNames = new List<string>();
+            List<string> colorNames = new List<string>();
 
             foreach (DataRow item in dataSet.Tables[0].Rows)
             {
-                Colors.ColorNames.Add(item["name"].ToString());
+                colorNames.Add(item["name"].ToString());
             }
+            PanelColors.LoadColorNames(colorNames);
         }
     }
 }

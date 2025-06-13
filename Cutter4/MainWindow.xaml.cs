@@ -58,9 +58,9 @@ namespace Cutter4
             storage.SaveNewCut(kapuk, confs);
         }
 
-        void showStorage()
+        void showStorage()  
         {
-            foreach (string colorName in Cutting.Colors.ColorNames)
+            foreach (string colorName in Cutting.PanelColors.ColorNames)
             {
                 foreach (string width in new string[] { "500mm", "610mm" })
                 {

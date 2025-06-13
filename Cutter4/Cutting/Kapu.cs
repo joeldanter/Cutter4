@@ -80,7 +80,7 @@ namespace Cutter4.Cutting
         {
             length = 1;
             height = 1;
-            Color = Cutting.Colors.ColorNames[0];
+            Color = PanelColors.ColorNames[0];
             SerialNumber = "x";
         }
 

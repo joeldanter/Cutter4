@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Cutter4.Cutting
 {
-    static class Colors
+    static class PanelColors
     {
-        public static List<string> ColorNames { get; set; }
+        public static ReadOnlyCollection<string> ColorNames { get; private set; }
+
+        public static void LoadColorNames(List<string> newColorNames)
+        {
+            ColorNames = new ReadOnlyCollection<string>(newColorNames);
+        }
     }
     
     public struct PanelType
