@@ -40,10 +40,10 @@ namespace Cutter4.DataBase
             {
                 saveNewOrder(out long orderId, transaction);
                 saveKapuk(kapuk, orderId, transaction);
-                RemoveUsedPanels(confs, transaction);
-                AppendRemainderPanels(confs, transaction);
-                SaveConfigurations(confs, orderId, out long[] orderedNewConfigurationIds, transaction);
-                SaveCutElements(confs, orderedNewConfigurationIds, transaction);
+                removeUsedPanels(confs, transaction);
+                appendRemainderPanels(confs, transaction);
+                saveConfigurations(confs, orderId, out long[] orderedNewConfigurationIds, transaction);
+                saveCutElements(confs, orderedNewConfigurationIds, transaction);
 
                 transaction.Rollback();
                 Console.WriteLine("rolled back cuz testing");
@@ -105,7 +105,7 @@ LEFT JOIN colors
             executeNonQueryWithTransaction(command, transaction);
         }
 
-        void RemoveUsedPanels(PanelCollection<Configuration> confs, MySqlTransaction transaction)
+        void removeUsedPanels(PanelCollection<Configuration> confs, MySqlTransaction transaction)
         {
             MySqlCommand command = new MySqlCommand();
 
@@ -143,7 +143,7 @@ SET panels.storage_count=panels.storage_count-1;";
             executeNonQueryWithTransaction(command, transaction);
         }
 
-        void AppendRemainderPanels(PanelCollection<Configuration> confs, MySqlTransaction transaction)
+        void appendRemainderPanels(PanelCollection<Configuration> confs, MySqlTransaction transaction)
         {
             MySqlCommand command = new MySqlCommand();
             
@@ -180,7 +180,7 @@ LEFT JOIN panel_types
             executeNonQueryWithTransaction(command, transaction);
         }
 
-        void SaveConfigurations(PanelCollection<Configuration> confs, long orderID, out long[] orderedNewConfigurationIds, MySqlTransaction transaction)
+        void saveConfigurations(PanelCollection<Configuration> confs, long orderID, out long[] orderedNewConfigurationIds, MySqlTransaction transaction)
         {
             MySqlCommand command = new MySqlCommand();
 
@@ -224,7 +224,7 @@ LEFT JOIN panel_types
             }
         }
 
-        void SaveCutElements(PanelCollection<Configuration> confs, long[] orderedNewConfigurationIds, MySqlTransaction transaction)
+        void saveCutElements(PanelCollection<Configuration> confs, long[] orderedNewConfigurationIds, MySqlTransaction transaction)
         {
             MySqlCommand command = new MySqlCommand();
 
