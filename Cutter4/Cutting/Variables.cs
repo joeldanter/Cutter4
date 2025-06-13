@@ -31,8 +31,8 @@ namespace Cutter4.Cutting
 
     public struct Panel
     {
-        public readonly int Length;
-        public readonly string SerialNumber;
+        public int Length { get; }
+        public string SerialNumber { get; }
 
         public Panel(int length, string serialNumber)
         {
