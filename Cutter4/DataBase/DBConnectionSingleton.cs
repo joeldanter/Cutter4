@@ -39,6 +39,10 @@ namespace Cutter4.DataBase
                 Connection = new MySqlConnection(connstring);
                 Connection.Open();
             }
+            if (Connection.State == System.Data.ConnectionState.Closed)
+            {
+                Connection.Open();
+            }
         }
 
         public void Close()
