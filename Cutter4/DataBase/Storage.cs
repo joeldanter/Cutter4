@@ -127,16 +127,14 @@ LEFT JOIN colors
 
             string commandText =
 $@"UPDATE panels
-LEFT JOIN panel_types
-    ON panels.type_id=panel_types.id
 LEFT JOIN colors
-    ON panel_types.color_id=colors.id
+    ON panels.color_id=colors.id
 RIGHT JOIN (VALUES
 {valuesString}
 ) AS new(length, color_name, width)
     ON new.length=panels.length
     AND new.color_name=colors.name
-    AND new.width=panel_types.width
+    AND new.width=panels.width
 SET panels.storage_count=panels.storage_count-1;";
 
             command.CommandText = commandText;
@@ -164,17 +162,14 @@ SET panels.storage_count=panels.storage_count-1;";
             string valuesString = string.Join(",\n", valuesRows);
 
             string commandText =
-$@"INSERT INTO panels (length, type_id, storage_count)
-SELECT new.length, panel_types.id, 1
+$@"INSERT INTO panels (length, color_id, width, storage_count)
+SELECT new.length, colors.id, new.width, 1
 FROM (VALUES
 {valuesString}
 ) AS new(length, color_name, width)
 LEFT JOIN colors
     ON new.color_name=colors.name
-LEFT JOIN panel_types
-    ON colors.id=panel_types.color_id
-    AND new.width=panel_types.width
-    ON DUPLICATE KEY UPDATE panels.storage_count=panels.storage_count+1;";
+ON DUPLICATE KEY UPDATE panels.storage_count=panels.storage_count+1;";
 
             command.CommandText = commandText;
             executeNonQueryWithTransaction(command, transaction);
@@ -201,16 +196,17 @@ LEFT JOIN panel_types
             string valuesString = string.Join(",\n", valuesRows);
 
             string commandText =
-$@"INSERT INTO cut_configurations (order_id, original_length, type_id)
-SELECT {orderID}, new.original_length, panel_types.id
+$@"INSERT INTO cut_configurations (order_id, used_panel_id)
+SELECT {orderID}, panels.id
 FROM (VALUES
 {valuesString}
 ) AS new (original_length, color_name, width)
 LEFT JOIN colors
     ON new.color_name=colors.name
-LEFT JOIN panel_types
-    ON colors.id=panel_types.color_id
-    AND new.width=panel_types.width;";
+LEFT JOIN panels
+    ON new.original_length=panels.length
+    AND colors.id=panels.color_id
+    AND new.width=panels.width;";
 
             command.CommandText = commandText;
             executeNonQueryWithTransaction(command, transaction);
@@ -265,15 +261,13 @@ LEFT JOIN kapuk
             dbCon.IsConnect();
             MySqlCommand command = new MySqlCommand();
             string query = @"
-                SELECT length, storage_count
+                SELECT panels.length, panels.storage_count
                 FROM panels
-                INNER JOIN panel_types
-                    ON panels.type_id = panel_types.id
-                INNER JOIN colors
-                    ON panel_types.color_id = colors.id
+                LEFT JOIN colors
+                    ON panels.color_id = colors.id
                 WHERE storage_count != 0
                     AND colors.name = @color
-                    AND panel_types.width = @width;";
+                    AND panels.width = @width;";
             command.CommandText = query;
             command.Parameters.Add("@color", MySqlDbType.VarChar, 255).Value = type.Color;
             command.Parameters.Add("@width", MySqlDbType.Enum).Value = type.Width;
