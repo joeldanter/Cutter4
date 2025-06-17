@@ -21,15 +21,26 @@ namespace Cutter4.DataBase
 
         public Storage() {  }
 
-        void executeNonQueryWithTransaction(MySqlCommand command, MySqlTransaction transaction)
+        long executeNonQueryWithTransaction(string commandText, MySqlConnection connection, MySqlTransaction transaction, params MySqlParameter[] parameters)
         {
-            Console.WriteLine(command.CommandText + "\n");
+            Console.WriteLine(commandText + "\n");
 
-            MySqlConnection connection = new MySqlConnection(connString);
-            connection.Open();
-            command.Connection = connection;
-            command.Transaction = transaction;
+            MySqlCommand command = new MySqlCommand()
+            {
+                CommandText = commandText,
+                CommandType = CommandType.Text,
+                Connection = connection,
+                Transaction = transaction
+            };
+
+            if (parameters != null)
+                foreach (MySqlParameter p in parameters)
+                    command.Parameters.Add(p);
+
             command.ExecuteNonQuery();
+            command.Parameters.Clear();
+
+            return command.LastInsertedId;
         }
         
         public void SaveNewCut(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
@@ -40,15 +51,13 @@ namespace Cutter4.DataBase
             
             try
             {
-                saveNewOrder(out long orderId, transaction);
-                saveKapuk(kapuk, orderId, transaction);
-                removeUsedPanels(confs, transaction);
-                appendRemainderPanels(confs, transaction);
-                saveConfigurations(confs, orderId, out long[] orderedNewConfigurationIds, transaction);
-                saveCutElements(confs, orderedNewConfigurationIds, transaction);
+                saveNewOrder(out long orderId, connection, transaction);
+                saveKapuk(kapuk, orderId, connection, transaction);
+                removeUsedPanels(confs, connection, transaction);
+                appendRemainderPanels(confs, connection, transaction);
+                saveConfigurations(confs, orderId, out long[] orderedNewConfigurationIds, connection, transaction);
+                saveCutElements(confs, orderedNewConfigurationIds, connection, transaction);
 
-                //transaction.Rollback();
-                //Console.WriteLine("rolled back cuz testing");
                 transaction.Commit();
                 Console.WriteLine("Order successfully saved to database.");
             }
@@ -65,31 +74,30 @@ namespace Cutter4.DataBase
                 {
                     Console.WriteLine($"An exception of type {ex.GetType()} was encountered while attempting to roll back the transaction:");
                     Console.WriteLine(ex.Message);
+                    throw ex;
                 }
                 throw e;
             }
         }
 
-        void saveNewOrder(out long orderId, MySqlTransaction transaction)
+        void saveNewOrder(out long orderId, MySqlConnection connection, MySqlTransaction transaction)
         {
-            MySqlCommand command = new MySqlCommand("INSERT INTO orders (date) VALUES ROW(NOW());");
-            executeNonQueryWithTransaction(command, transaction);
-            orderId = command.LastInsertedId;
+            string commandText = "INSERT INTO orders (date) VALUES ROW(NOW());";
+            orderId = executeNonQueryWithTransaction(commandText, connection, transaction);
         }
 
-        void saveKapuk(IList<Kapu> kapuk, long orderID, MySqlTransaction transaction)
+        void saveKapuk(IList<Kapu> kapuk, long orderID, MySqlConnection connection, MySqlTransaction transaction)
         {
-            MySqlCommand command = new MySqlCommand();
-
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             for (int i = 0; i < kapuk.Count; i++)
             {
                 Kapu kapu = kapuk[i];
                 valuesRows.Add($"    ROW(@length{i}, @height{i}, @serial_number{i}, @color{i})");
-                command.Parameters.Add($"@length{i}", MySqlDbType.Int16).Value = kapu.Length;
-                command.Parameters.Add($"@height{i}", MySqlDbType.Int16).Value = kapu.Height;
-                command.Parameters.Add($"@serial_number{i}", MySqlDbType.VarChar, 255).Value = kapu.SerialNumber;
-                command.Parameters.Add($"@color{i}", MySqlDbType.VarChar, 255).Value = kapu.Color;
+                parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = kapu.Length });
+                parameters.Add(new MySqlParameter($"@height{i}", MySqlDbType.Int16) { Value = kapu.Height });
+                parameters.Add(new MySqlParameter($"@serial_number{i}", MySqlDbType.VarChar, 255) { Value = kapu.SerialNumber });
+                parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = kapu.Color });
             }
             string valuesString = string.Join(",\n", valuesRows);
 
@@ -102,15 +110,12 @@ FROM (VALUES
 LEFT JOIN colors
     ON new.color_name=colors.name;";
 
-            command.CommandText = commandText;
-
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
         }
 
-        void removeUsedPanels(PanelCollection<Configuration> confs, MySqlTransaction transaction)
+        void removeUsedPanels(PanelCollection<Configuration> confs, MySqlConnection connection, MySqlTransaction transaction)
         {
-            MySqlCommand command = new MySqlCommand();
-
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             int i = 0;
             foreach (KeyValuePair<PanelType, List<Configuration>> item in confs)
@@ -119,9 +124,9 @@ LEFT JOIN colors
                 foreach (Configuration conf in item.Value)
                 {
                     valuesRows.Add($"    ROW(@length{i}, @color_name{i}, @width{i})");
-                    command.Parameters.Add($"@length{i}", MySqlDbType.Int16).Value = conf.Capacity;
-                    command.Parameters.Add($"@color_name{i}", MySqlDbType.VarChar, 255).Value = type.Color;
-                    command.Parameters.Add($"@width{i}", MySqlDbType.Enum).Value = type.Width;
+                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Capacity });
+                    parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
+                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
                     i++;
                 }
             }
@@ -139,14 +144,12 @@ RIGHT JOIN (VALUES
     AND new.width=panels.width
 SET panels.storage_count=panels.storage_count-1;";
 
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
         }
 
-        void appendRemainderPanels(PanelCollection<Configuration> confs, MySqlTransaction transaction)
+        void appendRemainderPanels(PanelCollection<Configuration> confs, MySqlConnection connection, MySqlTransaction transaction)
         {
-            MySqlCommand command = new MySqlCommand();
-            
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             int i = 0;
             foreach (KeyValuePair<PanelType, List<Configuration>> item in confs)
@@ -155,9 +158,9 @@ SET panels.storage_count=panels.storage_count-1;";
                 foreach (Configuration conf in item.Value)
                 {
                     valuesRows.Add($"    ROW(@length{i}, @color_name{i}, @width{i})");
-                    command.Parameters.Add($"@length{i}", MySqlDbType.Int16).Value = conf.Waste;
-                    command.Parameters.Add($"@color_name{i}", MySqlDbType.VarChar, 255).Value = type.Color;
-                    command.Parameters.Add($"@width{i}", MySqlDbType.Enum).Value = type.Width;
+                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Waste });
+                    parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
+                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
                     i++;
                 }
             }
@@ -173,14 +176,12 @@ LEFT JOIN colors
     ON new.color_name=colors.name
 ON DUPLICATE KEY UPDATE panels.storage_count=panels.storage_count+1;";
 
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
         }
 
-        void saveConfigurations(PanelCollection<Configuration> confs, long orderID, out long[] orderedNewConfigurationIds, MySqlTransaction transaction)
+        void saveConfigurations(PanelCollection<Configuration> confs, long orderID, out long[] orderedNewConfigurationIds, MySqlConnection connection, MySqlTransaction transaction)
         {
-            MySqlCommand command = new MySqlCommand();
-
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             int i = 0;
             foreach (KeyValuePair<PanelType, List<Configuration>> item in confs)
@@ -189,9 +190,9 @@ ON DUPLICATE KEY UPDATE panels.storage_count=panels.storage_count+1;";
                 foreach (Configuration conf in item.Value)
                 {
                     valuesRows.Add($"    ROW(@original_length{i}, @color_name{i}, @width{i})");
-                    command.Parameters.Add($"@original_length{i}", MySqlDbType.Int16).Value = conf.Capacity;
-                    command.Parameters.Add($"@color_name{i}", MySqlDbType.VarChar, 255).Value = type.Color;
-                    command.Parameters.Add($"@width{i}", MySqlDbType.Enum).Value = type.Width;
+                    parameters.Add(new MySqlParameter($"@original_length{i}", MySqlDbType.Int16) { Value = conf.Capacity });
+                    parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
+                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
                     i++;
                 }
             }
@@ -210,22 +211,19 @@ LEFT JOIN panels
     AND colors.id=panels.color_id
     AND new.width=panels.width;";
 
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            long lastConfId = executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
 
-            int lastConfId = (int)command.LastInsertedId;
             int no_confs = confs.Sum(x => x.Value.Count);
             orderedNewConfigurationIds = new long[no_confs];
-            for (long saved_conf_i = 0; saved_conf_i < no_confs; saved_conf_i++)
+            for (int saved_conf_i = 0; saved_conf_i < no_confs; saved_conf_i++)
             {
                 orderedNewConfigurationIds[saved_conf_i] = lastConfId + saved_conf_i;
             }
         }
 
-        void saveCutElements(PanelCollection<Configuration> confs, long[] orderedNewConfigurationIds, MySqlTransaction transaction)
+        void saveCutElements(PanelCollection<Configuration> confs, long[] orderedNewConfigurationIds, MySqlConnection connection, MySqlTransaction transaction)
         {
-            MySqlCommand command = new MySqlCommand();
-
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             int conf_i = 0, panel_i = 0;
             foreach (KeyValuePair<PanelType, List<Configuration>> item in confs)
@@ -236,8 +234,8 @@ LEFT JOIN panels
                     foreach (Panel panel in conf.Panels)
                     {
                         valuesRows.Add($"    ROW(@serial_number{panel_i}, @configuration_id{panel_i})");
-                        command.Parameters.Add($"@serial_number{panel_i}", MySqlDbType.VarChar, 255).Value = panel.SerialNumber;
-                        command.Parameters.Add($"@configuration_id{panel_i}", MySqlDbType.Int64).Value = orderedNewConfigurationIds[conf_i];
+                        parameters.Add(new MySqlParameter($"@serial_number{panel_i}", MySqlDbType.VarChar, 255) { Value = panel.SerialNumber });
+                        parameters.Add(new MySqlParameter($"@configuration_id{panel_i}", MySqlDbType.Int64) { Value = orderedNewConfigurationIds[conf_i] });
                         panel_i++;
                     }
                     conf_i++;
@@ -254,8 +252,7 @@ FROM (VALUES
 LEFT JOIN kapuk
     ON new.serial_number=kapuk.serial_number";
 
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
         }
 
         public void UndoLastSavedCut()
@@ -266,17 +263,15 @@ LEFT JOIN kapuk
 
             // TODO need checking
             // TODO add try catch
-            unAppendLastOrderRemainderPanels(transaction);
-            unRemoveLastOrderUsedPanels(transaction);
-            unSaveLastOrderAndDetails(transaction);
+            unAppendLastOrderRemainderPanels(connection, transaction);
+            unRemoveLastOrderUsedPanels(connection, transaction);
+            unSaveLastOrderAndDetails(connection, transaction);
             
-            //transaction.Rollback();
-            //Console.WriteLine("rolled back cuz testing");
             transaction.Commit();
             Console.WriteLine("Last saved cut was successfully undone from the database.");
         }
 
-        void unAppendLastOrderRemainderPanels(MySqlTransaction transaction)
+        void unAppendLastOrderRemainderPanels(MySqlConnection connection, MySqlTransaction transaction)
         {
             // TODO ez egy haborus bun amilyen csunya es nem mukodik jol
             string commandText = @"
@@ -304,12 +299,10 @@ RIGHT JOIN (
 SET panels.storage_count=panels.storage_count-remainder_panels.count;
 WHERE remainder_panels.order_date = (SELECT MAX(date) FROM orders LIMIT 1);";
 
-            MySqlCommand command = new MySqlCommand();
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction);
         }
 
-        void unRemoveLastOrderUsedPanels(MySqlTransaction transaction)
+        void unRemoveLastOrderUsedPanels(MySqlConnection connection, MySqlTransaction transaction)
         {
             string commandText = @"
 UPDATE panels
@@ -321,21 +314,17 @@ SET storage_count=storage_count+1
 WHERE orders.date = (SELECT MAX(date) FROM orders LIMIT 1);
 ";
 
-            MySqlCommand command = new MySqlCommand();
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction);
         }
 
-        void unSaveLastOrderAndDetails(MySqlTransaction transaction)
+        void unSaveLastOrderAndDetails(MySqlConnection connection, MySqlTransaction transaction)
         {
             // thanks to ON DELETE CASCADE properties other tables' rows get deleted as well, so this is all that is needed
             string commandText = @"
 DELETE FROM orders
 WHERE date = (SELECT MAX(date) FROM orders LIMIT 1);";
 
-            MySqlCommand command = new MySqlCommand();
-            command.CommandText = commandText;
-            executeNonQueryWithTransaction(command, transaction);
+            executeNonQueryWithTransaction(commandText, connection, transaction);
         }
 
         public List<StoragePanel> LeftOvers(PanelType type)
@@ -357,7 +346,7 @@ WHERE date = (SELECT MAX(date) FROM orders LIMIT 1);";
             MySqlDataAdapter adapter = new MySqlDataAdapter(command);
             DataSet dataSet = new DataSet();
             adapter.Fill(dataSet);
-
+            
             List<StoragePanel> storagePanels = new List<StoragePanel>();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
