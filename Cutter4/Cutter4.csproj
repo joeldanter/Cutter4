@@ -172,10 +172,10 @@
     <Folder Include="UI\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="TODO.txt" />
+    <Resource Include="queries.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="queries.txt" />
+    <Resource Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

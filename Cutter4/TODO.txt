@@ -1,4 +1,0 @@
-﻿miert nem singleton a storage es miert singleton a dbcon
-DBCOnnectionSingleton.isconnect ????????
-colors and widths no check
-what if not enough storage panels to use
