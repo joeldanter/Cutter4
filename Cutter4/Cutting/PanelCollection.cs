@@ -15,7 +15,7 @@ namespace Cutter4.Cutting
         {
             panels = new Dictionary<PanelType, List<T>>();
 
-            foreach (string color in PanelColors.ColorNames)
+            foreach (PanelColors color in Enum.GetValues(typeof(PanelColors)))
             {
                 panels.Add(new PanelType("500mm", color), new List<T>());
                 panels.Add(new PanelType("610mm", color), new List<T>());

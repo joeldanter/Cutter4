@@ -7,30 +7,28 @@ using System.Threading.Tasks;
 
 namespace Cutter4.Cutting
 {
-    static class PanelColors
+    public enum PanelColors
     {
-        public static ReadOnlyCollection<string> ColorNames { get; private set; }
-
-        public static void LoadColorNames(List<string> newColorNames)
-        {
-            ColorNames = new ReadOnlyCollection<string>(newColorNames);
-        }
+        AF500,
+        F100,
+        F201,
+        F301,
+        F401,
+        F9006,
+        G101,
+        G103
     }
     
     public struct PanelType
     {
         public string Width { get; }
-        public string Color { get; }
+        public PanelColors Color { get; }
 
-        public PanelType(string width, string color)
+        public PanelType(string width, PanelColors color)
         {
             if (width != "500mm" && width != "610mm")
             {
                 throw new ArgumentException("Invalid width value was given: " + width);
-            }
-            if (!PanelColors.ColorNames.Contains(color))
-            {
-                throw new ArgumentException("Invalid color value was given: " + color);
             }
 
             Width = width;

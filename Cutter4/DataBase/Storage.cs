@@ -20,7 +20,6 @@ namespace Cutter4.DataBase
             dbCon.DatabaseName = "cutter";
             dbCon.UserName = "main";
             dbCon.Password = "Almacitrom"; // igen tudom nagyon biztonságos
-            loadColors();
         }
 
         void executeNonQueryWithTransaction(MySqlCommand command, MySqlTransaction transaction)
@@ -45,10 +44,10 @@ namespace Cutter4.DataBase
                 saveConfigurations(confs, orderId, out long[] orderedNewConfigurationIds, transaction);
                 saveCutElements(confs, orderedNewConfigurationIds, transaction);
 
-                transaction.Rollback();
-                Console.WriteLine("rolled back cuz testing");
-                //transaction.Commit();
-                //Console.WriteLine("Order successfully saved to database.");
+                //transaction.Rollback();
+                //Console.WriteLine("rolled back cuz testing");
+                transaction.Commit();
+                Console.WriteLine("Order successfully saved to database.");
             }
             catch (MySqlException e)
             {
@@ -256,6 +255,84 @@ LEFT JOIN kapuk
             executeNonQueryWithTransaction(command, transaction);
         }
 
+        public void UndoLastSavedCut()
+        {
+            dbCon.IsConnect();
+            MySqlTransaction transaction = dbCon.Connection.BeginTransaction();
+
+            // need checking
+            unAppendLastOrderRemainderPanels(transaction);
+            unRemoveLastOrderUsedPanels(transaction);
+            unSaveLastOrderAndDetails(transaction);
+            
+            transaction.Rollback();
+            Console.WriteLine("rolled back cuz testing");
+            //transaction.Commit();
+            //Console.WriteLine("Last saved cut was successfully undone from the database.");
+        }
+
+        void unAppendLastOrderRemainderPanels(MySqlTransaction transaction)
+        {
+            // ez egy haborus bun amilyen csunya es nem mukodik jol
+            string commandText = @"
+UPDATE panels
+RIGHT JOIN (
+    SELECT *, COUNT(*) AS count
+    FROM (
+        SELECT orders.date AS order_date, 13200-SUM(kapuk.length) AS length, panels.color_id, panels.width
+        FROM cut_elements
+        LEFT JOIN kapuk
+            ON cut_elements.kapu_id=kapuk.id
+        LEFT JOIN cut_configurations
+            ON cut_elements.configuration_id=cut_configurations.id
+        LEFT JOIN panels
+            ON cut_configurations.used_panel_id=panels.id
+        LEFT JOIN orders
+            ON cut_configurations.order_id=orders.id
+        GROUP BY cut_configurations.id
+    ) AS idk
+    GROUP BY idk.order_date, idk.length, idk.color_id, idk.width
+) AS remainder_panels
+    ON panels.length = remainder_panels.length
+    AND panels.width = remainder_panels.width
+    AND panels.color_id = remainder_panels.color_id
+SET panels.storage_count=panels.storage_count-remainder_panels.count;
+WHERE remainder_panels.order_date = (SELECT MAX(date) FROM orders LIMIT 1);";
+
+            MySqlCommand command = new MySqlCommand();
+            command.CommandText = commandText;
+            executeNonQueryWithTransaction(command, transaction);
+        }
+
+        void unRemoveLastOrderUsedPanels(MySqlTransaction transaction)
+        {
+            string commandText = @"
+UPDATE panels
+RIGHT JOIN cut_configurations
+    ON cut_configurations.used_panel_id=panels.id
+LEFT JOIN orders
+    ON cut_configurations.order_id=orders.id
+SET storage_count=storage_count+1
+WHERE orders.date = (SELECT MAX(date) FROM orders LIMIT 1);
+";
+
+            MySqlCommand command = new MySqlCommand();
+            command.CommandText = commandText;
+            executeNonQueryWithTransaction(command, transaction);
+        }
+
+        void unSaveLastOrderAndDetails(MySqlTransaction transaction)
+        {
+            // thanks to ON DELETE CASCADE properties other tables' rows get deleted as well, so this is all that is needed
+            string commandText = @"
+DELETE FROM orders
+WHERE date = (SELECT MAX(date) FROM orders LIMIT 1);";
+
+            MySqlCommand command = new MySqlCommand();
+            command.CommandText = commandText;
+            executeNonQueryWithTransaction(command, transaction);
+        }
+
         public List<StoragePanel> LeftOvers(PanelType type)
         {
             dbCon.IsConnect();
@@ -286,21 +363,6 @@ LEFT JOIN kapuk
             }
 
             return storagePanels;
-        }
-
-        void loadColors()
-        {
-            dbCon.IsConnect();
-            MySqlDataAdapter adapter = new MySqlDataAdapter("SELECT (name) FROM colors;", dbCon.Connection);
-            DataSet dataSet = new DataSet();
-            adapter.Fill(dataSet);
-            List<string> colorNames = new List<string>();
-
-            foreach (DataRow item in dataSet.Tables[0].Rows)
-            {
-                colorNames.Add(item["name"].ToString());
-            }
-            PanelColors.LoadColorNames(colorNames);
         }
     }
 }

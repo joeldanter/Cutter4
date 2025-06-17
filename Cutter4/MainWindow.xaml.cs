@@ -38,19 +38,19 @@ namespace Cutter4
             storage = new Storage();
             solver = new Solver();
 
-            showStorage();
+            saveCut();
         }
 
         void saveCut()
         {
             List<Kapu> kapuk = new List<Kapu>()
             {
-                new Kapu(2920, 2420, "F100", "Kapu1"),
-                new Kapu(3700, 2950, "F100", "Kapu2"),
-                new Kapu(5060, 2250, "F201", "Kapu3"),
-                new Kapu(2860, 2960, "F100", "Kapu4"),
-                new Kapu(5050, 2150, "F100", "Kapu5"),
-                new Kapu(5070, 2200, "F301", "Kapu6")
+                new Kapu(2920, 2420, PanelColors.F100, "Kapu1"),
+                new Kapu(3700, 2950, PanelColors.F100, "Kapu2"),
+                new Kapu(5060, 2250, PanelColors.F201, "Kapu3"),
+                new Kapu(2860, 2960, PanelColors.F100, "Kapu4"),
+                new Kapu(5050, 2150, PanelColors.F100, "Kapu5"),
+                new Kapu(5070, 2200, PanelColors.F301, "Kapu6")
             };
             PanelCollection<Configuration> confs = solver.Solve(kapuk, storage);
             Console.WriteLine(solver.GenerateOutput(kapuk, confs));
@@ -58,17 +58,17 @@ namespace Cutter4
             storage.SaveNewCut(kapuk, confs);
         }
 
-        void showStorage()  
+        void showStorage()
         {
-            foreach (string colorName in Cutting.PanelColors.ColorNames)
+            foreach (PanelColors color in Enum.GetValues(typeof(PanelColors)))
             {
                 foreach (string width in new string[] { "500mm", "610mm" })
                 {
-                    PanelType type = new PanelType(width, colorName);
+                    PanelType type = new PanelType(width, color);
                     List<StoragePanel> storagePanels = storage.LeftOvers(type);
                     foreach(StoragePanel storagePanel in storagePanels)
                     {
-                        Console.WriteLine($"{colorName} {width} - { storagePanel.Count}x {storagePanel.Length}mm");
+                        Console.WriteLine($"{color} {width} - {storagePanel.Count}x {storagePanel.Length}mm");
                     }
                     Console.WriteLine();
                 }

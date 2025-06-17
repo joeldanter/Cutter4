@@ -33,7 +33,7 @@ namespace Cutter4.Cutting
                 if (0 < value && value < 5211) height = value;
             }
         }
-        public string Color { get; set; }
+        public PanelColors Color { get; set; }
         public string SerialNumber { get; set; }
 
         static readonly int[,] KapuHeights =
@@ -80,11 +80,11 @@ namespace Cutter4.Cutting
         {
             length = 1;
             height = 1;
-            Color = PanelColors.ColorNames[0];
+            Color = PanelColors.F100;
             SerialNumber = "x";
         }
 
-        public Kapu(int length, int height, string color, string serialNumber)
+        public Kapu(int length, int height, PanelColors color, string serialNumber)
         {
             Length = length;
             Height = height;
