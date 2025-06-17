@@ -12,28 +12,31 @@ namespace Cutter4.DataBase
 {
     class Storage
     {
-        DBConnectionSingleton dbCon;
-        public Storage()
-        {
-            dbCon = DBConnectionSingleton.Instance();
-            dbCon.Server = "127.0.0.1";
-            dbCon.DatabaseName = "cutter";
-            dbCon.UserName = "main";
-            dbCon.Password = "Almacitrom"; // igen tudom nagyon biztonságos
-        }
+        public string Server { get; set; }
+        public string DatabaseName { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
+
+        string connString { get { return $"Server={Server}; database={DatabaseName}; UID={UserName}; password={Password}"; } }
+
+        public Storage() {  }
 
         void executeNonQueryWithTransaction(MySqlCommand command, MySqlTransaction transaction)
         {
-            command.Connection = dbCon.Connection;
-            command.Transaction = transaction;
             Console.WriteLine(command.CommandText + "\n");
+
+            MySqlConnection connection = new MySqlConnection(connString);
+            connection.Open();
+            command.Connection = connection;
+            command.Transaction = transaction;
             command.ExecuteNonQuery();
         }
         
         public void SaveNewCut(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
         {
-            dbCon.IsConnect();
-            MySqlTransaction transaction = dbCon.Connection.BeginTransaction();
+            MySqlConnection connection = new MySqlConnection(connString);
+            connection.Open();
+            MySqlTransaction transaction = connection.BeginTransaction();
             
             try
             {
@@ -257,23 +260,25 @@ LEFT JOIN kapuk
 
         public void UndoLastSavedCut()
         {
-            dbCon.IsConnect();
-            MySqlTransaction transaction = dbCon.Connection.BeginTransaction();
+            MySqlConnection connection = new MySqlConnection(connString);
+            connection.Open();
+            MySqlTransaction transaction = connection.BeginTransaction();
 
-            // need checking
+            // TODO need checking
+            // TODO add try catch
             unAppendLastOrderRemainderPanels(transaction);
             unRemoveLastOrderUsedPanels(transaction);
             unSaveLastOrderAndDetails(transaction);
             
-            transaction.Rollback();
-            Console.WriteLine("rolled back cuz testing");
-            //transaction.Commit();
-            //Console.WriteLine("Last saved cut was successfully undone from the database.");
+            //transaction.Rollback();
+            //Console.WriteLine("rolled back cuz testing");
+            transaction.Commit();
+            Console.WriteLine("Last saved cut was successfully undone from the database.");
         }
 
         void unAppendLastOrderRemainderPanels(MySqlTransaction transaction)
         {
-            // ez egy haborus bun amilyen csunya es nem mukodik jol
+            // TODO ez egy haborus bun amilyen csunya es nem mukodik jol
             string commandText = @"
 UPDATE panels
 RIGHT JOIN (
@@ -335,7 +340,6 @@ WHERE date = (SELECT MAX(date) FROM orders LIMIT 1);";
 
         public List<StoragePanel> LeftOvers(PanelType type)
         {
-            dbCon.IsConnect();
             MySqlCommand command = new MySqlCommand();
             string query = @"
                 SELECT panels.length, panels.storage_count
@@ -348,7 +352,7 @@ WHERE date = (SELECT MAX(date) FROM orders LIMIT 1);";
             command.CommandText = query;
             command.Parameters.Add("@color", MySqlDbType.VarChar, 255).Value = type.Color;
             command.Parameters.Add("@width", MySqlDbType.Enum).Value = type.Width;
-            command.Connection = dbCon.Connection;
+            command.Connection = new MySqlConnection(connString);
             
             MySqlDataAdapter adapter = new MySqlDataAdapter(command);
             DataSet dataSet = new DataSet();

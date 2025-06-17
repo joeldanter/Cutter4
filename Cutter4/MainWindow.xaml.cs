@@ -36,6 +36,11 @@ namespace Cutter4
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             storage = new Storage();
+            storage.Server = "127.0.0.1";
+            storage.DatabaseName = "cutter";
+            storage.UserName = "main";
+            storage.Password = "Almacitrom"; // igen tudom nagyon biztonságos
+
             solver = new Solver();
 
             saveCut();
