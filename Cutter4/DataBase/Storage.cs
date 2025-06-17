@@ -59,7 +59,6 @@ namespace Cutter4.DataBase
                 saveCutElements(confs, orderedNewConfigurationIds, connection, transaction);
 
                 transaction.Commit();
-                Console.WriteLine("Order successfully saved to database.");
             }
             catch (MySqlException e)
             {
@@ -262,13 +261,31 @@ LEFT JOIN kapuk
             MySqlTransaction transaction = connection.BeginTransaction();
 
             // TODO need checking
-            // TODO add try catch
-            unAppendLastOrderRemainderPanels(connection, transaction);
-            unRemoveLastOrderUsedPanels(connection, transaction);
-            unSaveLastOrderAndDetails(connection, transaction);
-            
-            transaction.Commit();
-            Console.WriteLine("Last saved cut was successfully undone from the database.");
+            try
+            {
+                unAppendLastOrderRemainderPanels(connection, transaction);
+                unRemoveLastOrderUsedPanels(connection, transaction);
+                unSaveLastOrderAndDetails(connection, transaction);
+                
+                transaction.Commit();
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine($"An exception of type {e.GetType()} was encountered while undoing the last cut:");
+                Console.WriteLine(e.Message);
+                try
+                {
+                    transaction.Rollback();
+                    Console.WriteLine("Transaction successfully rolled back.");
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"An exception of type {ex.GetType()} was encountered while attempting to roll back the transaction:");
+                    Console.WriteLine(ex.Message);
+                    throw ex;
+                }
+                throw e;
+            }
         }
 
         void unAppendLastOrderRemainderPanels(MySqlConnection connection, MySqlTransaction transaction)
