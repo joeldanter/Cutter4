@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.34729.46
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cutter4", "Cutter4\Cutter4.csproj", "{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cutter4.Tests", "Cutter4.Tests\Cutter4.Tests.csproj", "{4F0AF581-C81E-48F8-87D9-AF272AAEA993}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F0AF581-C81E-48F8-87D9-AF272AAEA993}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F0AF581-C81E-48F8-87D9-AF272AAEA993}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F0AF581-C81E-48F8-87D9-AF272AAEA993}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F0AF581-C81E-48F8-87D9-AF272AAEA993}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
