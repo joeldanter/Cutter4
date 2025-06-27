@@ -78,10 +78,10 @@ namespace Cutter4.Cutting
 
         public Kapu()
         {
-            length = 1;
-            height = 1;
+            length = 1000;
+            height = 1000;
             Color = PanelColors.F100;
-            SerialNumber = "x";
+            SerialNumber = "-";
         }
 
         public Kapu(int length, int height, PanelColors color, string serialNumber)
