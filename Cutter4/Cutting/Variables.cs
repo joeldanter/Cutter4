@@ -43,6 +43,8 @@ namespace Cutter4.Cutting
 
         public Panel(int length, string serialNumber)
         {
+            if (length < 1)
+                throw new ArgumentException("The length of a panel can not be smaller than 1");
             Length = length;
             SerialNumber = serialNumber;
         }
