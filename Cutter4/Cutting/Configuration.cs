@@ -33,6 +33,9 @@ namespace Cutter4.Cutting
 
         public Configuration(List<Panel> panels, int capacity)
         {
+            if (capacity < panels.Sum(p => p.Length))
+                throw new ArgumentException("The sum of a configuration's elements' lengths can not be greater than its capacity");
+            
             Panels = new ReadOnlyCollection<Panel>(panels);
             Capacity = capacity;
         }
