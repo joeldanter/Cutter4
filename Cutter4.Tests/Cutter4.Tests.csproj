@@ -49,6 +49,7 @@
     <PackageReference Include="coverlet.collector" Version="1.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationTests.cs" />
     <Compile Include="KapuTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
