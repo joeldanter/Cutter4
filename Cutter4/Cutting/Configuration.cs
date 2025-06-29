@@ -31,7 +31,7 @@ namespace Cutter4.Cutting
             }
         }
 
-        public Configuration(List<Panel> panels, int capacity)
+        public Configuration(IList<Panel> panels, int capacity)
         {
             if (capacity < 1)
                 throw new ArgumentOutOfRangeException("The capacity of a configuration can not be smaller than 1");
