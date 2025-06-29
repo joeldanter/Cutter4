@@ -26,11 +26,6 @@ namespace Cutter4.Cutting
         {
             get
             {
-                if (!panels.ContainsKey(index))
-                {
-                    panels.Add(index, new List<T>());
-                }
-                
                 return panels[index];
             }
         }
