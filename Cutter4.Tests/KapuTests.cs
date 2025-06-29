@@ -40,5 +40,15 @@ namespace Cutter4.Tests
                 Assert.Empty(panels[entry.Key]);
             }
         }
+
+        [Fact]
+        public void ProcessPanels_GivenNullList_ThrowsException()
+        {
+            List<Kapu> kapuk = null;
+
+            Action action = () => Kapu.ProcessPanels(kapuk);
+
+            Assert.Throws<ArgumentNullException>(action);
+        }
     }
 }

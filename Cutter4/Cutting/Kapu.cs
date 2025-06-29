@@ -112,7 +112,7 @@ namespace Cutter4.Cutting
         public static PanelCollection<Panel> ProcessPanels(IList<Kapu> kapuk)
         {
             if (kapuk is null)
-                return new PanelCollection<Panel>();
+                throw new ArgumentNullException(nameof(kapuk) + " can not be null");
 
             // kulonbozo listakban tartalmazza a kulonbozo fajta (szin, 500mm vagy 610mm) panelokat
             // a listaban a kivagando panelok hossza es gyartasi szama van
