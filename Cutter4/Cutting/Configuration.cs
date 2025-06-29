@@ -9,7 +9,7 @@ namespace Cutter4.Cutting
     public class Configuration
     {
         public List<Panel> Panels { get; }
-        public int Capacity;
+        public int Capacity { get; }
         public int Used
         {
             get
