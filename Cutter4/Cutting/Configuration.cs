@@ -33,6 +33,8 @@ namespace Cutter4.Cutting
 
         public Configuration(IList<Panel> panels, int capacity)
         {
+            if (panels is null)
+                throw new ArgumentNullException(nameof(panels) + " can not be null");
             if (capacity < 1)
                 throw new ArgumentException("The capacity of a configuration can not be smaller than 1");
             if (capacity < panels.Sum(p => p.Length))
@@ -47,7 +49,7 @@ namespace Cutter4.Cutting
         public static Configuration BestConfiguration(IList<Panel> values, int capacity)
         {
             if (values == null)
-                throw new ArgumentException("Invalid input");
+                throw new ArgumentNullException(nameof(values) + " can not be null");
 
             if (!values.Any(x => x.Length <= capacity))
                 return new Configuration(new List<Panel>(), capacity);
