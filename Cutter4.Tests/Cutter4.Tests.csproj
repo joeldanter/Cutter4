@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="ConfigurationTests.cs" />
     <Compile Include="KapuTests.cs" />
+    <Compile Include="PanelCollectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
