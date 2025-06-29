@@ -38,7 +38,7 @@ namespace Cutter4.Cutting
 
         // igazabol csak lemasoltam egy csavo programjat es atirtam: https://www.youtube.com/watch?v=cJ21moQpofY
         // kiadja a legjobb konfiguraciot a megadott panelokkal
-        public static Configuration BestConfiguration(List<Panel> values, int capacity)
+        public static Configuration BestConfiguration(IList<Panel> values, int capacity)
         {
             if (values == null)
                 throw new ArgumentException("Invalid input");
