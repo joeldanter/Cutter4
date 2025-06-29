@@ -75,7 +75,7 @@ namespace Cutter4.Cutting
             { 5100, 4, 5 },
             { 5210, 3, 6 }
         };
-
+        
         public Kapu()
         {
             length = 1000;
