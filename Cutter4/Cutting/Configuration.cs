@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace Cutter4.Cutting
 {
     public class Configuration
     {
-        public List<Panel> Panels { get; }
+        public ReadOnlyCollection<Panel> Panels { get; }
         public int Capacity { get; }
         public int Used
         {
@@ -32,7 +33,7 @@ namespace Cutter4.Cutting
 
         public Configuration(List<Panel> panels, int capacity)
         {
-            Panels = panels;
+            Panels = new ReadOnlyCollection<Panel>(panels);
             Capacity = capacity;
         }
 
