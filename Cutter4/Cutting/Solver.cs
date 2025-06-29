@@ -15,7 +15,7 @@ namespace Cutter4.Cutting
             
         }
 
-        public PanelCollection<Configuration> Solve(IList<Kapu> kapuk, Storage storage)
+        public PanelCollection<Configuration> Solve(IList<Kapu> kapuk, IStorage storage)
         {
             PanelCollection<Panel> panels = Kapu.ProcessPanels(kapuk);
             PanelCollection<Configuration> configurations = new PanelCollection<Configuration>();
