@@ -42,7 +42,7 @@ namespace Cutter4.Tests
         }
 
         [Fact]
-        public void ProcessPanels_GivenNullList_ThrowsException()
+        public void ProcessPanels_GivenNullList_ThrowsArgumentNullException()
         {
             List<Kapu> kapuk = null;
 
