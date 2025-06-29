@@ -34,7 +34,7 @@ namespace Cutter4.Cutting
         public Configuration(IList<Panel> panels, int capacity)
         {
             if (capacity < 1)
-                throw new ArgumentOutOfRangeException("The capacity of a configuration can not be smaller than 1");
+                throw new ArgumentException("The capacity of a configuration can not be smaller than 1");
             if (capacity < panels.Sum(p => p.Length))
                 throw new ArgumentException("The sum of a configuration's elements' lengths can not be greater than its capacity");
             
