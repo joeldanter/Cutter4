@@ -17,55 +17,68 @@ namespace Cutter4.Cutting
 
         public PanelCollection<Configuration> Solve(IList<Kapu> kapuk, IStorage storage)
         {
-            PanelCollection<Panel> panels = Kapu.ProcessPanels(kapuk);
-            PanelCollection<Configuration> configurations = new PanelCollection<Configuration>();
+            PanelCollection<Panel> panelCollectionToCut = Kapu.ProcessPanels(kapuk);
+            PanelCollection<Configuration> resultConfigurations = new PanelCollection<Configuration>();
 
-            foreach (KeyValuePair<PanelType, List<Panel>> entry in panels)
+            foreach (KeyValuePair<PanelType, List<Panel>> entry in panelCollectionToCut)
             {
                 PanelType type = entry.Key;
                 List<Panel> panelsToCut = entry.Value;
-                Dictionary<int, int> usedPanelCounts = new Dictionary<int, int>();
+                List<StoragePanel> storagePanels = storage.LeftOvers(type);
 
                 while (0 < panelsToCut.Count)
                 {
-                    Configuration bestConfiguration = new Configuration(new List<Panel> { }, 99999);
+                    // greedy ahhh
+                    Configuration newConfiguration = ConfigurationWithLeastWasteUsingStoragePanels(panelsToCut, storagePanels, type);
 
-                    foreach (StoragePanel storagePanel in storage.LeftOvers(type))
-                    {
-                        int length = storagePanel.Length;
-                        int count = storagePanel.Count - (usedPanelCounts.ContainsKey(length) ? usedPanelCounts[length] : 0);
+                    // save the new configuration
+                    resultConfigurations[type].Add(newConfiguration);
 
-                        if (count > 0)
-                        {
-                            Configuration newConfiguration = Configuration.BestConfiguration(panelsToCut, length);
-                            if (0 < newConfiguration.Panels.Count && newConfiguration.Waste <= bestConfiguration.Waste)
-                                bestConfiguration = newConfiguration;
-                        }
-                    }
-
-                    if (bestConfiguration.Capacity == 99999)
-                    {
-                        throw new InvalidOperationException("Not enough panels to cut from");
-                    }
-
-                    // mentjuk a konfiguraciot
-                    configurations[type].Add(bestConfiguration);
-
-                    // elvesszuk az elhasznalt panelt
-                    foreach (Panel toRemove in bestConfiguration.Panels)
+                    // remove cut panels from panelsToCut
+                    foreach (Panel toRemove in newConfiguration.Panels)
                     {
                         panelsToCut.Remove(toRemove);
                     }
 
-                    // elmentjuk hogy felhasznaltunk egy panelt
-                    if (!usedPanelCounts.ContainsKey(bestConfiguration.Capacity))
-                        usedPanelCounts.Add(bestConfiguration.Capacity, 0);
-                    
-                    usedPanelCounts[bestConfiguration.Capacity]++;
+                    // remove the panel from storagePanels which was used to cut the new configuration from
+                    for (int i = 0; i < storagePanels.Count; i++)
+                    {
+                        if (storagePanels[i].Length == newConfiguration.Capacity)
+                        {
+                            StoragePanel usedStoragePanel = storagePanels[i];
+                            usedStoragePanel.Count -= 1;
+                            storagePanels[i] = usedStoragePanel;
+                            break;
+                        }
+                    }
                 }
             }
 
-            return configurations;
+            return resultConfigurations;
+        }
+
+        Configuration ConfigurationWithLeastWasteUsingStoragePanels(List<Panel> panelsToCut, List<StoragePanel> storagePanels, PanelType type)
+        {
+            Configuration bestConfiguration = null;
+            int leastWaste = int.MaxValue;
+
+            foreach (StoragePanel storagePanel in storagePanels)
+            {
+                if (storagePanel.Count > 0)
+                {
+                    Configuration newConfiguration = Configuration.BestConfiguration(panelsToCut, storagePanel.Length);
+
+                    if (0 < newConfiguration.Panels.Count && newConfiguration.Waste < leastWaste)
+                        bestConfiguration = newConfiguration;
+                }
+            }
+
+            if (bestConfiguration is null)
+            {
+                throw new InvalidOperationException($"Cannot cut {panelsToCut.Count} remaining panels of type: {type.Color}, {type.Width} — no available storage panels to cut from");
+            }
+
+            return bestConfiguration;
         }
 
         public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations)
