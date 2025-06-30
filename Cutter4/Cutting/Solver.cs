@@ -15,9 +15,8 @@ namespace Cutter4.Cutting
             
         }
 
-        public PanelCollection<Configuration> Solve(IList<Kapu> kapuk, IStorage storage)
+        public PanelCollection<Configuration> Solve(PanelCollection<Panel> panelCollectionToCut, IStorage storage)
         {
-            PanelCollection<Panel> panelCollectionToCut = Kapu.ProcessPanels(kapuk);
             PanelCollection<Configuration> resultConfigurations = new PanelCollection<Configuration>();
 
             foreach (KeyValuePair<PanelType, List<Panel>> entry in panelCollectionToCut)

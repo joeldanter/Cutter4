@@ -57,7 +57,10 @@ namespace Cutter4
                 new Kapu(5050, 2150, PanelColors.F100, "Kapu5"),
                 new Kapu(5070, 2200, PanelColors.F301, "Kapu6")
             };
-            PanelCollection<Configuration> confs = solver.Solve(kapuk, storage);
+
+            PanelCollection<Cutting.Panel> panelCollectionToCut = Kapu.ProcessPanels(kapuk);
+            PanelCollection<Configuration> confs = solver.Solve(panelCollectionToCut, storage);
+            
             Console.WriteLine(solver.GenerateOutput(kapuk, confs));
             Console.WriteLine();
             storage.SaveNewCut(kapuk, confs);
