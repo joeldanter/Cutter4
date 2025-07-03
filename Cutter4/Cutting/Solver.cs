@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Cutter4.Cutting
 {
-    class Solver
+    public class Solver
     {
         public Solver()
         {

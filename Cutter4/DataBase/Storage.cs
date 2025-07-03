@@ -10,12 +10,12 @@ using MySql.Data.MySqlClient;
 
 namespace Cutter4.DataBase
 {
-    interface IStorage
+    public interface IStorage
     {
         List<StoragePanel> LeftOvers(PanelType type);
     }
 
-    class Storage : IStorage
+    public class Storage : IStorage
     {
         public string Server { get; set; }
         public string DatabaseName { get; set; }
