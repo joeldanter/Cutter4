@@ -28,6 +28,10 @@ namespace Cutter4.Cutting
             {
                 return panels[index];
             }
+            set
+            {
+                panels[index] = value;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
