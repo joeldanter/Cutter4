@@ -14,7 +14,7 @@ namespace Cutter4.Tests
         [Fact]
         public void PanelCollection_Initialized_CreatesAllEntries()
         {
-            PanelCollection<Panel> collection = new PanelCollection<Panel>();
+            PanelCollection<KapuPanel> collection = new PanelCollection<KapuPanel>();
 
             int i = 0;
             foreach (var item in collection)
@@ -28,10 +28,10 @@ namespace Cutter4.Tests
         [Fact]
         public void Add_Element_AddsElement()
         {
-            PanelCollection<Panel> collection = new PanelCollection<Panel>();
+            PanelCollection<KapuPanel> collection = new PanelCollection<KapuPanel>();
             PanelType type = new PanelType("500mm", PanelColors.F201);
-            Panel panel = new Panel(1000, "-");
-            List<Panel> expected = new List<Panel>() { panel };
+            KapuPanel panel = new KapuPanel(1000, "-");
+            List<KapuPanel> expected = new List<KapuPanel>() { panel };
 
             collection[type].Add(panel);
 

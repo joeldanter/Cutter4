@@ -109,14 +109,14 @@ namespace Cutter4.Cutting
             throw new ArgumentException();
         }
 
-        public static PanelCollection<Panel> ProcessPanels(IList<Kapu> kapuk)
+        public static PanelCollection<KapuPanel> ProcessPanels(IList<Kapu> kapuk)
         {
             if (kapuk is null)
                 throw new ArgumentNullException(nameof(kapuk) + " can not be null");
 
             // kulonbozo listakban tartalmazza a kulonbozo fajta (szin, 500mm vagy 610mm) panelokat
             // a listaban a kivagando panelok hossza es gyartasi szama van
-            PanelCollection<Panel> panels = new PanelCollection<Panel>();
+            PanelCollection<KapuPanel> panels = new PanelCollection<KapuPanel>();
             foreach (Kapu kapu in kapuk)
             {
                 kapu.GetPanelWidths(out int mm500, out int mm610);
@@ -127,7 +127,7 @@ namespace Cutter4.Cutting
 
                     for (int i = 0; i < mm500; i++)
                     {
-                        panels[type].Add(new Panel(kapu.Length, kapu.SerialNumber));
+                        panels[type].Add(new KapuPanel(kapu.Length, kapu.SerialNumber));
                     }
                 }
 
@@ -137,7 +137,7 @@ namespace Cutter4.Cutting
 
                     for (int i = 0; i < mm610; i++)
                     {
-                        panels[type].Add(new Panel(kapu.Length, kapu.SerialNumber));
+                        panels[type].Add(new KapuPanel(kapu.Length, kapu.SerialNumber));
                     }
                 }
             }

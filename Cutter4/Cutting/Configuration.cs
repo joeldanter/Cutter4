@@ -9,14 +9,14 @@ namespace Cutter4.Cutting
 {
     public class Configuration
     {
-        public ReadOnlyCollection<Panel> Panels { get; }
+        public ReadOnlyCollection<KapuPanel> Panels { get; }
         public int Capacity { get; }
         public int Used
         {
             get
             {
                 int used = 0;
-                foreach (Panel panel in Panels)
+                foreach (KapuPanel panel in Panels)
                 {
                     used += panel.Length;
                 }
@@ -31,7 +31,7 @@ namespace Cutter4.Cutting
             }
         }
 
-        public Configuration(IList<Panel> panels, int capacity)
+        public Configuration(IList<KapuPanel> panels, int capacity)
         {
             if (panels is null)
                 throw new ArgumentNullException(nameof(panels) + " can not be null");
@@ -40,19 +40,19 @@ namespace Cutter4.Cutting
             if (capacity < panels.Sum(p => p.Length))
                 throw new ArgumentException("The sum of a configuration's elements' lengths can not be greater than its capacity");
             
-            Panels = new ReadOnlyCollection<Panel>(panels);
+            Panels = new ReadOnlyCollection<KapuPanel>(panels);
             Capacity = capacity;
         }
 
         // igazabol csak lemasoltam egy csavo programjat es atirtam: https://www.youtube.com/watch?v=cJ21moQpofY
         // kiadja a legjobb konfiguraciot a megadott panelokkal
-        public static Configuration BestConfiguration(IList<Panel> values, int capacity)
+        public static Configuration BestConfiguration(IList<KapuPanel> values, int capacity)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values) + " can not be null");
 
             if (!values.Any(x => x.Length <= capacity))
-                return new Configuration(new List<Panel>(), capacity);
+                return new Configuration(new List<KapuPanel>(), capacity);
 
             int N = values.Count;
 
@@ -79,7 +79,7 @@ namespace Cutter4.Cutting
             }
 
             sz = capacity;
-            List<Panel> itemsSelected = new List<Panel>();
+            List<KapuPanel> itemsSelected = new List<KapuPanel>();
 
             // Using the information inside the table we can backtrack and determine
             // which items were selected during the dynamic programming phase. The idea

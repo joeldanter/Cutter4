@@ -14,7 +14,7 @@ namespace Cutter4.Tests
         [Fact]
         public void Configuration_GivenNullPanelsList_ThrowsArgumentNullException()
         {
-            List<Panel> panels = null;
+            List<KapuPanel> panels = null;
 
             Action action = () => new Configuration(panels, 13200);
 
@@ -27,10 +27,10 @@ namespace Cutter4.Tests
         [InlineData(0, 1)]
         public void Configuration_GivenNegativeOrZeroCapacity_ThrowsArgumentException(int capacity, params int[] lengths)
         {
-            List<Panel> panels = new List<Panel>();
+            List<KapuPanel> panels = new List<KapuPanel>();
             foreach (int length in lengths)
             {
-                Panel panel = new Panel(length, "-");
+                KapuPanel panel = new KapuPanel(length, "-");
                 panels.Add(panel);
             }
 
@@ -45,10 +45,10 @@ namespace Cutter4.Tests
         [InlineData(100, 10, 80, 10, 2)]
         public void Configuration_GivenSmallerCapacityThenUsedLength_ThrowsArgumentException(int capacity, params int[] lengths)
         {
-            List<Panel> panels = new List<Panel>();
+            List<KapuPanel> panels = new List<KapuPanel>();
             foreach (int length in lengths)
             {
-                Panel panel = new Panel(length, "-");
+                KapuPanel panel = new KapuPanel(length, "-");
                 panels.Add(panel);
             }
 
@@ -65,10 +65,10 @@ namespace Cutter4.Tests
         [InlineData(4, 1, 1, 1, 1)]
         public void Used_SetPanels_ReturnsUsedLength(int expectedUsedLength, params int[] lengths)
         {
-            List<Panel> panels = new List<Panel>();
+            List<KapuPanel> panels = new List<KapuPanel>();
             foreach (int length in lengths)
             {
-                Panel panel = new Panel(length, "-");
+                KapuPanel panel = new KapuPanel(length, "-");
                 panels.Add(panel);
             }
             Configuration configuration = new Configuration(panels, 13200);
@@ -81,7 +81,7 @@ namespace Cutter4.Tests
         [Fact]
         public void BestConfiguration_GivenNullList_ThrowsArgumentNullException()
         {
-            List<Panel> values = null;
+            List<KapuPanel> values = null;
 
             Action action = () => Configuration.BestConfiguration(values, 13200);
 

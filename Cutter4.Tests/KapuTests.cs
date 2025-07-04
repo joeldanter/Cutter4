@@ -33,9 +33,9 @@ namespace Cutter4.Tests
         {
             List<Kapu> kapuk = new List<Kapu>();
 
-            PanelCollection<Panel> panels = Kapu.ProcessPanels(kapuk);
+            PanelCollection<KapuPanel> panels = Kapu.ProcessPanels(kapuk);
 
-            foreach (KeyValuePair<PanelType, List<Panel>> entry in panels)
+            foreach (KeyValuePair<PanelType, List<KapuPanel>> entry in panels)
             {
                 Assert.Empty(panels[entry.Key]);
             }

@@ -235,7 +235,7 @@ LEFT JOIN panels
                 PanelType type = item.Key;
                 foreach (Configuration conf in item.Value)
                 {
-                    foreach (Panel panel in conf.Panels)
+                    foreach (KapuPanel panel in conf.Panels)
                     {
                         valuesRows.Add($"    ROW(@serial_number{panel_i}, @configuration_id{panel_i})");
                         parameters.Add(new MySqlParameter($"@serial_number{panel_i}", MySqlDbType.VarChar, 255) { Value = panel.SerialNumber });

@@ -36,12 +36,12 @@ namespace Cutter4.Cutting
         }
     }
 
-    public struct Panel
+    public struct KapuPanel
     {
         public int Length { get; }
         public string SerialNumber { get; }
 
-        public Panel(int length, string serialNumber)
+        public KapuPanel(int length, string serialNumber)
         {
             if (length < 1)
                 throw new ArgumentException("The length of a panel can not be smaller than 1");

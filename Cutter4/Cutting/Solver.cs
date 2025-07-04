@@ -15,14 +15,14 @@ namespace Cutter4.Cutting
             
         }
 
-        public PanelCollection<Configuration> Solve(PanelCollection<Panel> panelCollectionToCut, IStorage storage)
+        public PanelCollection<Configuration> Solve(PanelCollection<KapuPanel> panelCollectionToCut, IStorage storage)
         {
             PanelCollection<Configuration> resultConfigurations = new PanelCollection<Configuration>();
 
-            foreach (KeyValuePair<PanelType, List<Panel>> entry in panelCollectionToCut)
+            foreach (KeyValuePair<PanelType, List<KapuPanel>> entry in panelCollectionToCut)
             {
                 PanelType type = entry.Key;
-                List<Panel> panelsToCut = entry.Value;
+                List<KapuPanel> panelsToCut = entry.Value;
                 List<StoragePanel> storagePanels = storage.LeftOvers(type);
 
                 while (0 < panelsToCut.Count)
@@ -34,7 +34,7 @@ namespace Cutter4.Cutting
                     resultConfigurations[type].Add(newConfiguration);
 
                     // remove cut panels from panelsToCut
-                    foreach (Panel toRemove in newConfiguration.Panels)
+                    foreach (KapuPanel toRemove in newConfiguration.Panels)
                     {
                         panelsToCut.Remove(toRemove);
                     }
@@ -56,7 +56,7 @@ namespace Cutter4.Cutting
             return resultConfigurations;
         }
 
-        Configuration ConfigurationWithLeastWasteUsingStoragePanels(List<Panel> panelsToCut, List<StoragePanel> storagePanels, PanelType type)
+        Configuration ConfigurationWithLeastWasteUsingStoragePanels(List<KapuPanel> panelsToCut, List<StoragePanel> storagePanels, PanelType type)
         {
             Configuration bestConfiguration = null;
             int leastWaste = int.MaxValue;
