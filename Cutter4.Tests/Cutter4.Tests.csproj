@@ -41,6 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Moq">
+      <Version>4.20.72</Version>
+    </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.core">
       <Version>2.9.3</Version>
@@ -53,6 +56,7 @@
     <Compile Include="KapuTests.cs" />
     <Compile Include="PanelCollectionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SolverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cutter4\Cutter4.csproj">

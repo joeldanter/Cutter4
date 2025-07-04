@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 /Cutter4/queries.txt
 /Cutter4/TODo.txt
+/Cutter4.Tests/KapuTestData.csv
