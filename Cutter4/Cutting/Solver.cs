@@ -22,7 +22,7 @@ namespace Cutter4.Cutting
             foreach (KeyValuePair<PanelType, List<KapuPanel>> entry in panelCollectionToCut)
             {
                 PanelType type = entry.Key;
-                List<KapuPanel> panelsToCut = entry.Value;
+                List<KapuPanel> panelsToCut = new List<KapuPanel>(entry.Value);
                 List<StoragePanel> storagePanels = storage.LeftOvers(type);
 
                 while (0 < panelsToCut.Count)
