@@ -127,7 +127,7 @@ LEFT JOIN colors
                 PanelType type = item.Key;
                 foreach (Configuration conf in item.Value)
                 {
-                    valuesRows.Add($"    ROW(@length{i}, @color_name{i}, @width{i})");
+                    valuesRows.Add($"        ROW(@length{i}, @color_name{i}, @width{i})");
                     parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Capacity });
                     parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
                     parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
@@ -138,15 +138,18 @@ LEFT JOIN colors
 
             string commandText =
 $@"UPDATE panels
-LEFT JOIN colors
-    ON panels.color_id=colors.id
-RIGHT JOIN (VALUES
+JOIN colors ON panels.color_id = colors.id
+JOIN (
+    SELECT length, color_name, width, COUNT(*) as reduce_by
+    FROM (VALUES
 {valuesString}
-) AS new(length, color_name, width)
-    ON new.length=panels.length
-    AND new.color_name=colors.name
-    AND new.width=panels.width
-SET panels.storage_count=panels.storage_count-1;";
+    ) AS new(length, color_name, width)
+    GROUP BY length, color_name, width
+) AS updates
+    ON panels.length = updates.length
+    AND colors.name = updates.color_name
+    AND panels.width = updates.width
+SET panels.storage_count = panels.storage_count - updates.reduce_by;";
 
             executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
         }
