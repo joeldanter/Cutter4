@@ -59,27 +59,27 @@ namespace Cutter4
             };
 
             PanelCollection<Cutting.KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(kapuk);
-            PanelCollection<Configuration> confs = solver.Solve(panelCollectionToCut, storage);
+            PanelCollection<Configuration> confs = solver.Solve(panelCollectionToCut, storage.StoragePanels());
             
             Console.WriteLine(solver.GenerateOutput(kapuk, confs));
             Console.WriteLine();
-            storage.SaveNewCut(kapuk, confs);
+            //storage.SaveNewCut(kapuk, confs);
+
+            showStorage();
         }
 
         void showStorage()
         {
-            foreach (PanelColors color in Enum.GetValues(typeof(PanelColors)))
+            PanelCollection<StoragePanel> storagePanels = storage.StoragePanels();
+            foreach (KeyValuePair<PanelType, List<StoragePanel>> entry in storagePanels)
             {
-                foreach (string width in new string[] { "500mm", "610mm" })
+                PanelType type = entry.Key;
+                List<StoragePanel> storagePanelsOfType = entry.Value;
+                foreach (StoragePanel storagePanel in storagePanelsOfType)
                 {
-                    PanelType type = new PanelType(width, color);
-                    List<StoragePanel> storagePanels = storage.LeftOvers(type);
-                    foreach(StoragePanel storagePanel in storagePanels)
-                    {
-                        Console.WriteLine($"{color} {width} - {storagePanel.Count}x {storagePanel.Length}mm");
-                    }
-                    Console.WriteLine();
+                    Console.WriteLine($"{type.Color} {type.Width} - {storagePanel.Count}x {storagePanel.Length}mm");
                 }
+                Console.WriteLine();
             }
         }
     }

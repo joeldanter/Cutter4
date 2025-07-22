@@ -69,10 +69,8 @@ namespace Cutter4.Tests
         public void Solve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
         {
             Solver solver = new Solver();
-            Mock<IStorage> stubStorage = new Mock<IStorage>();
-            stubStorage.Setup(x => x.LeftOvers(It.IsAny<PanelType>())).Returns((PanelType type) => storagePanels()[type]);
-
-            PanelCollection<Configuration> resultConfigurationsCollection = solver.Solve(panelCollectionToCut, stubStorage.Object);
+            
+            PanelCollection<Configuration> resultConfigurationsCollection = solver.Solve(panelCollectionToCut, storagePanels());
 
             foreach (KeyValuePair<PanelType, List<Configuration>> entry in resultConfigurationsCollection)
             {
