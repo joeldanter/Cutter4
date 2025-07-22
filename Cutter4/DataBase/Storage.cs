@@ -418,5 +418,57 @@ WHERE id = (
 
             return storagePanels;
         }
+
+        public void ChangeStoragePanelCount(PanelType type, int length, int deltaCount)
+        {
+            MySqlConnection connection = new MySqlConnection(connString);
+            connection.Open();
+            MySqlTransaction transaction = connection.BeginTransaction();
+            
+            try
+            {
+                string commandText = $@"
+UPDATE panels
+LEFT JOIN colors
+    ON panels.color_id = colors.id
+SET panels.storage_count = panels.storage_count{deltaCount.ToString("+0")}
+WHERE colors.name=""{type.Color}""
+    AND panels.width=""{type.Width}""
+    AND panels.length={length}
+;";
+                executeNonQueryWithTransaction(commandText, connection, transaction);
+
+                commandText = $@"
+INSERT INTO storage_editings(date, panel_id, delta_count)
+SELECT NOW(), panels.id, {deltaCount}
+FROM panels
+LEFT JOIN colors
+    ON panels.color_id=colors.id
+WHERE colors.name=""{type.Color}""
+    AND panels.width=""{type.Width}""
+    AND panels.length={length};
+;";
+                executeNonQueryWithTransaction(commandText, connection, transaction);
+
+                transaction.Commit();
+            }
+            catch (MySqlException e)
+            {
+                Console.WriteLine($"An exception of type {e.GetType()} was encountered while inserting the data:");
+                Console.WriteLine(e.Message);
+                try
+                {
+                    transaction.Rollback();
+                    Console.WriteLine("Transaction successfully rolled back.");
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine($"An exception of type {ex.GetType()} was encountered while attempting to roll back the transaction:");
+                    Console.WriteLine(ex.Message);
+                    throw ex;
+                }
+                throw e;
+            }
+        }
     }
 }
