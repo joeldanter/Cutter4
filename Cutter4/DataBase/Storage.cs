@@ -10,12 +10,7 @@ using MySql.Data.MySqlClient;
 
 namespace Cutter4.DataBase
 {
-    public interface IStorage
-    {
-        List<StoragePanel> LeftOvers(PanelType type);
-    }
-
-    public class Storage : IStorage
+    public class Storage
     {
         public string Server { get; set; }
         public string DatabaseName { get; set; }
@@ -361,7 +356,39 @@ WHERE id = (
             executeNonQueryWithTransaction(commandText, connection, transaction);
         }
 
-        public List<StoragePanel> LeftOvers(PanelType type)
+        public PanelCollection<StoragePanel> StoragePanels()
+        {
+            MySqlCommand command = new MySqlCommand();
+            string query = @"
+                SELECT colors.name, panels.width, panels.length, panels.storage_count
+                FROM panels
+                LEFT JOIN colors
+                    ON panels.color_id = colors.id
+                WHERE storage_count != 0;";
+            command.CommandText = query;
+            command.Connection = new MySqlConnection(connString);
+
+            MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+            DataSet dataSet = new DataSet();
+            adapter.Fill(dataSet);
+
+            PanelCollection<StoragePanel> storagePanels = new PanelCollection<StoragePanel>();
+            foreach (DataRow row in dataSet.Tables[0].Rows)
+            {
+                Enum.TryParse(row["name"].ToString(), out PanelColors color);
+                string width = row["width"].ToString();
+                int length = Convert.ToInt32(row["length"]);
+                int count = Convert.ToInt32(row["storage_count"]);
+
+                PanelType type = new PanelType(width, color);
+                StoragePanel storagePanel = new StoragePanel(length, count);
+                storagePanels[type].Add(storagePanel);
+            }
+
+            return storagePanels;
+        }
+
+        public List<StoragePanel> StoragePanelsOfType(PanelType type)
         {
             MySqlCommand command = new MySqlCommand();
             string query = @"

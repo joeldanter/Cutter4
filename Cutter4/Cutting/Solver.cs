@@ -15,7 +15,7 @@ namespace Cutter4.Cutting
             
         }
 
-        public PanelCollection<Configuration> Solve(PanelCollection<KapuPanel> panelCollectionToCut, IStorage storage)
+        public PanelCollection<Configuration> Solve(PanelCollection<KapuPanel> panelCollectionToCut, PanelCollection<StoragePanel> storagePanelsCollection)
         {
             PanelCollection<Configuration> resultConfigurations = new PanelCollection<Configuration>();
 
@@ -23,12 +23,12 @@ namespace Cutter4.Cutting
             {
                 PanelType type = entry.Key;
                 List<KapuPanel> panelsToCut = new List<KapuPanel>(entry.Value);
-                List<StoragePanel> storagePanels = storage.LeftOvers(type);
+                List<StoragePanel> storagePanelsOfType = storagePanelsCollection[type];
 
                 while (0 < panelsToCut.Count)
                 {
                     // greedy ahhh
-                    Configuration newConfiguration = ConfigurationWithLeastWasteUsingStoragePanels(panelsToCut, storagePanels, type);
+                    Configuration newConfiguration = ConfigurationWithLeastWasteUsingStoragePanels(panelsToCut, storagePanelsOfType, type);
 
                     // save the new configuration
                     resultConfigurations[type].Add(newConfiguration);
@@ -40,13 +40,13 @@ namespace Cutter4.Cutting
                     }
 
                     // remove the panel from storagePanels which was used to cut the new configuration from
-                    for (int i = 0; i < storagePanels.Count; i++)
+                    for (int i = 0; i < storagePanelsOfType.Count; i++)
                     {
-                        if (storagePanels[i].Length == newConfiguration.Capacity)
+                        if (storagePanelsOfType[i].Length == newConfiguration.Capacity)
                         {
-                            StoragePanel usedStoragePanel = storagePanels[i];
+                            StoragePanel usedStoragePanel = storagePanelsOfType[i];
                             usedStoragePanel.Count -= 1;
-                            storagePanels[i] = usedStoragePanel;
+                            storagePanelsOfType[i] = usedStoragePanel;
                             break;
                         }
                     }
