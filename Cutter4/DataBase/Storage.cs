@@ -298,7 +298,7 @@ LEFT JOIN kapuk
 
         void unAppendLastOrderRemainderPanels(MySqlConnection connection, MySqlTransaction transaction)
         {
-            // TODO ez egy haborus bun amilyen csunya es nem mukodik jol
+            // TODO ez egy haborus bun amilyen csunya
             string commandText = @"
 UPDATE panels
 RIGHT JOIN (
@@ -321,7 +321,7 @@ RIGHT JOIN (
     ON panels.length = remainder_panels.length
     AND panels.width = remainder_panels.width
     AND panels.color_id = remainder_panels.color_id
-SET panels.storage_count=panels.storage_count-remainder_panels.count;
+SET panels.storage_count=panels.storage_count-remainder_panels.count
 WHERE remainder_panels.order_date = (SELECT MAX(date) FROM orders LIMIT 1);";
 
             executeNonQueryWithTransaction(commandText, connection, transaction);
@@ -331,12 +331,15 @@ WHERE remainder_panels.order_date = (SELECT MAX(date) FROM orders LIMIT 1);";
         {
             string commandText = @"
 UPDATE panels
-RIGHT JOIN cut_configurations
-    ON cut_configurations.used_panel_id=panels.id
-LEFT JOIN orders
-    ON cut_configurations.order_id=orders.id
-SET storage_count=storage_count+1
-WHERE orders.date = (SELECT MAX(date) FROM orders LIMIT 1);
+RIGHT JOIN (
+    SELECT cut_configurations.used_panel_id, COUNT(*) AS count
+    FROM cut_configurations
+    LEFT JOIN orders
+        ON cut_configurations.order_id=orders.id
+    WHERE orders.date = (SELECT MAX(date) FROM orders LIMIT 1)
+    GROUP BY cut_configurations.used_panel_id
+) AS sub ON panels.id = sub.used_panel_id
+SET panels.storage_count = panels.storage_count + sub.count;
 ";
 
             executeNonQueryWithTransaction(commandText, connection, transaction);
@@ -347,7 +350,13 @@ WHERE orders.date = (SELECT MAX(date) FROM orders LIMIT 1);
             // thanks to ON DELETE CASCADE properties other tables' rows get deleted as well, so this is all that is needed
             string commandText = @"
 DELETE FROM orders
-WHERE date = (SELECT MAX(date) FROM orders LIMIT 1);";
+WHERE id = (
+    SELECT id FROM (
+        SELECT id FROM orders
+        ORDER BY date DESC
+        LIMIT 1
+    ) AS temp
+);";
 
             executeNonQueryWithTransaction(commandText, connection, transaction);
         }
