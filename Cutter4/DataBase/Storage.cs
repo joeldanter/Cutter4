@@ -12,7 +12,7 @@ namespace Cutter4.DataBase
 {
     public class Storage
     {
-        public string Server { get; set; }
+        public string Server { get; set; } 
         public string DatabaseName { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
@@ -57,6 +57,9 @@ namespace Cutter4.DataBase
         #region SaveNewCut
         public void SaveNewCut(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
         {
+            raiseExceptionIfCantRemoveUsedPanels(confs);
+            raiseExceptionIfCantSaveKapuk(kapuk);
+
             MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
             MySqlTransaction transaction = connection.BeginTransaction();
@@ -83,6 +86,94 @@ namespace Cutter4.DataBase
                     throw ex;
                 }
                 throw e;
+            }
+        }
+
+        void raiseExceptionIfCantRemoveUsedPanels(PanelCollection<Configuration> confs)
+        {
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
+            List<string> valuesRows = new List<string>();
+            int i = 0;
+            foreach (KeyValuePair<PanelType, List<Configuration>> item in confs)
+            {
+                PanelType type = item.Key;
+                foreach (Configuration conf in item.Value)
+                {
+                    valuesRows.Add($"        ROW(@length{i}, @color_name{i}, @width{i})");
+                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Capacity });
+                    parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
+                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                    i++;
+                }
+            }
+            string valuesString = string.Join(",\n", valuesRows);
+
+            string commandText = $@"
+SELECT panels.length, colors.name AS color_name, panels.width, panels.storage_count, updates.reduce_by
+FROM panels
+JOIN colors
+    ON panels.color_id = colors.id
+RIGHT JOIN (
+    SELECT length, color_name, width, COUNT(*) as reduce_by
+    FROM (VALUES
+{valuesString}
+    ) AS new(length, color_name, width)
+    GROUP BY length, color_name, width
+) AS updates
+    ON panels.length = updates.length
+    AND colors.name = updates.color_name
+    AND panels.width = updates.width
+WHERE panels.storage_count < updates.reduce_by;";
+            DataSet dataSet = executeQuery(connString, commandText, parameters.ToArray());
+
+            if (dataSet.Tables[0].Rows.Count > 0)
+            {
+                string msg = "The order cannot be saved because there are not enough panels in storage to cut from using the given configurations:";
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int length = Convert.ToInt32(row["length"]);
+                    Enum.TryParse(row["color_name"].ToString(), out PanelColors color);
+                    string width = row["width"].ToString();
+                    int storageCount = Convert.ToInt32(row["storage_count"]);
+                    int reduceBy = Convert.ToInt32(row["reduce_by"]);
+                    msg += $"\n{length}mm {color} {width}: at least {reduceBy} are needed, but only {storageCount} are in storage";
+                }
+                throw new InvalidOperationException(msg);
+            }
+        }
+
+        void raiseExceptionIfCantSaveKapuk(IList<Kapu> kapuk)
+        {
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
+            List<string> valuesRows = new List<string>();
+            for (int i = 0; i < kapuk.Count; i++)
+            {
+                Kapu kapu = kapuk[i];
+                valuesRows.Add($"    ROW(@kapu{i})");
+                parameters.Add(new MySqlParameter($"@kapu{i}", MySqlDbType.VarChar, 255) { Value = kapu.SerialNumber });
+            }
+            string valuesString = string.Join(",\n", valuesRows);
+
+            string commandText = $@"
+SELECT kapuk.serial_number
+FROM ( VALUES
+{valuesString}
+) AS new(serial_number)
+JOIN kapuk
+    ON new.serial_number=kapuk.serial_number;";
+            DataSet dataSet = executeQuery(connString, commandText, parameters.ToArray());
+
+            if (dataSet.Tables[0].Rows.Count > 0)
+            {
+                string msg = "The order cannot be saved because there is already a previous kapu saved with the following serial number(s): ";
+                List<string> serialNumbers = new List<string>();
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    string serial_number = row["serial_number"].ToString();
+                    serialNumbers.Add(serial_number);
+                }
+                msg += string.Join(", ", serialNumbers);
+                throw new InvalidOperationException(msg);
             }
         }
 
@@ -268,11 +359,11 @@ LEFT JOIN kapuk
         #region UndoLastSavedCut
         public void UndoLastSavedCut()
         {
+            raiseExceptionIfCantUnAppendLastOrderRemainderPanels();
             MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
             MySqlTransaction transaction = connection.BeginTransaction();
 
-            // TODO need checking
             try
             {
                 unAppendLastOrderRemainderPanels(connection, transaction);
@@ -292,6 +383,53 @@ LEFT JOIN kapuk
                     throw ex;
                 }
                 throw e;
+            }
+        }
+        
+        void raiseExceptionIfCantUnAppendLastOrderRemainderPanels()
+        {
+            string query = $@"
+SELECT panels.length, colors.name AS color_name, panels.width, panels.storage_count, remainder_panels.count AS use_count
+FROM panels
+RIGHT JOIN (
+    SELECT *, COUNT(*) AS count
+    FROM (
+        SELECT orders.date AS order_date, 13200-SUM(kapuk.length) AS length, panels.color_id, panels.width
+        FROM cut_elements
+        LEFT JOIN kapuk
+            ON cut_elements.kapu_id=kapuk.id
+        LEFT JOIN cut_configurations
+            ON cut_elements.configuration_id=cut_configurations.id
+        LEFT JOIN panels
+            ON cut_configurations.used_panel_id=panels.id
+        LEFT JOIN orders
+            ON cut_configurations.order_id=orders.id
+        GROUP BY cut_configurations.id
+    ) AS idk
+    GROUP BY idk.order_date, idk.length, idk.color_id, idk.width
+) AS remainder_panels
+    ON panels.length = remainder_panels.length
+    AND panels.width = remainder_panels.width
+    AND panels.color_id = remainder_panels.color_id
+LEFT JOIN colors
+    ON remainder_panels.color_id=colors.id
+WHERE panels.storage_count<remainder_panels.count
+    AND remainder_panels.order_date = (SELECT MAX(date) FROM orders LIMIT 1);";
+            DataSet dataSet = executeQuery(connString, query);
+            DataRowCollection rows = dataSet.Tables[0].Rows;
+            if (rows.Count > 0)
+            {
+                string msg = "The order cannot be reverted because there are not enough panels in storage to revert the creation of remainder panels produced by the cut:";
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int length = Convert.ToInt32(row["length"]);
+                    Enum.TryParse(row["color_name"].ToString(), out PanelColors color);
+                    string width = row["width"].ToString();
+                    int storageCount = Convert.ToInt32(row["storage_count"]);
+                    int useCount = Convert.ToInt32(row["use_count"]);
+                    msg += $"\n{length}mm {color} {width}: {useCount} would need to be reverted, but only {storageCount} are in storage";
+                }
+                throw new InvalidOperationException(msg);
             }
         }
 
@@ -414,6 +552,25 @@ WHERE id = (
         {
             if (length < 1)
                 throw new ArgumentException(nameof(length) + " can not be smaller than 1");
+            if (deltaCount == 0) return;
+            if (deltaCount < 0)
+            {
+                string query = $@"
+SELECT storage_count
+FROM panels
+LEFT JOIN colors
+    ON panels.color_id=colors.id
+WHERE colors.name = ""{type.Color}""
+  AND panels.width = ""{type.Width}""
+  AND panels.length = {length};";
+                DataSet dataSet = executeQuery(connString, query);
+                DataRowCollection rows = dataSet.Tables[0].Rows;
+
+                if (rows.Count == 0 || Convert.ToInt32(rows[0]["storage_count"]) + deltaCount < 0)
+                {
+                    throw new InvalidOperationException($"Can not remove more panels from storage than there are");
+                }
+            }
 
             MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
