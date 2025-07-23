@@ -373,19 +373,13 @@ WHERE id = (
 
         public PanelCollection<StoragePanel> StoragePanels()
         {
-            MySqlCommand command = new MySqlCommand();
             string query = @"
                 SELECT colors.name, panels.width, panels.length, panels.storage_count
                 FROM panels
                 LEFT JOIN colors
                     ON panels.color_id = colors.id
                 WHERE storage_count != 0;";
-            command.CommandText = query;
-            command.Connection = new MySqlConnection(connString);
-
-            MySqlDataAdapter adapter = new MySqlDataAdapter(command);
-            DataSet dataSet = new DataSet();
-            adapter.Fill(dataSet);
+            DataSet dataSet = executeQuery(connString, query);
 
             PanelCollection<StoragePanel> storagePanels = new PanelCollection<StoragePanel>();
             foreach (DataRow row in dataSet.Tables[0].Rows)
@@ -405,23 +399,15 @@ WHERE id = (
 
         public List<StoragePanel> StoragePanelsOfType(PanelType type)
         {
-            MySqlCommand command = new MySqlCommand();
-            string query = @"
+            string query = $@"
                 SELECT panels.length, panels.storage_count
                 FROM panels
                 LEFT JOIN colors
                     ON panels.color_id = colors.id
                 WHERE storage_count != 0
-                    AND colors.name = @color
-                    AND panels.width = @width;";
-            command.CommandText = query;
-            command.Parameters.Add("@color", MySqlDbType.VarChar, 255).Value = type.Color;
-            command.Parameters.Add("@width", MySqlDbType.Enum).Value = type.Width;
-            command.Connection = new MySqlConnection(connString);
-            
-            MySqlDataAdapter adapter = new MySqlDataAdapter(command);
-            DataSet dataSet = new DataSet();
-            adapter.Fill(dataSet);
+                    AND colors.name = ""{type.Color}""
+                    AND panels.width = ""{type.Width}"";";
+            DataSet dataSet = executeQuery(connString, query);
             
             List<StoragePanel> storagePanels = new List<StoragePanel>();
             foreach (DataRow row in dataSet.Tables[0].Rows)
