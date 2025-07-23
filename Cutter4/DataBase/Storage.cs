@@ -429,14 +429,17 @@ WHERE id = (
             try
             {
                 string commandText = $@"
+INSERT IGNORE INTO panels (length, color_id, width, storage_count)
+SELECT {length}, colors.id, ""{type.Width}"", 0
+FROM colors
+WHERE colors.name = ""{type.Color}"";
 UPDATE panels
 LEFT JOIN colors
     ON panels.color_id = colors.id
 SET panels.storage_count = panels.storage_count{deltaCount.ToString("+0")}
-WHERE colors.name=""{type.Color}""
-    AND panels.width=""{type.Width}""
-    AND panels.length={length}
-;";
+WHERE colors.name = ""{type.Color}""
+  AND panels.width = ""{type.Width}""
+  AND panels.length = {length};";
                 executeNonQueryWithTransaction(commandText, connection, transaction);
 
                 commandText = $@"
@@ -447,8 +450,7 @@ LEFT JOIN colors
     ON panels.color_id=colors.id
 WHERE colors.name=""{type.Color}""
     AND panels.width=""{type.Width}""
-    AND panels.length={length};
-;";
+    AND panels.length={length};";
                 executeNonQueryWithTransaction(commandText, connection, transaction);
 
                 transaction.Commit();
