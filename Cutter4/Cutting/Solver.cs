@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,7 +69,10 @@ namespace Cutter4.Cutting
                     Configuration newConfiguration = Configuration.BestConfiguration(panelsToCut, storagePanel.Length);
 
                     if (0 < newConfiguration.Panels.Count && newConfiguration.Waste < leastWaste)
+                    {
                         bestConfiguration = newConfiguration;
+                        leastWaste = bestConfiguration.Waste;
+                    }
                 }
             }
 
