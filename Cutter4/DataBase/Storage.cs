@@ -23,24 +23,19 @@ namespace Cutter4.DataBase
 
         long executeNonQueryWithTransaction(string commandText, MySqlConnection connection, MySqlTransaction transaction, params MySqlParameter[] parameters)
         {
-            Console.WriteLine(commandText + "\n");
-
-            MySqlCommand command = new MySqlCommand()
+            using (MySqlCommand command = new MySqlCommand(commandText, connection, transaction))
             {
-                CommandText = commandText,
-                CommandType = CommandType.Text,
-                Connection = connection,
-                Transaction = transaction
-            };
+                command.CommandType = CommandType.Text;
 
-            if (parameters != null)
-                foreach (MySqlParameter p in parameters)
-                    command.Parameters.Add(p);
+                if (parameters != null)
+                    foreach (MySqlParameter p in parameters)
+                        command.Parameters.Add(p);
 
-            command.ExecuteNonQuery();
-            command.Parameters.Clear();
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
 
-            return command.LastInsertedId;
+                return command.LastInsertedId;
+            }
         }
 
         DataSet executeQuery(string connString, string query, params MySqlParameter[] parameters)
