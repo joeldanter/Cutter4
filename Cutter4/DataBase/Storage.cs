@@ -412,6 +412,9 @@ WHERE id = (
 
         public void ChangeStoragePanelCount(PanelType type, int length, int deltaCount)
         {
+            if (length < 1)
+                throw new ArgumentException(nameof(length) + " can not be smaller than 1");
+
             MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
             MySqlTransaction transaction = connection.BeginTransaction();
@@ -461,6 +464,9 @@ WHERE colors.name=""{type.Color}""
 
         public List<Order> ListPreviousOrders(int maxCount)
         {
+            if (maxCount < 1)
+                throw new ArgumentException(nameof(maxCount) + " can not be smaller than 1");
+
             string query = $@"
 SELECT id, date FROM orders
 ORDER BY date DESC
@@ -549,6 +555,9 @@ INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
 
         public List<StorageEditing> ListPreviousStorageEditings(int maxCount)
         {
+            if (maxCount < 1)
+                throw new ArgumentException(nameof(maxCount) + " can not be smaller than 1");
+            
             string query = $@"
 SELECT storage_editings.date, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_editings.delta_count
 FROM storage_editings
