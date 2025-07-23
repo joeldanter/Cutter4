@@ -42,7 +42,23 @@ namespace Cutter4.DataBase
 
             return command.LastInsertedId;
         }
-        
+
+        DataSet executeQuery(string connString, string query, params MySqlParameter[] parameters)
+        {
+            using (MySqlConnection connection = new MySqlConnection(connString))
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            using (MySqlDataAdapter adapter = new MySqlDataAdapter(command))
+            {
+                if (parameters != null)
+                    foreach (MySqlParameter p in parameters)
+                        command.Parameters.Add(p);
+
+                DataSet dataSet = new DataSet();
+                adapter.Fill(dataSet);
+                return dataSet;
+            }
+        }
+
         public void SaveNewCut(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
         {
             MySqlConnection connection = new MySqlConnection(connString);
