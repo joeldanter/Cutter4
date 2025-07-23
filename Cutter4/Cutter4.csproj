@@ -147,6 +147,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Cutting\Variables.cs" />
+    <Compile Include="DataBase\Order.cs" />
     <Compile Include="DataBase\Storage.cs" />
     <Compile Include="DataBase\StoragePanel.cs" />
     <Compile Include="MainWindow.xaml.cs">

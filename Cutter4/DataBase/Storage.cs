@@ -486,5 +486,93 @@ WHERE colors.name=""{type.Color}""
                 throw e;
             }
         }
+
+        public List<Order> ListPreviousOrders(int maxCount)
+        {
+            string query = $@"
+SELECT id, date FROM orders
+ORDER BY date DESC
+LIMIT {maxCount};";
+            DataSet orderDatesDataSet = executeQuery(connString, query);
+
+            Dictionary<long, Order> ordersByIds = new Dictionary<long, Order>();
+            foreach (DataRow row in orderDatesDataSet.Tables[0].Rows)
+            {
+                long order_id = Convert.ToInt64(row["id"]);
+                DateTime date = (DateTime)row["date"];
+                Order order = new Order(date, new List<Kapu>(), new PanelCollection<Configuration>());
+                ordersByIds.Add(order_id, order);
+            }
+
+            query = $@"
+SELECT orders.id AS order_id, kapuk.length AS kapu_length, kapuk.height AS kapu_height, kapuk.serial_number, colors.name AS color_name
+FROM kapuk
+LEFT JOIN colors
+    ON kapuk.color_id = colors.id
+INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
+    ON kapuk.order_id = orders.id;";
+            DataSet kapukDataSet = executeQuery(connString, query);
+
+            foreach (DataRow row in kapukDataSet.Tables[0].Rows)
+            {
+                long order_id = Convert.ToInt64(row["order_id"]);
+                int length = Convert.ToInt32(row["kapu_length"]);
+                int height = Convert.ToInt32(row["kapu_height"]);
+                Enum.TryParse(row["color_name"].ToString(), out PanelColors color);
+                string serial_number = row["serial_number"].ToString();
+
+                Kapu kapu = new Kapu(length, height, color, serial_number);
+                ordersByIds[order_id].Kapuk.Add(kapu);
+            }
+
+            query = $@"
+SELECT orders.id AS order_id, cut_configurations.id as configuration_id, panels.length as used_length, colors.name AS color_name, panels.width
+FROM cut_configurations
+LEFT JOIN panels
+    ON cut_configurations.used_panel_id=panels.id
+LEFT JOIN colors
+    ON panels.color_id = colors.id
+INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
+    ON cut_configurations.order_id = orders.id;";
+            DataSet confsDataSet = executeQuery(connString, query);
+
+            Dictionary<long, Configuration> confsByIds = new Dictionary<long, Configuration>();
+            foreach (DataRow row in confsDataSet.Tables[0].Rows)
+            {
+                long order_id = Convert.ToInt64(row["order_id"]);
+                long configuration_id = Convert.ToInt64(row["configuration_id"]);
+                int used_length = Convert.ToInt32(row["used_length"]);
+                Enum.TryParse(row["color_name"].ToString(), out PanelColors color);
+                string width = row["width"].ToString();
+
+                PanelType type = new PanelType(width, color);
+                Configuration configuration = new Configuration(new List<KapuPanel>(), used_length);
+                confsByIds.Add(configuration_id, configuration);
+                ordersByIds[order_id].Configurations[type].Add(configuration);
+            }
+
+            query = $@"
+SELECT cut_configurations.id AS configuration_id, kapuk.length AS cut_length, kapuk.serial_number
+FROM cut_elements
+LEFT JOIN kapuk
+    ON cut_elements.kapu_id = kapuk.id
+LEFT JOIN cut_configurations
+    ON cut_elements.configuration_id = cut_configurations.id
+INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
+    ON cut_configurations.order_id = orders.id;";
+            DataSet CutElementsDataSet = executeQuery(connString, query);
+
+            foreach (DataRow row in CutElementsDataSet.Tables[0].Rows)
+            {
+                long configuration_id = Convert.ToInt64(row["configuration_id"]);
+                int cut_length = Convert.ToInt32(row["cut_length"]);
+                string serial_number = row["serial_number"].ToString();
+
+                KapuPanel kapuPanel = new KapuPanel(cut_length, serial_number);
+                confsByIds[configuration_id].Panels.Add(kapuPanel);
+            }
+
+            return ordersByIds.Values.ToList();
+        }
     }
 }
