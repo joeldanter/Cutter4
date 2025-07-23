@@ -149,6 +149,7 @@
     <Compile Include="Cutting\Variables.cs" />
     <Compile Include="DataBase\Order.cs" />
     <Compile Include="DataBase\Storage.cs" />
+    <Compile Include="DataBase\StorageEditing.cs" />
     <Compile Include="DataBase\StoragePanel.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

@@ -559,5 +559,34 @@ INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
 
             return ordersByIds.Values.ToList();
         }
+
+        public List<StorageEditing> ListPreviousStorageEditings(int maxCount)
+        {
+            string query = $@"
+SELECT storage_editings.date, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_editings.delta_count
+FROM storage_editings
+LEFT JOIN panels
+    ON storage_editings.panel_id=panels.id
+LEFT JOIN colors
+    ON panels.color_id=colors.id
+ORDER BY storage_editings.date DESC
+LIMIT {maxCount};";
+            DataSet dataSet = executeQuery(connString, query);
+
+            List<StorageEditing> storageEditings = new List<StorageEditing>();
+            foreach (DataRow row in dataSet.Tables[0].Rows)
+            {
+                DateTime dateTime = (DateTime)row["date"];
+                int panel_length = Convert.ToInt32(row["panel_length"]);
+                Enum.TryParse(row["panel_color"].ToString(), out PanelColors panel_color);
+                string panel_width = row["panel_width"].ToString();
+                int delta_count = Convert.ToInt32(row["delta_count"]);
+
+                StorageEditing storageEditing = new StorageEditing(dateTime, panel_length, panel_color, panel_width, delta_count);
+                storageEditings.Add(storageEditing);
+            }
+
+            return storageEditings;
+        }
     }
 }
