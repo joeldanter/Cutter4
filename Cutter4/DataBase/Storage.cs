@@ -74,17 +74,12 @@ namespace Cutter4.DataBase
             }
             catch (MySqlException e)
             {
-                Console.WriteLine($"An exception of type {e.GetType()} was encountered while inserting the data:");
-                Console.WriteLine(e.Message);
                 try
                 {
                     transaction.Rollback();
-                    Console.WriteLine("Transaction successfully rolled back.");
                 }
                 catch (MySqlException ex)
                 {
-                    Console.WriteLine($"An exception of type {ex.GetType()} was encountered while attempting to roll back the transaction:");
-                    Console.WriteLine(ex.Message);
                     throw ex;
                 }
                 throw e;
@@ -288,17 +283,12 @@ LEFT JOIN kapuk
             }
             catch (MySqlException e)
             {
-                Console.WriteLine($"An exception of type {e.GetType()} was encountered while undoing the last cut:");
-                Console.WriteLine(e.Message);
                 try
                 {
                     transaction.Rollback();
-                    Console.WriteLine("Transaction successfully rolled back.");
                 }
                 catch (MySqlException ex)
                 {
-                    Console.WriteLine($"An exception of type {ex.GetType()} was encountered while attempting to roll back the transaction:");
-                    Console.WriteLine(ex.Message);
                     throw ex;
                 }
                 throw e;
@@ -457,17 +447,12 @@ WHERE colors.name=""{type.Color}""
             }
             catch (MySqlException e)
             {
-                Console.WriteLine($"An exception of type {e.GetType()} was encountered while inserting the data:");
-                Console.WriteLine(e.Message);
                 try
                 {
                     transaction.Rollback();
-                    Console.WriteLine("Transaction successfully rolled back.");
                 }
                 catch (MySqlException ex)
                 {
-                    Console.WriteLine($"An exception of type {ex.GetType()} was encountered while attempting to roll back the transaction:");
-                    Console.WriteLine(ex.Message);
                     throw ex;
                 }
                 throw e;
