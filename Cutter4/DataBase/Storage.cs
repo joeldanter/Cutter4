@@ -54,6 +54,7 @@ namespace Cutter4.DataBase
             }
         }
 
+        #region SaveNewCut
         public void SaveNewCut(IList<Kapu> kapuk, PanelCollection<Configuration> confs)
         {
             MySqlConnection connection = new MySqlConnection(connString);
@@ -267,7 +268,9 @@ LEFT JOIN kapuk
 
             executeNonQueryWithTransaction(commandText, connection, transaction, parameters.ToArray());
         }
+        #endregion
 
+        #region UndoLastSavedCut
         public void UndoLastSavedCut()
         {
             MySqlConnection connection = new MySqlConnection(connString);
@@ -366,6 +369,7 @@ WHERE id = (
 
             executeNonQueryWithTransaction(commandText, connection, transaction);
         }
+        #endregion
 
         public PanelCollection<StoragePanel> StoragePanels()
         {
