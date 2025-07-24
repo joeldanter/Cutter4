@@ -394,7 +394,7 @@ FROM panels
 RIGHT JOIN (
     SELECT *, COUNT(*) AS count
     FROM (
-        SELECT orders.date AS order_date, 13200-SUM(kapuk.length) AS length, panels.color_id, panels.width
+        SELECT orders.date AS order_date, panels.length-SUM(kapuk.length) AS length, panels.color_id, panels.width
         FROM cut_elements
         LEFT JOIN kapuk
             ON cut_elements.kapu_id=kapuk.id
@@ -441,7 +441,7 @@ UPDATE panels
 RIGHT JOIN (
     SELECT *, COUNT(*) AS count
     FROM (
-        SELECT orders.date AS order_date, 13200-SUM(kapuk.length) AS length, panels.color_id, panels.width
+        SELECT orders.date AS order_date, panels.length-SUM(kapuk.length) AS length, panels.color_id, panels.width
         FROM cut_elements
         LEFT JOIN kapuk
             ON cut_elements.kapu_id=kapuk.id
