@@ -19,6 +19,25 @@ namespace Cutter4.DataBase
 
         string connString { get { return $"Server={Server}; database={DatabaseName}; UID={UserName}; password={Password}"; } }
 
+        public event EventHandler StoragePanelsChanged;
+        public event EventHandler OrderListChanged;
+        public event EventHandler StorageEditingsListChanged;
+
+        void OnStoragePanelsChanged()
+        {
+            StoragePanelsChanged?.Invoke(this, EventArgs.Empty);
+        }
+        
+        void OnOrderListChanged()
+        {
+            OrderListChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        void OnStorageEditingsListChanged()
+        {
+            StorageEditingsListChanged?.Invoke(this, EventArgs.Empty);
+        }
+
         public Storage() {  }
 
         long executeNonQueryWithTransaction(string commandText, MySqlConnection connection, MySqlTransaction transaction, params MySqlParameter[] parameters)
@@ -74,6 +93,9 @@ namespace Cutter4.DataBase
                 saveCutElements(confs, orderedNewConfigurationIds, connection, transaction);
 
                 transaction.Commit();
+
+                OnStoragePanelsChanged();
+                OnOrderListChanged();
             }
             catch (MySqlException e)
             {
@@ -371,6 +393,9 @@ LEFT JOIN kapuk
                 unSaveLastOrderAndDetails(connection, transaction);
                 
                 transaction.Commit();
+
+                OnStoragePanelsChanged();
+                OnOrderListChanged();
             }
             catch (MySqlException e)
             {
@@ -604,6 +629,9 @@ WHERE colors.name=""{type.Color}""
                 executeNonQueryWithTransaction(commandText, connection, transaction);
 
                 transaction.Commit();
+
+                OnStoragePanelsChanged();
+                OnStorageEditingsListChanged();
             }
             catch (MySqlException e)
             {
