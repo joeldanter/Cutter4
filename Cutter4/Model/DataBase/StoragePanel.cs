@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cutter4.DataBase
+namespace Cutter4.Model.DataBase
 {
     public struct StoragePanel
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cutter4.Cutting
+namespace Cutter4.Model.Cutting
 {
     public enum PanelColors
     {

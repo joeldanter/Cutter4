@@ -1,11 +1,11 @@
-﻿using Cutter4.Cutting;
+﻿using Cutter4.Model.Cutting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cutter4.DataBase
+namespace Cutter4.Model.DataBase
 {
     public class Order
     {

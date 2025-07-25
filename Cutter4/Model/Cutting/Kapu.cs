@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Cutter4.Cutting;
 
-namespace Cutter4.Cutting
+namespace Cutter4.Model.Cutting
 {    
     public class Kapu
     {

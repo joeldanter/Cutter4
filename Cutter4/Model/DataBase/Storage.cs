@@ -4,11 +4,11 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Cutter4.Cutting;
+using Cutter4.Model.Cutting;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 
-namespace Cutter4.DataBase
+namespace Cutter4.Model.DataBase
 {
     public class Storage
     {

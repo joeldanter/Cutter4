@@ -14,11 +14,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Cutter4.Cutting;
-using Cutter4.DataBase;
-using MySql.Data.MySqlClient;
 
-namespace Cutter4
+namespace Cutter4.View
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
