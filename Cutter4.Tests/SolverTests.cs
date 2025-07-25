@@ -1,6 +1,5 @@
-﻿using Cutter4.Cutting;
-using Cutter4.DataBase;
-using Moq;
+﻿using Cutter4.Model.Cutting;
+using Cutter4.Model.DataBase;
 using System;
 using System.Collections.Generic;
 using System.IO;

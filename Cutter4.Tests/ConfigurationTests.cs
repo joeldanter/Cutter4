@@ -1,4 +1,4 @@
-﻿using Cutter4.Cutting;
+﻿using Cutter4.Model.Cutting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
