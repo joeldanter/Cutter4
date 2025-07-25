@@ -5,12 +5,190 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cutter4.View"
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
+        xmlns:cutting="clr-namespace:Cutter4.Model.Cutting"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Cutter4" Height="650" Width="600">
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
-    <Grid>
-        
-    </Grid>
+    <Window.Resources>
+        <ObjectDataProvider x:Key="PanelColors" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="cutting:PanelColors"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </Window.Resources>
+    <TabControl>
+        <TabItem Header="Cutting" Padding="3">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Header="Kapuk" Margin="3" >
+                        <DataGrid ItemsSource="{Binding Kapuk}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserDeleteRows="True" CanUserSortColumns="False" CanUserReorderColumns="False" RowHeaderWidth="0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="*" Header="Length" Binding="{Binding Length}"/>
+                                <DataGridTextColumn Width="*" Header="Height" Binding="{Binding Height}"/>
+                                <DataGridComboBoxColumn Width="*" Header="Color" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItemBinding="{Binding Color}"/>
+                                <DataGridTextColumn Width="*" Header="Serial Number" Binding="{Binding SerialNumber}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+
+                    <StackPanel Grid.Column="1" Margin="0 20 0 0">
+                        <Button Grid.Row="1" Margin="3" Height="26" Content="Calculate" Command="{Binding CalculateCommand}"/>
+                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Command="{Binding SaveCommand}" IsEnabled="False"/>
+                        <Button Grid.Row="2" Margin="3" Height="26" Content="New cut" Command="{Binding NewCutCommand}"/>
+                    </StackPanel>
+                </Grid>
+
+                <GroupBox Grid.Row="1" Header="Output" Margin="3" >
+                    <TextBox Margin="3" Text="{Binding OutputText}" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+                </GroupBox>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Storage" Padding="3">
+            <Grid Margin="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="130"/>
+                </Grid.ColumnDefinitions>
+
+                <GroupBox Grid.Row="1" Header="500 mm" Margin="3">
+                    <DockPanel>
+                        <Grid Grid.Row="1" DockPanel.Dock="Bottom">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
+                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
+                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add"/>
+                            </StackPanel>
+                        </Grid>
+                        
+                        <ListView Margin="3" ItemsSource="{Binding StoragePanels500mm}">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Length}"/>
+                                    <GridViewColumn Header="Count" DisplayMemberBinding="{Binding Count}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox Grid.Row="1" Grid.Column="1" Header="610 mm" Margin="3">
+                    <DockPanel>
+                        <Grid Grid.Row="1" DockPanel.Dock="Bottom">
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
+                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
+                            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add"/>
+                            </StackPanel>
+                        </Grid>
+                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels610mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
+                                <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </DockPanel>
+                </GroupBox>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Height="24" Margin="3" Padding="3" Text="Color:" FontWeight="DemiBold"/>
+                    <ComboBox Height="24" Margin="3 0 3 3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding SelectedPanelColor}"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+        <TabItem Header="History" Padding="3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <GroupBox Header="Changes" Margin="3">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Bottom" Grid.ColumnSpan="2" Orientation="Horizontal">
+                            <Button Content="Revert and Modify" Width="120" Height="24" IsEnabled="False" Margin="3"/>
+                        </StackPanel>
+                        <ListView Margin="3">
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Label}"/>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </DockPanel>
+                </GroupBox>
+                <GroupBox Grid.Column="1" Header="Details" Margin="3">
+                    <TextBox Margin="3" IsReadOnly="True"/>
+                </GroupBox>
+            </Grid>
+        </TabItem>
+        <TabItem Header="Database details" Padding="3">
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Row="0" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Server:"/>
+                <TextBlock Grid.Row="1" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Database:"/>
+                <TextBlock Grid.Row="2" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Username:"/>
+                <TextBlock Grid.Row="3" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Password:"/>
+
+                <TextBox Grid.Row="0" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding Server}"/>
+                <TextBox Grid.Row="3" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding Password}"/>
+                <TextBox Grid.Row="1" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding DatabaseName}"/>
+                <TextBox Grid.Row="2" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding UserName}"/>
+
+                <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Grid.Row="4" Width="80" Height="24" Grid.Column="1" Margin="3" Content="Cancel" Command="{Binding CancelDatabaseSettingsCommand}"/>
+                    <Button Grid.Row="4" Width="80" Height="24" Margin="3" Content="Save" Command="{Binding SaveDatabaseSettingsCommand}"/>
+                </StackPanel>
+            </Grid>
+        </TabItem>
+    </TabControl>
 </Window>
