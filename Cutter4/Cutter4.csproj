@@ -134,11 +134,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Cutting\Configuration.cs" />
-    <Compile Include="Cutting\PanelCollection.cs" />
-    <Compile Include="Cutting\Solver.cs" />
-    <Compile Include="Cutting\Kapu.cs" />
-    <Page Include="MainWindow.xaml">
+    <Compile Include="Model\Cutting\Configuration.cs" />
+    <Compile Include="Model\Cutting\PanelCollection.cs" />
+    <Compile Include="Model\Cutting\Solver.cs" />
+    <Compile Include="Model\Cutting\Kapu.cs" />
+    <Page Include="View\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -146,12 +146,12 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Cutting\Variables.cs" />
-    <Compile Include="DataBase\Order.cs" />
-    <Compile Include="DataBase\Storage.cs" />
-    <Compile Include="DataBase\StorageEditing.cs" />
-    <Compile Include="DataBase\StoragePanel.cs" />
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="Model\Cutting\Variables.cs" />
+    <Compile Include="Model\DataBase\Order.cs" />
+    <Compile Include="Model\DataBase\Storage.cs" />
+    <Compile Include="Model\DataBase\StorageEditing.cs" />
+    <Compile Include="Model\DataBase\StoragePanel.cs" />
+    <Compile Include="View\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
@@ -174,7 +174,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ClassDiagram1.cd" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -184,9 +183,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="UI\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Analyzer Include="..\packages\xunit.analyzers.1.18.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
     <Analyzer Include="..\packages\xunit.analyzers.1.18.0\analyzers\dotnet\cs\xunit.analyzers.fixes.dll" />
