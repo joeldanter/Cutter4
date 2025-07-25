@@ -11,7 +11,7 @@ namespace Cutter4.ViewModel
     {
         public MainViewModel()
         {
-            
+
         }
     }
 }
