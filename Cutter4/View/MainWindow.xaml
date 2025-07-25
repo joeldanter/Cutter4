@@ -52,7 +52,7 @@
                 </Grid>
 
                 <GroupBox Grid.Row="1" Header="Output" Margin="3" >
-                    <TextBox Margin="3" Text="{Binding OutputText}" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+                    <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
                 </GroupBox>
             </Grid>
         </TabItem>
@@ -79,22 +79,20 @@
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
-                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
+                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Length}"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Count}"/>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove"/>
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove500mmStoragePanelCommand}"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add500mmStoragePanelCommand}"/>
                             </StackPanel>
                         </Grid>
-                        
-                        <ListView Margin="3" ItemsSource="{Binding StoragePanels500mm}">
-                            <ListView.View>
-                                <GridView>
-                                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Length}"/>
-                                    <GridViewColumn Header="Count" DisplayMemberBinding="{Binding Count}"/>
-                                </GridView>
-                            </ListView.View>
-                        </ListView>
+
+                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels500mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
+                                <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Grid.Row="1" Grid.Column="1" Header="610 mm" Margin="3">
@@ -112,14 +110,14 @@
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
-                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center"/>
+                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Length}"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Count}"/>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove"/>
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove610mmStoragePanelCommand}"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add610mmStoragePanelCommand}"/>
                             </StackPanel>
                         </Grid>
-                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels610mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True">
+                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels610mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
                                 <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
@@ -130,7 +128,7 @@
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Height="24" Margin="3" Padding="3" Text="Color:" FontWeight="DemiBold"/>
-                    <ComboBox Height="24" Margin="3 0 3 3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding SelectedPanelColor}"/>
+                    <ComboBox Height="24" Margin="3 0 3 3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding SelectedStorageColor}"/>
                 </StackPanel>
             </Grid>
         </TabItem>
