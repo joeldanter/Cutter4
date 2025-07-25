@@ -26,7 +26,6 @@ namespace Cutter4.View
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new MainViewModel();
         }
     }
 }
