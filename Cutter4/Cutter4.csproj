@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{68345B4F-96B8-4C4D-BD5A-1EE25435AA9B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Cutter4</RootNamespace>
     <AssemblyName>Cutter4</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
