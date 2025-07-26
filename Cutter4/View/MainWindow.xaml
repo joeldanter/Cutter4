@@ -36,10 +36,10 @@
                     <GroupBox Header="Kapuk" Margin="3" >
                         <DataGrid ItemsSource="{Binding Kapuk}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserDeleteRows="True" CanUserSortColumns="False" CanUserReorderColumns="False" RowHeaderWidth="0">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Width="*" Header="Length" Binding="{Binding Length}"/>
-                                <DataGridTextColumn Width="*" Header="Height" Binding="{Binding Height}"/>
-                                <DataGridComboBoxColumn Width="*" Header="Color" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItemBinding="{Binding Color}"/>
-                                <DataGridTextColumn Width="*" Header="Serial Number" Binding="{Binding SerialNumber}"/>
+                                <DataGridTextColumn Width="*" Header="Length" Binding="{Binding Length, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                                <DataGridTextColumn Width="*" Header="Height" Binding="{Binding Height, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                                <DataGridComboBoxColumn Width="*" Header="Color" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItemBinding="{Binding Color, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                                <DataGridTextColumn Width="*" Header="Serial Number" Binding="{Binding SerialNumber, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </GroupBox>

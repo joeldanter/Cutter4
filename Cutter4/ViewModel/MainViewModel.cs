@@ -18,7 +18,7 @@ namespace Cutter4.ViewModel
         Storage storage;
 
         [ObservableProperty]
-        ObservableCollection<Kapu> kapuk;
+        FullyObservableCollection<KapuViewModel> kapuk;
         [ObservableProperty]
         string outputText;
 
@@ -55,7 +55,7 @@ namespace Cutter4.ViewModel
             SaveDatabaseSettings();
             storage.StoragePanelsChanged += Storage_StoragePanelsChanged;
             
-            kapuk = new ObservableCollection<Kapu>();
+            kapuk = new FullyObservableCollection<KapuViewModel>();
             outputText = string.Empty;
 
             storagePanels = storage.StoragePanels();
@@ -77,9 +77,10 @@ namespace Cutter4.ViewModel
         [RelayCommand]
         void Calculate()
         {
-            PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(Kapuk);
+            List<Kapu> normalKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
+            PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(normalKapuk);
             PanelCollection<Configuration> confs = solver.Solve(panelCollectionToCut, storage.StoragePanels());
-            OutputText = solver.GenerateOutput(Kapuk, confs);
+            OutputText = solver.GenerateOutput(normalKapuk, confs);
         }
 
         [RelayCommand]
