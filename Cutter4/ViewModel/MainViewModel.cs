@@ -21,6 +21,7 @@ namespace Cutter4.ViewModel
         public FullyObservableCollection<KapuViewModel> Kapuk { get; }
         [ObservableProperty]
         string outputText;
+        bool CanCalculate { get => Kapuk.Count != 0 && Kapuk.All(kapu => !kapu.HasErrors); }
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         bool canSave;
@@ -61,8 +62,8 @@ namespace Cutter4.ViewModel
             storage.StoragePanelsChanged += Storage_StoragePanelsChanged;
             
             Kapuk = new FullyObservableCollection<KapuViewModel>();
-            Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; };
-            Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; };
+            Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
+            Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             outputText = string.Empty;
             CanSave = false;
 
@@ -82,7 +83,7 @@ namespace Cutter4.ViewModel
             OnPropertyChanged(nameof(StoragePanels610mm));
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanCalculate))]
         void Calculate()
         {
             calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
