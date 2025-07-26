@@ -5,6 +5,7 @@ using Cutter4.Model.DataBase;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -17,10 +18,12 @@ namespace Cutter4.ViewModel
         Solver solver;
         Storage storage;
 
-        [ObservableProperty]
-        FullyObservableCollection<KapuViewModel> kapuk;
+        public FullyObservableCollection<KapuViewModel> Kapuk { get; }
         [ObservableProperty]
         string outputText;
+        [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
+        bool canSave;
 
         PanelCollection<StoragePanel> storagePanels;
         public List<StoragePanel> StoragePanels500mm { get => storagePanels[new PanelType("500mm", SelectedStorageColor)]; }
@@ -29,7 +32,9 @@ namespace Cutter4.ViewModel
         [NotifyPropertyChangedFor(nameof(StoragePanels500mm))]
         [NotifyPropertyChangedFor(nameof(StoragePanels610mm))]
         PanelColors selectedStorageColor;
-        
+        List<Kapu> calculatedKapuk;
+        PanelCollection<Configuration> calculatedConfs;
+
         [ObservableProperty]
         string storagePanelToAdd500Length;
         [ObservableProperty]
@@ -55,8 +60,11 @@ namespace Cutter4.ViewModel
             SaveDatabaseSettings();
             storage.StoragePanelsChanged += Storage_StoragePanelsChanged;
             
-            kapuk = new FullyObservableCollection<KapuViewModel>();
+            Kapuk = new FullyObservableCollection<KapuViewModel>();
+            Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; };
+            Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; };
             outputText = string.Empty;
+            CanSave = false;
 
             storagePanels = storage.StoragePanels();
             selectedStorageColor = PanelColors.AF500;
@@ -77,16 +85,18 @@ namespace Cutter4.ViewModel
         [RelayCommand]
         void Calculate()
         {
-            List<Kapu> normalKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
-            PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(normalKapuk);
-            PanelCollection<Configuration> confs = solver.Solve(panelCollectionToCut, storage.StoragePanels());
-            OutputText = solver.GenerateOutput(normalKapuk, confs);
+            calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
+            PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(calculatedKapuk);
+            calculatedConfs = solver.Solve(panelCollectionToCut, storage.StoragePanels());
+            OutputText = solver.GenerateOutput(calculatedKapuk, calculatedConfs);
+            CanSave = true;
         }
 
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanSave))]
         void Save()
         {
-            throw new NotImplementedException();
+            storage.SaveNewCut(calculatedKapuk, calculatedConfs);
+            CanSave = false;
         }
 
         [RelayCommand]
