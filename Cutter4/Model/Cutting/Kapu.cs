@@ -17,7 +17,8 @@ namespace Cutter4.Model.Cutting
             }
             set
             {
-                if (0 < value && value < 13201) length = value;
+                if (1 <= value && value <= MaxLength) length = value;
+                else throw new ArgumentException("The length must be between 1 and 13200");
             }
         }
         int height;
@@ -29,7 +30,8 @@ namespace Cutter4.Model.Cutting
             }
             set
             {
-                if (0 < value && value < 5211) height = value;
+                if (1 <= value && value <= MaxHeight) height = value;
+                else throw new ArgumentException("The height must be between 1 and 5210");
             }
         }
         public PanelColors Color { get; set; }
