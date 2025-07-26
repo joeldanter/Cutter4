@@ -18,7 +18,7 @@ namespace Cutter4.Model.Cutting
             set
             {
                 if (1 <= value && value <= MaxLength) length = value;
-                else throw new ArgumentException("The length must be between 1 and 13200");
+                else throw new ArgumentException($"The length must be between 1 and {MaxLength}");
             }
         }
         int height;
@@ -31,7 +31,7 @@ namespace Cutter4.Model.Cutting
             set
             {
                 if (1 <= value && value <= MaxHeight) height = value;
-                else throw new ArgumentException("The height must be between 1 and 5210");
+                else throw new ArgumentException($"The height must be between 1 and {MaxHeight}");
             }
         }
         public PanelColors Color { get; set; }
@@ -46,7 +46,7 @@ namespace Cutter4.Model.Cutting
             {
                 if (value != value.Trim()) throw new ArgumentException("The serial number must not begin or end with whitespace");
                 if (value.Length == 0) throw new ArgumentException("The serial number can not be empty");
-                if (20 < value.Length) throw new ArgumentException("The serial number must be no more than 20 characters");
+                if (MaxSerialNumberLength < value.Length) throw new ArgumentException($"The serial number must be no more than {MaxSerialNumberLength} characters");
                 serialNumber = value;
             }
         }
@@ -93,6 +93,7 @@ namespace Cutter4.Model.Cutting
 
         public const int MaxLength = 13200;
         public const int MaxHeight = 5210;
+        public const int MaxSerialNumberLength = 20;
 
         public Kapu(int length, int height, PanelColors color, string serialNumber)
         {

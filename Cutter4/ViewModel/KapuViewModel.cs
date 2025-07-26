@@ -32,7 +32,7 @@ namespace Cutter4.ViewModel
         [NotifyDataErrorInfo]
         [Required]
         [RegularExpression(@"^\S(.*\S)?$")]
-        [MaxLength(20)]
+        [MaxLength(Kapu.MaxSerialNumberLength)]
         string serialNumber;
 
         public KapuViewModel()
