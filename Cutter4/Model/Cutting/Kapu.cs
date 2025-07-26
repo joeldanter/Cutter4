@@ -75,13 +75,8 @@ namespace Cutter4.Model.Cutting
             { 5210, 3, 6 }
         };
         
-        public Kapu()
-        {
-            length = 1000;
-            height = 1000;
-            Color = PanelColors.F100;
-            SerialNumber = "-";
-        }
+        public const int MaxLength = 13200;
+        public const int MaxHeight = 5210;
 
         public Kapu(int length, int height, PanelColors color, string serialNumber)
         {
