@@ -44,10 +44,12 @@ namespace Cutter4.ViewModel
         string storagePanelToAdd500Length = string.Empty;
         [ObservableProperty]
         string storagePanelToAdd500Count = string.Empty;
+        public Action SelectStoragePanelToAdd500Count { get; set; }
         [ObservableProperty]
         string storagePanelToAdd610Length = string.Empty;
         [ObservableProperty]
         string storagePanelToAdd610Count = string.Empty;
+        public Action SelectStoragePanelToAdd610Count { get; set; }
 
         [ObservableProperty]
         string server = "127.0.0.1";
@@ -104,6 +106,7 @@ namespace Cutter4.ViewModel
         {
             StoragePanelToAdd500Length = Selected500mmStoragePanel?.Length.ToString();
             Selected500mmStoragePanel = null;
+            SelectStoragePanelToAdd500Count();
         }
 
         [RelayCommand]
@@ -111,6 +114,7 @@ namespace Cutter4.ViewModel
         {
             StoragePanelToAdd610Length = Selected610mmStoragePanel?.Length.ToString();
             Selected610mmStoragePanel = null;
+            SelectStoragePanelToAdd610Count();
         }
 
         [RelayCommand]
@@ -120,6 +124,8 @@ namespace Cutter4.ViewModel
             int length = Convert.ToInt32(StoragePanelToAdd500Length);
             int count = Convert.ToInt32(StoragePanelToAdd500Count);
             storage.ChangeStoragePanelCount(type, length, count);
+            StoragePanelToAdd500Length = string.Empty;
+            StoragePanelToAdd500Count = string.Empty;
         }
 
         [RelayCommand]
@@ -129,6 +135,8 @@ namespace Cutter4.ViewModel
             int length = Convert.ToInt32(StoragePanelToAdd500Length);
             int count = Convert.ToInt32(StoragePanelToAdd500Count);
             storage.ChangeStoragePanelCount(type, length, -count);
+            StoragePanelToAdd500Length = string.Empty;
+            StoragePanelToAdd500Count = string.Empty;
         }
 
         [RelayCommand]
@@ -138,6 +146,8 @@ namespace Cutter4.ViewModel
             int length = Convert.ToInt32(StoragePanelToAdd610Length);
             int count = Convert.ToInt32(StoragePanelToAdd610Count);
             storage.ChangeStoragePanelCount(type, length, count);
+            StoragePanelToAdd610Length = string.Empty;
+            StoragePanelToAdd610Count = string.Empty;
         }
 
         [RelayCommand]
@@ -147,6 +157,8 @@ namespace Cutter4.ViewModel
             int length = Convert.ToInt32(StoragePanelToAdd610Length);
             int count = Convert.ToInt32(StoragePanelToAdd610Count);
             storage.ChangeStoragePanelCount(type, length, -count);
+            StoragePanelToAdd610Length = string.Empty;
+            StoragePanelToAdd610Count = string.Empty;
         }
 
         [RelayCommand]

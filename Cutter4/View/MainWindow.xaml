@@ -80,7 +80,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
                             <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Length}"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Count}"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Count}" x:Name="StoragePanelToAdd500Count"/>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove500mmStoragePanelCommand}"/>
                                 <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add500mmStoragePanelCommand}"/>
@@ -114,7 +114,7 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
                             <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Length}"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Count}"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Count}" x:Name="StoragePanelToAdd610Count"/>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
                                 <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove610mmStoragePanelCommand}"/>
                                 <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add610mmStoragePanelCommand}"/>
