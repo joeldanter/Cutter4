@@ -26,7 +26,10 @@ namespace Cutter4.ViewModel
         [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         bool canSave = false;
 
-        PanelCollection<StoragePanel> SPsCollection;
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SPs500))]
+        [NotifyPropertyChangedFor(nameof(SPs610))]
+        PanelCollection<StoragePanel> sPsCollection;
         public List<StoragePanel> SPs500 { get => SPsCollection[new PanelType("500mm", SelectedStorageColor)]; }
         public List<StoragePanel> SPs610 { get => SPsCollection[new PanelType("610mm", SelectedStorageColor)]; }
         [ObservableProperty]
@@ -63,18 +66,11 @@ namespace Cutter4.ViewModel
         public MainViewModel()
         {
             SaveDatabaseSettings();
-            storage.StoragePanelsChanged += Storage_StoragePanelsChanged;
+            storage.StoragePanelsChanged += (object sender, EventArgs e) => { SPsCollection = storage.StoragePanels(); };
             SPsCollection = storage.StoragePanels();
 
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
-        }
-
-        private void Storage_StoragePanelsChanged(object sender, EventArgs e)
-        {
-            SPsCollection = storage.StoragePanels();
-            OnPropertyChanged(nameof(SPs500));
-            OnPropertyChanged(nameof(SPs610));
         }
 
         [RelayCommand(CanExecute = nameof(canCalculate))]
