@@ -79,21 +79,21 @@
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
-                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Length}"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd500Count}" x:Name="StoragePanelToAdd500Count"/>
+                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding New500SPLength}"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding New500SPCount}" x:Name="New500SPCount"/>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove500mmStoragePanelCommand}"/>
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add500mmStoragePanelCommand}"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove500SPCommand}"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add500SPCommand}"/>
                             </StackPanel>
                         </Grid>
 
-                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels500mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" SelectedItem="{Binding Selected500mmStoragePanel}">
+                        <DataGrid Margin="3" ItemsSource="{Binding SPs500}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" SelectedItem="{Binding Selected500SP}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
                                 <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
                             </DataGrid.Columns>
                             <DataGrid.InputBindings>
-                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClicked500mmStoragePanelCommand}"/>
+                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClicked500SPCommand}"/>
                             </DataGrid.InputBindings>
                         </DataGrid>
                     </DockPanel>
@@ -113,20 +113,20 @@
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Length:"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Height="24" Margin="3" Padding="3" VerticalAlignment="Center" FontWeight="DemiBold" Text="Count:"/>
-                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Length}"/>
-                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding StoragePanelToAdd610Count}" x:Name="StoragePanelToAdd610Count"/>
+                            <TextBox   Grid.Row="0" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding New610SPLength}"/>
+                            <TextBox   Grid.Row="1" Grid.Column="1" Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding New610SPCount}" x:Name="New610SPCount"/>
                             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove610mmStoragePanelCommand}"/>
-                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add610mmStoragePanelCommand}"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Remove" Command="{Binding Remove610SPCommand}"/>
+                                <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add610SPCommand}"/>
                             </StackPanel>
                         </Grid>
-                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels610mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False"  SelectedItem="{Binding Selected610mmStoragePanel}">
+                        <DataGrid Margin="3" ItemsSource="{Binding SPs610}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" SelectedItem="{Binding Selected610SP}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
                                 <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
                             </DataGrid.Columns>
                             <DataGrid.InputBindings>
-                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClicked610mmStoragePanelCommand}"/>
+                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClicked610SPCommand}"/>
                             </DataGrid.InputBindings>
                         </DataGrid>
                     </DockPanel>

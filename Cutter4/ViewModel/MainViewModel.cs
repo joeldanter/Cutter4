@@ -26,30 +26,30 @@ namespace Cutter4.ViewModel
         [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         bool canSave = false;
 
-        PanelCollection<StoragePanel> storagePanels;
-        public List<StoragePanel> StoragePanels500mm { get => storagePanels[new PanelType("500mm", SelectedStorageColor)]; }
-        public List<StoragePanel> StoragePanels610mm { get => storagePanels[new PanelType("610mm", SelectedStorageColor)]; }
+        PanelCollection<StoragePanel> SPsCollection;
+        public List<StoragePanel> SPs500 { get => SPsCollection[new PanelType("500mm", SelectedStorageColor)]; }
+        public List<StoragePanel> SPs610 { get => SPsCollection[new PanelType("610mm", SelectedStorageColor)]; }
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(StoragePanels500mm))]
-        [NotifyPropertyChangedFor(nameof(StoragePanels610mm))]
+        [NotifyPropertyChangedFor(nameof(SPs500))]
+        [NotifyPropertyChangedFor(nameof(SPs610))]
         PanelColors selectedStorageColor = PanelColors.AF500;
         [ObservableProperty]
-        StoragePanel? selected500mmStoragePanel;
+        StoragePanel? selected500SP;
         [ObservableProperty]
-        StoragePanel? selected610mmStoragePanel;
+        StoragePanel? selected610SP;
         List<Kapu> calculatedKapuk;
         PanelCollection<Configuration> calculatedConfs;
 
         [ObservableProperty]
-        string storagePanelToAdd500Length = string.Empty;
+        string new500SPLength = string.Empty;
         [ObservableProperty]
-        string storagePanelToAdd500Count = string.Empty;
-        public Action SelectStoragePanelToAdd500Count { get; set; }
+        string new500SPCount = string.Empty;
+        public Action SelectNew500SPCount { get; set; }
         [ObservableProperty]
-        string storagePanelToAdd610Length = string.Empty;
+        string new610SPLength = string.Empty;
         [ObservableProperty]
-        string storagePanelToAdd610Count = string.Empty;
-        public Action SelectStoragePanelToAdd610Count { get; set; }
+        string new610SPCount = string.Empty;
+        public Action SelectNew610SPCount { get; set; }
 
         [ObservableProperty]
         string server = "127.0.0.1";
@@ -64,7 +64,7 @@ namespace Cutter4.ViewModel
         {
             SaveDatabaseSettings();
             storage.StoragePanelsChanged += Storage_StoragePanelsChanged;
-            storagePanels = storage.StoragePanels();
+            SPsCollection = storage.StoragePanels();
 
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
@@ -72,9 +72,9 @@ namespace Cutter4.ViewModel
 
         private void Storage_StoragePanelsChanged(object sender, EventArgs e)
         {
-            storagePanels = storage.StoragePanels();
-            OnPropertyChanged(nameof(StoragePanels500mm));
-            OnPropertyChanged(nameof(StoragePanels610mm));
+            SPsCollection = storage.StoragePanels();
+            OnPropertyChanged(nameof(SPs500));
+            OnPropertyChanged(nameof(SPs610));
         }
 
         [RelayCommand(CanExecute = nameof(canCalculate))]
@@ -102,63 +102,63 @@ namespace Cutter4.ViewModel
         }
 
         [RelayCommand]
-        void DoubleClicked500mmStoragePanel()
+        void DoubleClicked500SP()
         {
-            StoragePanelToAdd500Length = Selected500mmStoragePanel?.Length.ToString();
-            Selected500mmStoragePanel = null;
-            SelectStoragePanelToAdd500Count();
+            New500SPLength = Selected500SP?.Length.ToString();
+            Selected500SP = null;
+            SelectNew500SPCount();
         }
 
         [RelayCommand]
-        void DoubleClicked610mmStoragePanel()
+        void DoubleClicked610SP()
         {
-            StoragePanelToAdd610Length = Selected610mmStoragePanel?.Length.ToString();
-            Selected610mmStoragePanel = null;
-            SelectStoragePanelToAdd610Count();
+            New610SPLength = Selected610SP?.Length.ToString();
+            Selected610SP = null;
+            SelectNew610SPCount();
         }
 
         [RelayCommand]
-        void Add500mmStoragePanel()
+        void Add500SP()
         {
             PanelType type = new PanelType("500mm", SelectedStorageColor);
-            int length = Convert.ToInt32(StoragePanelToAdd500Length);
-            int count = Convert.ToInt32(StoragePanelToAdd500Count);
+            int length = Convert.ToInt32(New500SPLength);
+            int count = Convert.ToInt32(New500SPCount);
             storage.ChangeStoragePanelCount(type, length, count);
-            StoragePanelToAdd500Length = string.Empty;
-            StoragePanelToAdd500Count = string.Empty;
+            New500SPLength = string.Empty;
+            New500SPCount = string.Empty;
         }
 
         [RelayCommand]
-        void Remove500mmStoragePanel()
+        void Remove500SP()
         {
             PanelType type = new PanelType("500mm", SelectedStorageColor);
-            int length = Convert.ToInt32(StoragePanelToAdd500Length);
-            int count = Convert.ToInt32(StoragePanelToAdd500Count);
+            int length = Convert.ToInt32(New500SPLength);
+            int count = Convert.ToInt32(New500SPCount);
             storage.ChangeStoragePanelCount(type, length, -count);
-            StoragePanelToAdd500Length = string.Empty;
-            StoragePanelToAdd500Count = string.Empty;
+            New500SPLength = string.Empty;
+            New500SPCount = string.Empty;
         }
 
         [RelayCommand]
-        void Add610mmStoragePanel()
+        void Add610SP()
         {
             PanelType type = new PanelType("610mm", SelectedStorageColor);
-            int length = Convert.ToInt32(StoragePanelToAdd610Length);
-            int count = Convert.ToInt32(StoragePanelToAdd610Count);
+            int length = Convert.ToInt32(New610SPLength);
+            int count = Convert.ToInt32(New610SPCount);
             storage.ChangeStoragePanelCount(type, length, count);
-            StoragePanelToAdd610Length = string.Empty;
-            StoragePanelToAdd610Count = string.Empty;
+            New610SPLength = string.Empty;
+            New610SPCount = string.Empty;
         }
 
         [RelayCommand]
-        void Remove610mmStoragePanel()
+        void Remove610SP()
         {
             PanelType type = new PanelType("610mm", SelectedStorageColor);
-            int length = Convert.ToInt32(StoragePanelToAdd610Length);
-            int count = Convert.ToInt32(StoragePanelToAdd610Count);
+            int length = Convert.ToInt32(New610SPLength);
+            int count = Convert.ToInt32(New610SPCount);
             storage.ChangeStoragePanelCount(type, length, -count);
-            StoragePanelToAdd610Length = string.Empty;
-            StoragePanelToAdd610Count = string.Empty;
+            New610SPLength = string.Empty;
+            New610SPCount = string.Empty;
         }
 
         [RelayCommand]

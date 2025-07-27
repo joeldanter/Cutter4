@@ -27,15 +27,15 @@ namespace Cutter4.View
         {
             InitializeComponent();
             MainViewModel vm = (MainViewModel)DataContext;
-            vm.SelectStoragePanelToAdd500Count += () => 
+            vm.SelectNew500SPCount += () => 
             {
-                Keyboard.Focus(StoragePanelToAdd500Count);
-                StoragePanelToAdd500Count.SelectAll();
+                Keyboard.Focus(New500SPCount);
+                New500SPCount.SelectAll();
             };
-            vm.SelectStoragePanelToAdd610Count += () =>
+            vm.SelectNew610SPCount += () =>
             {
-                Keyboard.Focus(StoragePanelToAdd610Count);
-                StoragePanelToAdd610Count.SelectAll();
+                Keyboard.Focus(New610SPCount);
+                New610SPCount.SelectAll();
             };
         }
     }
