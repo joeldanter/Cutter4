@@ -33,6 +33,10 @@ namespace Cutter4.ViewModel
         [NotifyPropertyChangedFor(nameof(StoragePanels500mm))]
         [NotifyPropertyChangedFor(nameof(StoragePanels610mm))]
         PanelColors selectedStorageColor;
+        [ObservableProperty]
+        StoragePanel? selected500mmStoragePanel;
+        [ObservableProperty]
+        StoragePanel? selected610mmStoragePanel;
         List<Kapu> calculatedKapuk;
         PanelCollection<Configuration> calculatedConfs;
 
@@ -105,6 +109,20 @@ namespace Cutter4.ViewModel
         {
             Kapuk.Clear();
             OutputText = string.Empty;
+        }
+
+        [RelayCommand]
+        void DoubleClicked500mmStoragePanel()
+        {
+            StoragePanelToAdd500Length = Selected500mmStoragePanel?.Length.ToString();
+            Selected500mmStoragePanel = null;
+        }
+
+        [RelayCommand]
+        void DoubleClicked610mmStoragePanel()
+        {
+            StoragePanelToAdd610Length = Selected610mmStoragePanel?.Length.ToString();
+            Selected610mmStoragePanel = null;
         }
 
         [RelayCommand]

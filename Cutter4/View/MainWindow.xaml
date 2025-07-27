@@ -87,11 +87,14 @@
                             </StackPanel>
                         </Grid>
 
-                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels500mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
+                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels500mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" SelectedItem="{Binding Selected500mmStoragePanel}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
                                 <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
                             </DataGrid.Columns>
+                            <DataGrid.InputBindings>
+                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClicked500mmStoragePanelCommand}"/>
+                            </DataGrid.InputBindings>
                         </DataGrid>
                     </DockPanel>
                 </GroupBox>
@@ -117,11 +120,14 @@
                                 <Button Width="80" Height="24" Margin="3" Padding="3" Content="Add" Command="{Binding Add610mmStoragePanelCommand}"/>
                             </StackPanel>
                         </Grid>
-                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels610mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
+                        <DataGrid Margin="3" ItemsSource="{Binding StoragePanels610mm}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False"  SelectedItem="{Binding Selected610mmStoragePanel}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
                                 <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
                             </DataGrid.Columns>
+                            <DataGrid.InputBindings>
+                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding DoubleClicked610mmStoragePanelCommand}"/>
+                            </DataGrid.InputBindings>
                         </DataGrid>
                     </DockPanel>
                 </GroupBox>
