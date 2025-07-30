@@ -72,6 +72,11 @@ namespace Cutter4.ViewModel
         public Action SelectNew610SPCount { get; set; }
 
         [ObservableProperty]
+        ObservableCollection<IStorageAction> storageActions = new ObservableCollection<IStorageAction>();
+        [ObservableProperty]
+        IStorageAction selectedStorageAction = null;
+
+        [ObservableProperty]
         string server = "127.0.0.1";
         [ObservableProperty]
         string databaseName = "cutter";
@@ -88,6 +93,29 @@ namespace Cutter4.ViewModel
 
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
+
+            storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageActions(); };
+            storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageActions(); };
+            LoadStorageActions();
+        }
+
+        void LoadStorageActions()
+        {
+            List<IStorageAction> actions = new List<IStorageAction>();
+            foreach (Order order in storage.ListPreviousOrders())
+            {
+                string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations);
+                OrderSaveAction orderAction = new OrderSaveAction(order, orderOutput);
+                actions.Add(orderAction);
+            }
+            foreach (StorageEdit edit in storage.ListPreviousStorageEdits())
+            {
+                StorageEditAction editAction = new StorageEditAction(edit);
+                actions.Add(editAction);
+            }
+            actions.Sort((action1, action2) => action2.DateTime.CompareTo(action1.DateTime));
+
+            StorageActions = new ObservableCollection<IStorageAction>(actions);
         }
 
         [RelayCommand(CanExecute = nameof(canCalculate))]

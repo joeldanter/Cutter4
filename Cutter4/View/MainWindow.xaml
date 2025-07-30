@@ -141,26 +141,25 @@
         <TabItem Header="History" Padding="3">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="220"/>
+                    <ColumnDefinition Width="260"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
-                <GroupBox Header="Changes" Margin="3">
+                <GroupBox Header="Actions on storage" Margin="3">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Grid.ColumnSpan="2" Orientation="Horizontal">
                             <Button Content="Revert and Modify" Width="120" Height="24" IsEnabled="False" Margin="3"/>
                         </StackPanel>
-                        <ListView Margin="3">
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Label}"/>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+                        <DataGrid ItemsSource="{Binding StorageActions}" SelectedItem="{Binding SelectedStorageAction}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="0" IsReadOnly="True" CanUserReorderColumns="False" SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" Width="1.25*"/>
+                                <DataGridTextColumn Header="Summary" Binding="{Binding Summary}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Grid.Column="1" Header="Details" Margin="3">
-                    <TextBox Margin="3" IsReadOnly="True"/>
+                    <TextBox Text="{Binding SelectedStorageAction.Details}" Margin="3" IsReadOnly="True"/>
                 </GroupBox>
             </Grid>
         </TabItem>
