@@ -10,16 +10,16 @@ namespace Cutter4.ViewModel
 {
     public interface IStorageAction
     {
-        string Summary { get; set; }
-        string Details { get; set; }
-        DateTime DateTime { get; set; }
+        string Summary { get; }
+        string Details { get; }
+        DateTime DateTime { get; }
     }
 
     public class StorageEditAction : IStorageAction
     {
-        public string Summary { get; set; }
-        public string Details { get; set; }
-        public DateTime DateTime { get; set; }
+        public string Summary { get; }
+        public string Details { get; }
+        public DateTime DateTime { get; }
 
         public StorageEditAction(StorageEdit storageEdit)
         {
@@ -31,9 +31,9 @@ namespace Cutter4.ViewModel
 
     public class OrderSaveAction : IStorageAction
     {
-        public string Summary { get; set; }
-        public string Details { get; set; }
-        public DateTime DateTime { get; set; }
+        public string Summary { get; }
+        public string Details { get; }
+        public DateTime DateTime { get; }
 
         public OrderSaveAction(Order order, string orderOutput)
         {
