@@ -20,6 +20,9 @@ namespace Cutter4.ViewModel
         Storage storage = new Storage();
 
         [ObservableProperty]
+        int selectedTabIndex;
+
+        [ObservableProperty]
         FullyObservableCollection<KapuViewModel> kapuk = new FullyObservableCollection<KapuViewModel>();
         [ObservableProperty]
         string outputText = string.Empty;

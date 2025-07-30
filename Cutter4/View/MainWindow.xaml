@@ -19,7 +19,7 @@
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
     </Window.Resources>
-    <TabControl>
+    <TabControl SelectedIndex="{Binding SelectedTabIndex}">
         <TabItem Header="Cutting" Padding="3">
             <Grid>
                 <Grid.RowDefinitions>
