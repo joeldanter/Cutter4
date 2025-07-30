@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Cutter4.Tests
 {
-    public class SolverTests
+    public class GreedySolverTests
     {
         public static IEnumerable<object[]> PanelsData()
         {
@@ -67,7 +67,7 @@ namespace Cutter4.Tests
         [MemberData(nameof(PanelsData))]
         public void Solve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
         {
-            Solver solver = new Solver();
+            GreedySolver solver = new GreedySolver();
             
             PanelCollection<Configuration> resultConfigurationsCollection = solver.Solve(panelCollectionToCut, storagePanels());
 

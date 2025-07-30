@@ -15,7 +15,8 @@ namespace Cutter4.ViewModel
 {
     public partial class MainViewModel : ObservableObject
     {
-        Solver solver = new Solver();
+        ICuttingStockSolver solver = new GreedySolver();
+        ICutOutputGenerator outputGenerator = new CompactOutputGenerator();
         Storage storage = new Storage();
 
         public FullyObservableCollection<KapuViewModel> Kapuk { get; } = new FullyObservableCollection<KapuViewModel>();
@@ -95,7 +96,7 @@ namespace Cutter4.ViewModel
             calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
             PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(calculatedKapuk);
             calculatedConfs = solver.Solve(panelCollectionToCut, storage.StoragePanels());
-            OutputText = solver.GenerateOutput(calculatedKapuk, calculatedConfs);
+            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, calculatedConfs);
             CanSave = true;
         }
 
