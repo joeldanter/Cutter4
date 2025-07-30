@@ -22,8 +22,7 @@ namespace Cutter4.ViewModel
         [ObservableProperty]
         int selectedTabIndex;
 
-        [ObservableProperty]
-        FullyObservableCollection<KapuViewModel> kapuk = new FullyObservableCollection<KapuViewModel>();
+        public FullyObservableCollection<KapuViewModel> Kapuk { get; } = new FullyObservableCollection<KapuViewModel>();
         [ObservableProperty]
         string outputText = string.Empty;
         bool canCalculate { get => Kapuk.Count != 0 && Kapuk.All(kapu => !kapu.HasErrors); }
