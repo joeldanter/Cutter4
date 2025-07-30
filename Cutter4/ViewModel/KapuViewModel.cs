@@ -45,6 +45,16 @@ namespace Cutter4.ViewModel
             ValidateAllProperties();
         }
 
+        public KapuViewModel(Kapu kapu)
+        {
+            Length = kapu.Length;
+            Height = kapu.Height;
+            Color = kapu.Color;
+            SerialNumber = kapu.SerialNumber;
+
+            ValidateAllProperties();
+        }
+
         public Kapu ActualKapu()
         {
             if (HasErrors)
