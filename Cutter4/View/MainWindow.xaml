@@ -148,7 +148,7 @@
                 <GroupBox Header="Actions on storage" Margin="3">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Grid.ColumnSpan="2" Orientation="Horizontal">
-                            <Button Content="Revert and Modify" Width="120" Height="24" IsEnabled="False" Margin="3"/>
+                            <Button Content="Revert and Modify" Width="120" Height="24" Margin="3" Command="{Binding RevertOrderCommand}"/>
                         </StackPanel>
                         <DataGrid ItemsSource="{Binding StorageActions}" SelectedItem="{Binding SelectedStorageAction}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="0" IsReadOnly="True" CanUserReorderColumns="False" SelectionMode="Single">
                             <DataGrid.Columns>

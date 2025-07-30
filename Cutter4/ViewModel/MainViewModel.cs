@@ -77,7 +77,16 @@ namespace Cutter4.ViewModel
         [ObservableProperty]
         ObservableCollection<IStorageAction> storageActions = new ObservableCollection<IStorageAction>();
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]
         IStorageAction selectedStorageAction = null;
+        bool canRevertOrder 
+        {
+            get 
+            {
+                IStorageAction lastOrderSaveAction = StorageActions.MaxBy(action => action.DateTime.Ticks * (action is OrderSaveAction ? 1 : 0));
+                return SelectedStorageAction == lastOrderSaveAction;
+            }
+        }
 
         [ObservableProperty]
         string server = "127.0.0.1";
@@ -224,6 +233,20 @@ namespace Cutter4.ViewModel
             storage.ChangeStoragePanelCount(type, length, -count);
             New610SPLength = string.Empty;
             New610SPCount = string.Empty;
+        }
+
+        [RelayCommand(CanExecute = nameof(canRevertOrder))]
+        void RevertOrder()
+        {
+            SelectedTabIndex = 0;
+            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveAction)SelectedStorageAction).Kapuk;
+            Kapuk.Clear();
+            foreach (Kapu kapu in orderKapuk)
+            {
+                Kapuk.Add(new KapuViewModel(kapu));
+            }
+            OutputText = string.Empty;
+            storage.UndoLastSavedCut();
         }
 
         [RelayCommand]
