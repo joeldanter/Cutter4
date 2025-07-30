@@ -21,7 +21,7 @@ namespace Cutter4.Model.DataBase
 
         public event EventHandler StoragePanelsChanged;
         public event EventHandler OrderListChanged;
-        public event EventHandler StorageEditingsListChanged;
+        public event EventHandler StorageEditsListChanged;
 
         void OnStoragePanelsChanged()
         {
@@ -33,9 +33,9 @@ namespace Cutter4.Model.DataBase
             OrderListChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        void OnStorageEditingsListChanged()
+        void OnStorageEditsListChanged()
         {
-            StorageEditingsListChanged?.Invoke(this, EventArgs.Empty);
+            StorageEditsListChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public Storage() {  }
@@ -618,7 +618,7 @@ WHERE colors.name = ""{type.Color}""
                 executeNonQueryWithTransaction(commandText, connection, transaction);
 
                 commandText = $@"
-INSERT INTO storage_editings(date, panel_id, delta_count)
+INSERT INTO storage_edits(date, panel_id, delta_count)
 SELECT NOW(), panels.id, {deltaCount}
 FROM panels
 LEFT JOIN colors
@@ -631,7 +631,7 @@ WHERE colors.name=""{type.Color}""
                 transaction.Commit();
 
                 OnStoragePanelsChanged();
-                OnStorageEditingsListChanged();
+                OnStorageEditsListChanged();
             }
             catch (MySqlException e)
             {
@@ -738,23 +738,23 @@ INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
             return ordersByIds.Values.ToList();
         }
 
-        public List<StorageEditing> ListPreviousStorageEditings(int maxCount)
+        public List<StorageEdit> ListPreviousStorageEdits(int maxCount)
         {
             if (maxCount < 1)
                 throw new ArgumentException(nameof(maxCount) + " can not be smaller than 1");
             
             string query = $@"
-SELECT storage_editings.date, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_editings.delta_count
-FROM storage_editings
+SELECT storage_edits.date, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_edits.delta_count
+FROM storage_edits
 LEFT JOIN panels
-    ON storage_editings.panel_id=panels.id
+    ON storage_edits.panel_id=panels.id
 LEFT JOIN colors
     ON panels.color_id=colors.id
-ORDER BY storage_editings.date DESC
+ORDER BY storage_edits.date DESC
 LIMIT {maxCount};";
             DataSet dataSet = executeQuery(connString, query);
 
-            List<StorageEditing> storageEditings = new List<StorageEditing>();
+            List<StorageEdit> storageEdits = new List<StorageEdit>();
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 DateTime dateTime = (DateTime)row["date"];
@@ -763,11 +763,11 @@ LIMIT {maxCount};";
                 string panel_width = row["panel_width"].ToString();
                 int delta_count = Convert.ToInt32(row["delta_count"]);
 
-                StorageEditing storageEditing = new StorageEditing(dateTime, panel_length, panel_color, panel_width, delta_count);
-                storageEditings.Add(storageEditing);
+                StorageEdit storageEdit = new StorageEdit(dateTime, panel_length, panel_color, panel_width, delta_count);
+                storageEdits.Add(storageEdit);
             }
 
-            return storageEditings;
+            return storageEdits;
         }
     }
 }

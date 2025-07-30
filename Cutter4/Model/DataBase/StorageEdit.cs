@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Cutter4.Model.DataBase
 {
-    public class StorageEditing
+    public class StorageEdit
     {
         public DateTime DateTime { get; }
         public int PanelLength { get; }
@@ -15,7 +15,7 @@ namespace Cutter4.Model.DataBase
         public string PanelWidth { get; }
         public int DeltaCount { get; }
 
-        public StorageEditing(DateTime dateTime, int panelLength, PanelColors panelColor, string panelWidth, int deltaCount)
+        public StorageEdit(DateTime dateTime, int panelLength, PanelColors panelColor, string panelWidth, int deltaCount)
         {
             DateTime = dateTime;
             PanelLength = panelLength;
