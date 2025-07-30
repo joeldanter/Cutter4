@@ -12,13 +12,6 @@
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
-    <Window.Resources>
-        <ObjectDataProvider x:Key="PanelColors" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="cutting:PanelColors"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-    </Window.Resources>
     <TabControl SelectedIndex="{Binding SelectedTabIndex}">
         <TabItem Header="Cutting" Padding="3">
             <Grid>

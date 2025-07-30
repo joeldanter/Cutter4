@@ -2,8 +2,14 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Cutter4"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:cutting="clr-namespace:Cutter4.Model.Cutting"
              StartupUri="View/MainWindow.xaml">
     <Application.Resources>
-         
+        <ObjectDataProvider x:Key="PanelColors" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="cutting:PanelColors"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </Application.Resources>
 </Application>
