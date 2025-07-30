@@ -105,7 +105,7 @@ namespace Cutter4.ViewModel
             foreach (Order order in storage.ListPreviousOrders())
             {
                 string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations);
-                OrderSaveAction orderAction = new OrderSaveAction(order, orderOutput);
+                OrderSaveAction orderAction = new OrderSaveAction(order, order.Kapuk, orderOutput);
                 actions.Add(orderAction);
             }
             foreach (StorageEdit edit in storage.ListPreviousStorageEdits())

@@ -2,6 +2,7 @@
 using Cutter4.Model.DataBase;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,12 +35,14 @@ namespace Cutter4.ViewModel
         public string Summary { get; }
         public string Details { get; }
         public DateTime DateTime { get; }
+        public ReadOnlyCollection<Kapu> Kapuk { get; }
 
-        public OrderSaveAction(Order order, string orderOutput)
+        public OrderSaveAction(Order order, IList<Kapu> kapuk, string orderOutput)
         {
             Summary = $"Ordered {order.Kapuk.Count} Kapu";
             Details = orderOutput;
             DateTime = order.DateTime;
+            Kapuk = new ReadOnlyCollection<Kapu>(kapuk);
         }
     }
 }
