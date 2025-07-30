@@ -159,7 +159,7 @@
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Grid.Column="1" Header="Details" Margin="3">
-                    <TextBox Text="{Binding SelectedStorageAction.Details}" Margin="3" IsReadOnly="True"/>
+                    <TextBox Text="{Binding SelectedStorageAction.Details, Mode=OneWay}" Margin="3" IsReadOnly="True"/>
                 </GroupBox>
             </Grid>
         </TabItem>
