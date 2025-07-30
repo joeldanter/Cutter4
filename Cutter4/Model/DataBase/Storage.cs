@@ -647,15 +647,11 @@ WHERE colors.name=""{type.Color}""
             }
         }
 
-        public List<Order> ListPreviousOrders(int maxCount)
+        public List<Order> ListPreviousOrders()
         {
-            if (maxCount < 1)
-                throw new ArgumentException(nameof(maxCount) + " can not be smaller than 1");
-
             string query = $@"
 SELECT id, date FROM orders
-ORDER BY date DESC
-LIMIT {maxCount};";
+ORDER BY date DESC;";
             DataSet orderDatesDataSet = executeQuery(connString, query);
 
             Dictionary<long, Order> ordersByIds = new Dictionary<long, Order>();
@@ -672,7 +668,7 @@ SELECT orders.id AS order_id, kapuk.length AS kapu_length, kapuk.height AS kapu_
 FROM kapuk
 LEFT JOIN colors
     ON kapuk.color_id = colors.id
-INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
+INNER JOIN orders
     ON kapuk.order_id = orders.id;";
             DataSet kapukDataSet = executeQuery(connString, query);
 
@@ -695,7 +691,7 @@ LEFT JOIN panels
     ON cut_configurations.used_panel_id=panels.id
 LEFT JOIN colors
     ON panels.color_id = colors.id
-INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
+INNER JOIN orders
     ON cut_configurations.order_id = orders.id;";
             DataSet confsDataSet = executeQuery(connString, query);
 
@@ -721,7 +717,7 @@ LEFT JOIN kapuk
     ON cut_elements.kapu_id = kapuk.id
 LEFT JOIN cut_configurations
     ON cut_elements.configuration_id = cut_configurations.id
-INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
+INNER JOIN orders
     ON cut_configurations.order_id = orders.id;";
             DataSet CutElementsDataSet = executeQuery(connString, query);
 
@@ -738,20 +734,15 @@ INNER JOIN (SELECT id FROM orders ORDER BY date DESC LIMIT {maxCount}) orders
             return ordersByIds.Values.ToList();
         }
 
-        public List<StorageEdit> ListPreviousStorageEdits(int maxCount)
+        public List<StorageEdit> ListPreviousStorageEdits()
         {
-            if (maxCount < 1)
-                throw new ArgumentException(nameof(maxCount) + " can not be smaller than 1");
-            
             string query = $@"
 SELECT storage_edits.date, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_edits.delta_count
 FROM storage_edits
 LEFT JOIN panels
     ON storage_edits.panel_id=panels.id
 LEFT JOIN colors
-    ON panels.color_id=colors.id
-ORDER BY storage_edits.date DESC
-LIMIT {maxCount};";
+    ON panels.color_id=colors.id;";
             DataSet dataSet = executeQuery(connString, query);
 
             List<StorageEdit> storageEdits = new List<StorageEdit>();
