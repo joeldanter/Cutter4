@@ -37,12 +37,12 @@ namespace Cutter4.ViewModel
         public DateTime DateTime { get; }
         public ReadOnlyCollection<Kapu> Kapuk { get; }
 
-        public OrderSaveAction(Order order, IList<Kapu> kapuk, string orderOutput)
+        public OrderSaveAction(Order order, string orderOutput)
         {
             Summary = $"Ordered {order.Kapuk.Count} Kapu";
             Details = orderOutput;
             DateTime = order.DateTime;
-            Kapuk = new ReadOnlyCollection<Kapu>(kapuk);
+            Kapuk = new ReadOnlyCollection<Kapu>(order.Kapuk);
         }
     }
 }
