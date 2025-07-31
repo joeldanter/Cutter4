@@ -22,7 +22,6 @@ namespace Cutter4.Model.DataBase
         {
             get
             {
-                string prev = $"Server={Server}; database={DatabaseName}; UID={UserName}; password={Password}";
                 MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder()
                 {
                     Server=Server,
