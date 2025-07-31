@@ -40,6 +40,22 @@ namespace Cutter4.Model.DataBase
 
         public Storage() {  }
 
+        public bool CanConnect()
+        {
+            using (MySqlConnection conn = new MySqlConnection(connString))
+            {
+                try
+                {
+                    conn.Open();
+                    return conn.Ping();
+                }
+                catch (MySqlException)
+                {
+                    return false;
+                }
+            }
+        }
+
         long executeNonQueryWithTransaction(string commandText, MySqlConnection connection, MySqlTransaction transaction, params MySqlParameter[] parameters)
         {
             using (MySqlCommand command = new MySqlCommand(commandText, connection, transaction))
