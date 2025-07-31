@@ -128,17 +128,17 @@ namespace Cutter4.Model.DataBase
                 OnStoragePanelsChanged();
                 OnOrderListChanged();
             }
-            catch (MySqlException e)
+            catch
             {
                 try
                 {
                     transaction.Rollback();
                 }
-                catch (MySqlException ex)
+                catch
                 {
-                    throw ex;
+                    throw;
                 }
-                throw e;
+                throw;
             }
         }
 
@@ -428,17 +428,17 @@ LEFT JOIN kapuk
                 OnStoragePanelsChanged();
                 OnOrderListChanged();
             }
-            catch (MySqlException e)
+            catch
             {
                 try
                 {
                     transaction.Rollback();
                 }
-                catch (MySqlException ex)
+                catch
                 {
-                    throw ex;
+                    throw;
                 }
-                throw e;
+                throw;
             }
         }
         
@@ -664,17 +664,17 @@ WHERE colors.name=""{type.Color}""
                 OnStoragePanelsChanged();
                 OnStorageEditsListChanged();
             }
-            catch (MySqlException e)
+            catch
             {
                 try
                 {
                     transaction.Rollback();
                 }
-                catch (MySqlException ex)
+                catch
                 {
-                    throw ex;
+                    throw;
                 }
-                throw e;
+                throw;
             }
         }
 
