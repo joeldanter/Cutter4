@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,22 @@ namespace Cutter4.Model.DataBase
         public string UserName { get; set; }
         public string Password { get; set; }
 
-        string connString { get { return $"Server={Server}; database={DatabaseName}; UID={UserName}; password={Password}"; } }
+        string connString
+        {
+            get
+            {
+                string prev = $"Server={Server}; database={DatabaseName}; UID={UserName}; password={Password}";
+                MySqlConnectionStringBuilder builder = new MySqlConnectionStringBuilder()
+                {
+                    Server=Server,
+                    Database=DatabaseName,
+                    UserID=UserName,
+                    Password=Password
+                };
+                
+                return builder.ConnectionString;
+            }
+        }
 
         public event EventHandler StoragePanelsChanged;
         public event EventHandler OrderListChanged;
