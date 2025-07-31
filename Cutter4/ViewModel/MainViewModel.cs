@@ -245,6 +245,7 @@ namespace Cutter4.ViewModel
         [RelayCommand(CanExecute = nameof(canRevertOrder))]
         void RevertOrder()
         {
+            storage.UndoLastSavedCut();
             SelectedTabIndex = 0;
             ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveAction)SelectedStorageAction).Kapuk;
             Kapuk.Clear();
@@ -253,7 +254,6 @@ namespace Cutter4.ViewModel
                 Kapuk.Add(new KapuViewModel(kapu));
             }
             OutputText = string.Empty;
-            storage.UndoLastSavedCut();
         }
 
         [RelayCommand]
