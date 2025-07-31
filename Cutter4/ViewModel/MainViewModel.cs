@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace Cutter4.ViewModel
 {
@@ -96,6 +97,12 @@ namespace Cutter4.ViewModel
         string userName = "main";
         [ObservableProperty]
         string password = "Almacitrom";
+        [ObservableProperty]
+        string pingResultText = string.Empty;
+        [ObservableProperty]
+        Brush pingResultColor = Brushes.Black;
+        [ObservableProperty]
+        DateTime? lastPingDate = null;
 
         public MainViewModel()
         {
@@ -265,6 +272,22 @@ namespace Cutter4.ViewModel
             DatabaseName = storage.DatabaseName;
             UserName =storage.UserName;
             Password = storage.Password;
+        }
+
+        [RelayCommand]
+        void PingDatabase()
+        {
+            if (storage.CanConnect())
+            {
+                PingResultText = "Connected!";
+                PingResultColor = Brushes.Green;
+            }
+            else
+            {
+                PingResultText = "Failed to Connect";
+                PingResultColor = Brushes.Red;
+            }
+            LastPingDate = DateTime.Now;
         }
     }
 }

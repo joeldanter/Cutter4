@@ -157,34 +157,50 @@
             </Grid>
         </TabItem>
         <TabItem Header="Database details" Padding="3">
-            <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
+            <WrapPanel>
+                <GroupBox Header="Credentials" Margin="3">
+                    <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Row="0" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Server:"/>
-                <TextBlock Grid.Row="1" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Database:"/>
-                <TextBlock Grid.Row="2" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Username:"/>
-                <TextBlock Grid.Row="3" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Password:"/>
+                        <TextBlock Grid.Row="0" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Server:"/>
+                        <TextBlock Grid.Row="1" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Database:"/>
+                        <TextBlock Grid.Row="2" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Username:"/>
+                        <TextBlock Grid.Row="3" VerticalAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Password:"/>
 
-                <TextBox Grid.Row="0" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding Server}"/>
-                <TextBox Grid.Row="3" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding Password}"/>
-                <TextBox Grid.Row="1" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding DatabaseName}"/>
-                <TextBox Grid.Row="2" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding UserName}"/>
+                        <TextBox Grid.Row="0" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding Server}"/>
+                        <TextBox Grid.Row="3" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding Password}"/>
+                        <TextBox Grid.Row="1" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding DatabaseName}"/>
+                        <TextBox Grid.Row="2" VerticalContentAlignment="Center" Width="96" Height="24" Margin="3" Padding="3" Grid.Column="1" Text="{Binding UserName}"/>
 
-                <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Grid.Row="4" Width="80" Height="24" Grid.Column="1" Margin="3" Content="Cancel" Command="{Binding CancelDatabaseSettingsCommand}"/>
-                    <Button Grid.Row="4" Width="80" Height="24" Margin="3" Content="Save" Command="{Binding SaveDatabaseSettingsCommand}"/>
-                </StackPanel>
-            </Grid>
+                        <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Grid.Row="4" Width="80" Height="24" Grid.Column="1" Margin="3" Content="Cancel" Command="{Binding CancelDatabaseSettingsCommand}"/>
+                            <Button Grid.Row="4" Width="80" Height="24" Margin="3" Content="Save" Command="{Binding SaveDatabaseSettingsCommand}"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+                <GroupBox Header="Status" Margin="3">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Button HorizontalAlignment="Left" Width="80" Height="24" Margin="3" Content="Ping" Command="{Binding PingDatabaseCommand}"/>
+                            <TextBlock HorizontalAlignment="Left" Width="96" Height="24" Margin="3" Padding="3" Text="{Binding PingResultText}" Foreground="{Binding PingResultColor}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Height="24" Margin="3" Padding="3" FontWeight="DemiBold" Text="Last ping:"/>
+                            <TextBlock Height="24" Margin="3" Padding="3" Text="{Binding LastPingDate}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </GroupBox>
+            </WrapPanel>
         </TabItem>
     </TabControl>
 </Window>
