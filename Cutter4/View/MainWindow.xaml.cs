@@ -27,16 +27,6 @@ namespace Cutter4.View
         {
             InitializeComponent();
             MainViewModel vm = (MainViewModel)DataContext;
-            vm.SelectNew500SPCount += () => 
-            {
-                Keyboard.Focus(New500SPCount);
-                New500SPCount.SelectAll();
-            };
-            vm.SelectNew610SPCount += () =>
-            {
-                Keyboard.Focus(New610SPCount);
-                New610SPCount.SelectAll();
-            };
         }
     }
 }
