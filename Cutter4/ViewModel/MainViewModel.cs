@@ -30,6 +30,8 @@ namespace Cutter4.ViewModel
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         bool canSave = false;
+        List<Kapu> calculatedKapuk;
+        PanelCollection<Configuration> calculatedConfs;
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(SPs500))]
@@ -41,8 +43,6 @@ namespace Cutter4.ViewModel
         [NotifyPropertyChangedFor(nameof(SPs500))]
         [NotifyPropertyChangedFor(nameof(SPs610))]
         PanelColors selectedStorageColor = PanelColors.AF500;
-        List<Kapu> calculatedKapuk;
-        PanelCollection<Configuration> calculatedConfs;
 
         [ObservableProperty]
         ObservableCollection<IStorageAction> storageActions = new ObservableCollection<IStorageAction>();
