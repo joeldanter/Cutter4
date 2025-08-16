@@ -124,9 +124,6 @@ namespace Cutter4.Model.DataBase
                 saveCutElements(confs, orderedNewConfigurationIds, connection, transaction);
 
                 transaction.Commit();
-
-                OnStoragePanelsChanged();
-                OnOrderListChanged();
             }
             catch
             {
@@ -140,6 +137,9 @@ namespace Cutter4.Model.DataBase
                 }
                 throw;
             }
+
+            OnStoragePanelsChanged();
+            OnOrderListChanged();
         }
 
         void raiseExceptionIfCantRemoveUsedPanels(PanelCollection<Configuration> confs)
@@ -424,9 +424,6 @@ LEFT JOIN kapuk
                 unSaveLastOrderAndDetails(connection, transaction);
                 
                 transaction.Commit();
-
-                OnStoragePanelsChanged();
-                OnOrderListChanged();
             }
             catch
             {
@@ -440,6 +437,9 @@ LEFT JOIN kapuk
                 }
                 throw;
             }
+
+            OnStoragePanelsChanged();
+            OnOrderListChanged();
         }
         
         void raiseExceptionIfCantUnAppendLastOrderRemainderPanels()
@@ -690,9 +690,6 @@ WHERE new.sum_delta_count!=0;";
                 executeNonQueryWithTransaction(insertEditItemsCommandText, connection, transaction, parameters.Append(editIdParameter).ToArray());
                 
                 transaction.Commit();
-                
-                OnStoragePanelsChanged();
-                OnStorageEditsListChanged();
             }
             catch
             {
@@ -706,6 +703,9 @@ WHERE new.sum_delta_count!=0;";
                 }
                 throw;
             }
+
+            OnStoragePanelsChanged();
+            OnStorageEditsListChanged();
         }
 
         void raiseExceptionIfCantEditStoragePanels(PanelCollection<StorageEditItem> edits)
