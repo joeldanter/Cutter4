@@ -110,9 +110,9 @@ namespace Cutter4.Model.DataBase
             raiseExceptionIfCantRemoveUsedPanels(confs);
             raiseExceptionIfCantSaveKapuk(kapuk);
 
-            MySqlConnection connection = new MySqlConnection(connString);
+            using MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
-            MySqlTransaction transaction = connection.BeginTransaction();
+            using MySqlTransaction transaction = connection.BeginTransaction();
             
             try
             {
@@ -413,9 +413,9 @@ LEFT JOIN kapuk
         public void UndoLastSavedCut()
         {
             raiseExceptionIfCantUnAppendLastOrderRemainderPanels();
-            MySqlConnection connection = new MySqlConnection(connString);
+            using MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
-            MySqlTransaction transaction = connection.BeginTransaction();
+            using MySqlTransaction transaction = connection.BeginTransaction();
 
             try
             {
@@ -609,9 +609,9 @@ WHERE id = (
         {
             raiseExceptionIfCantEditStoragePanels(edits);
 
-            MySqlConnection connection = new MySqlConnection(connString);
+            using MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
-            MySqlTransaction transaction = connection.BeginTransaction();
+            using MySqlTransaction transaction = connection.BeginTransaction();
             
             try
             {
