@@ -24,9 +24,23 @@ namespace Cutter4.ViewModel
 
         public StorageEditAction(StorageEdit storageEdit)
         {
-            Summary = (storageEdit.DeltaCount < 0 ? "Removed" : "Added") + $" {Math.Abs(storageEdit.DeltaCount)} panel" + (Math.Abs(storageEdit.DeltaCount) == 1 ? "" : "s");
-            Details = $"{storageEdit.DeltaCount.ToString("+0;-0;0")} {storageEdit.PanelLength}mm {storageEdit.PanelColor} {storageEdit.PanelWidth}";
+            Summary = $"Edited {storageEdit.StorageEditItems.ToList().Sum(entry => entry.Value.Count)} Panels";
+            Details = detailsText(storageEdit);
             DateTime = storageEdit.DateTime;
+        }
+
+        string detailsText(StorageEdit storageEdit)
+        {
+            string result = $"{storageEdit.DateTime}\n\n{storageEdit.Message}\n";
+            foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in storageEdit.StorageEditItems)
+            {
+                PanelType type = entry.Key;
+                foreach (StorageEditItem item in entry.Value)
+                {
+                    result += $"\n{item.DeltaCount.ToString("+0;-0;0")} {item.PanelLength}mm {type.Color} {type.Width}";
+                }
+            }
+            return result;
         }
     }
 

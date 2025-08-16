@@ -604,29 +604,10 @@ WHERE id = (
             return storagePanels;
         }
 
-        public void ChangeStoragePanelCount(PanelType type, int length, int deltaCount)
+        #region EditStoragePanels
+        public void EditStoragePanels(string message, PanelCollection<StorageEditItem> edits)
         {
-            if (length < 1)
-                throw new ArgumentException(nameof(length) + " can not be smaller than 1");
-            if (deltaCount == 0) return;
-            if (deltaCount < 0)
-            {
-                string query = $@"
-SELECT storage_count
-FROM panels
-LEFT JOIN colors
-    ON panels.color_id=colors.id
-WHERE colors.name = ""{type.Color}""
-  AND panels.width = ""{type.Width}""
-  AND panels.length = {length};";
-                DataSet dataSet = executeQuery(connString, query);
-                DataRowCollection rows = dataSet.Tables[0].Rows;
-
-                if (rows.Count == 0 || Convert.ToInt32(rows[0]["storage_count"]) + deltaCount < 0)
-                {
-                    throw new InvalidOperationException($"Can not remove more panels from storage than there are");
-                }
-            }
+            raiseExceptionIfCantEditStoragePanels(edits);
 
             MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
@@ -634,33 +615,82 @@ WHERE colors.name = ""{type.Color}""
             
             try
             {
-                string commandText = $@"
+                // too much code in one method
+                // meh idc
+                // also this aint efficient cuz we do the same group by 3 times
+                // but i dont wanna refactor again
+
+                List<MySqlParameter> parameters = new List<MySqlParameter>();
+                List<string> valuesRows = new List<string>();
+                int i = 0;
+                foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in edits)
+                {
+                    PanelType type = entry.Key;
+                    foreach (StorageEditItem editItem in entry.Value)
+                    {
+                        valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
+                        parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = editItem.PanelLength });
+                        parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
+                        parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                        parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = editItem.DeltaCount });
+                        i++;
+                    }
+                }
+                string valuesString = string.Join(",\n", valuesRows);
+
+                string updatePanelsCommandText = $@"
 INSERT IGNORE INTO panels (length, color_id, width, storage_count)
-SELECT {length}, colors.id, ""{type.Width}"", 0
-FROM colors
-WHERE colors.name = ""{type.Color}"";
+SELECT new.length, colors.id, new.width, 0
+FROM ( VALUES
+{valuesString}
+) AS new(length, color, width, delta_count)
+LEFT JOIN colors
+    ON new.color=colors.name;
+
 UPDATE panels
 LEFT JOIN colors
-    ON panels.color_id = colors.id
-SET panels.storage_count = panels.storage_count{deltaCount.ToString("+0")}
-WHERE colors.name = ""{type.Color}""
-  AND panels.width = ""{type.Width}""
-  AND panels.length = {length};";
-                executeNonQueryWithTransaction(commandText, connection, transaction);
-
-                commandText = $@"
-INSERT INTO storage_edits(date, panel_id, delta_count)
-SELECT NOW(), panels.id, {deltaCount}
-FROM panels
-LEFT JOIN colors
     ON panels.color_id=colors.id
-WHERE colors.name=""{type.Color}""
-    AND panels.width=""{type.Width}""
-    AND panels.length={length};";
-                executeNonQueryWithTransaction(commandText, connection, transaction);
+RIGHT JOIN (
+    SELECT length, color, width, SUM(delta_count) AS sum_delta_count
+    FROM ( VALUES
+{valuesString}
+    ) AS new(length, color, width, delta_count)
+    GROUP BY length, color, width
+) AS new(length, color, width, sum_delta_count)
+    ON panels.length=new.length
+    AND colors.name=new.color
+    AND panels.width=new.width
+SET panels.storage_count=panels.storage_count+new.sum_delta_count;";
+                executeNonQueryWithTransaction(updatePanelsCommandText, connection, transaction, parameters.ToArray());
 
+                string insertEditsCommandText = $@"
+INSERT INTO storage_edits (date, message)
+VALUES ( NOW(), @message);";
+                MySqlParameter messageParameter = new MySqlParameter("@message", MySqlDbType.VarChar, 255) { Value = message };
+                long editID = executeNonQueryWithTransaction(insertEditsCommandText, connection, transaction, messageParameter);
+
+                string insertEditItemsCommandText = $@"
+INSERT INTO storage_edit_items (edit_id, panel_id, delta_count)
+SELECT @edit_id, panels.id, new.sum_delta_count
+FROM (
+    SELECT length, color, width, SUM(delta_count) AS sum_delta_count
+    FROM ( VALUES
+{valuesString}
+    ) AS new(length, color, width, delta_count)
+    GROUP BY length, color, width
+) AS new(length, color, width, sum_delta_count)
+LEFT JOIN colors
+    ON new.color=colors.name
+LEFT JOIN panels
+    ON new.length=panels.length
+    AND colors.id=panels.color_id
+    AND new.width=panels.width
+WHERE new.sum_delta_count!=0;";
+                MySqlParameter editIdParameter = new MySqlParameter("@edit_id", MySqlDbType.Int16) { Value = editID };
+                executeNonQueryWithTransaction(insertEditItemsCommandText, connection, transaction, parameters.Append(editIdParameter).ToArray());
+                
                 transaction.Commit();
-
+                
                 OnStoragePanelsChanged();
                 OnStorageEditsListChanged();
             }
@@ -677,6 +707,61 @@ WHERE colors.name=""{type.Color}""
                 throw;
             }
         }
+
+        void raiseExceptionIfCantEditStoragePanels(PanelCollection<StorageEditItem> edits)
+        {
+            List<MySqlParameter> parameters = new List<MySqlParameter>();
+            List<string> valuesRows = new List<string>();
+            int i = 0;
+            foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in edits)
+            {
+                PanelType type = entry.Key;
+                foreach (StorageEditItem editItem in entry.Value)
+                {
+                    valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
+                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = editItem.PanelLength });
+                    parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
+                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                    parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = editItem.DeltaCount });
+                    i++;
+                }
+            }
+            string valuesString = string.Join(",\n", valuesRows);
+
+            string commandText = $@"
+SELECT panels.storage_count, new.sum_delta_count, new.length, new.color, new.width
+FROM (
+    SELECT length, color, width, SUM(delta_count) AS sum_delta_count
+    FROM ( VALUES
+{valuesString}
+    ) AS new(length, color, width, delta_count)
+    GROUP BY length, color, width
+) AS new(length, color, width, sum_delta_count)
+LEFT JOIN colors
+    ON new.color=colors.name
+LEFT JOIN panels
+    ON new.length=panels.length
+    AND colors.id=panels.color_id
+    AND new.width=panels.width
+WHERE IFNULL(panels.storage_count, 0) < -new.sum_delta_count;";
+            DataSet dataSet = executeQuery(connString, commandText, parameters.ToArray());
+
+            if (dataSet.Tables[0].Rows.Count > 0)
+            {
+                string msg = "Can not remove more panels from storage than there are:";
+                foreach (DataRow row in dataSet.Tables[0].Rows)
+                {
+                    int storage_count = Convert.ToInt32(row["storage_count"] == DBNull.Value ? 0 : row["storage_count"]);
+                    int delta_count = Convert.ToInt32(row["sum_delta_count"]);
+                    int length = Convert.ToInt32(row["length"]);
+                    Enum.TryParse(row["color"].ToString(), out PanelColors color);
+                    string width = row["width"].ToString();
+                    msg += $"\n{length}mm {color} {width}: Tried to remove {-delta_count}, but only {storage_count} are in storage";
+                }
+                throw new InvalidOperationException(msg);
+            }
+        }
+        #endregion
 
         public List<Order> ListPreviousOrders()
         {
@@ -767,29 +852,47 @@ INNER JOIN orders
 
         public List<StorageEdit> ListPreviousStorageEdits()
         {
-            string query = $@"
-SELECT storage_edits.date, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_edits.delta_count
-FROM storage_edits
+            string editsQuery = $@"
+SELECT storage_edits.id, storage_edits.date, storage_edits.message
+FROM storage_edits;";
+            DataSet editsDataSet = executeQuery(connString, editsQuery);
+
+            Dictionary<long, StorageEdit> editsByIds = new Dictionary<long, StorageEdit>();
+            foreach (DataRow row in editsDataSet.Tables[0].Rows)
+            {
+                long edit_id = Convert.ToInt64(row["id"]);
+                DateTime date = Convert.ToDateTime(row["date"]);
+                string message = row["message"].ToString();
+
+                StorageEdit newEdit = new StorageEdit(date, message, new PanelCollection<StorageEditItem>());
+                editsByIds.Add(edit_id, newEdit);
+            }
+
+            string editItemsQuery = $@"
+SELECT storage_edits.id AS edit_id, panels.length AS panel_length, colors.name AS panel_color, panels.width AS panel_width, storage_edit_items.delta_count
+FROM storage_edit_items
+LEFT JOIN storage_edits
+    ON storage_edit_items.edit_id=storage_edits.id
 LEFT JOIN panels
-    ON storage_edits.panel_id=panels.id
+    ON storage_edit_items.panel_id=panels.id
 LEFT JOIN colors
     ON panels.color_id=colors.id;";
-            DataSet dataSet = executeQuery(connString, query);
+            DataSet editItemsDataSet = executeQuery(connString, editItemsQuery);
 
-            List<StorageEdit> storageEdits = new List<StorageEdit>();
-            foreach (DataRow row in dataSet.Tables[0].Rows)
+            foreach (DataRow row in editItemsDataSet.Tables[0].Rows)
             {
-                DateTime dateTime = (DateTime)row["date"];
+                long edit_id = Convert.ToInt64(row["edit_id"]);
                 int panel_length = Convert.ToInt32(row["panel_length"]);
                 Enum.TryParse(row["panel_color"].ToString(), out PanelColors panel_color);
                 string panel_width = row["panel_width"].ToString();
                 int delta_count = Convert.ToInt32(row["delta_count"]);
 
-                StorageEdit storageEdit = new StorageEdit(dateTime, panel_length, panel_color, panel_width, delta_count);
-                storageEdits.Add(storageEdit);
+                PanelType type = new PanelType(panel_width, panel_color);
+                StorageEditItem editItem = new StorageEditItem(panel_length, delta_count);
+                editsByIds[edit_id].StorageEditItems[type].Add(editItem);
             }
 
-            return storageEdits;
+            return editsByIds.Values.ToList();
         }
     }
 }

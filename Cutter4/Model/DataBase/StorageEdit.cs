@@ -10,17 +10,27 @@ namespace Cutter4.Model.DataBase
     public class StorageEdit
     {
         public DateTime DateTime { get; }
-        public int PanelLength { get; }
-        public PanelColors PanelColor { get; }
-        public string PanelWidth { get; }
-        public int DeltaCount { get; }
+        public string Message { get; }
+        public PanelCollection<StorageEditItem> StorageEditItems { get; }
 
-        public StorageEdit(DateTime dateTime, int panelLength, PanelColors panelColor, string panelWidth, int deltaCount)
+        public StorageEdit(DateTime dateTime, string message, PanelCollection<StorageEditItem> storageEditItems)
         {
             DateTime = dateTime;
+            Message = message;
+            StorageEditItems = storageEditItems;
+        }
+    }
+
+    public struct StorageEditItem
+    {
+        public int PanelLength { get; }
+        public int DeltaCount { get; }
+
+        public StorageEditItem(int panelLength, int deltaCount)
+        {
+            if (panelLength < 1)
+                throw new ArgumentException(nameof(panelLength) + " can not be smaller than 1");
             PanelLength = panelLength;
-            PanelColor = panelColor;
-            PanelWidth = panelWidth;
             DeltaCount = deltaCount;
         }
     }
