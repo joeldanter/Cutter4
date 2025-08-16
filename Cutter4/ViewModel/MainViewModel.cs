@@ -53,10 +53,10 @@ namespace Cutter4.ViewModel
         {
             get 
             {
-                IStorageAction lastOrderSaveAction = StorageActions.MaxBy(action => action.DateTime.Ticks * (action is OrderSaveAction ? 1 : 0));
                 return SelectedStorageAction == lastOrderSaveAction;
             }
         }
+        IStorageAction lastOrderSaveAction => StorageActions.MaxBy(action => action.DateTime.Ticks * (action is OrderSaveAction ? 1 : 0));
 
         [ObservableProperty]
         string server = "127.0.0.1";
@@ -135,7 +135,7 @@ namespace Cutter4.ViewModel
         {
             storage.UndoLastSavedCut();
             SelectedTabIndex = 0;
-            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveAction)SelectedStorageAction).Kapuk;
+            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveAction)lastOrderSaveAction).Kapuk;
             Kapuk.Clear();
             foreach (Kapu kapu in orderKapuk)
             {
