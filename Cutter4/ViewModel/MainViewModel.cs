@@ -45,18 +45,18 @@ namespace Cutter4.ViewModel
         PanelColors selectedStorageColor = PanelColors.AF500;
 
         [ObservableProperty]
-        ObservableCollection<IStorageAction> storageActions = new ObservableCollection<IStorageAction>();
+        ObservableCollection<IStorageHistoryEntry> storageHistory = new ObservableCollection<IStorageHistoryEntry>();
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]
-        IStorageAction selectedStorageAction = null;
+        IStorageHistoryEntry selectedStorageHistoryEntry = null;
         bool canRevertOrder 
         {
             get 
             {
-                return SelectedStorageAction == lastOrderSaveAction;
+                return SelectedStorageHistoryEntry == lastOrderSaveStorageHistoryEntry;
             }
         }
-        IStorageAction lastOrderSaveAction => StorageActions.MaxBy(action => action.DateTime.Ticks * (action is OrderSaveAction ? 1 : 0));
+        IStorageHistoryEntry lastOrderSaveStorageHistoryEntry => StorageHistory.MaxBy(entry => entry.DateTime.Ticks * (entry is OrderSaveStorageHistoryEntry ? 1 : 0));
 
         [ObservableProperty]
         string server = "127.0.0.1";
@@ -82,28 +82,28 @@ namespace Cutter4.ViewModel
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
 
-            storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageActions(); };
-            storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageActions(); };
-            LoadStorageActions();
+            storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
+            storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
+            LoadStorageHistory();
         }
 
-        void LoadStorageActions()
+        void LoadStorageHistory()
         {
-            List<IStorageAction> actions = new List<IStorageAction>();
+            List<IStorageHistoryEntry> history = new List<IStorageHistoryEntry>();
             foreach (Order order in storage.ListPreviousOrders())
             {
                 string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations);
-                OrderSaveAction orderAction = new OrderSaveAction(order, orderOutput);
-                actions.Add(orderAction);
+                OrderSaveStorageHistoryEntry orderEntry = new OrderSaveStorageHistoryEntry(order, orderOutput);
+                history.Add(orderEntry);
             }
             foreach (StorageEdit edit in storage.ListPreviousStorageEdits())
             {
-                StorageEditAction editAction = new StorageEditAction(edit);
-                actions.Add(editAction);
+                EditStorageHistoryEntry editEntry = new EditStorageHistoryEntry(edit);
+                history.Add(editEntry);
             }
-            actions.Sort((action1, action2) => action2.DateTime.CompareTo(action1.DateTime));
+            history.Sort((entry1, entry2) => entry2.DateTime.CompareTo(entry1.DateTime));
 
-            StorageActions = new ObservableCollection<IStorageAction>(actions);
+            StorageHistory = new ObservableCollection<IStorageHistoryEntry>(history);
         }
 
         [RelayCommand(CanExecute = nameof(canCalculate))]
@@ -135,7 +135,7 @@ namespace Cutter4.ViewModel
         {
             storage.UndoLastSavedCut();
             SelectedTabIndex = 0;
-            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveAction)lastOrderSaveAction).Kapuk;
+            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveStorageHistoryEntry)lastOrderSaveStorageHistoryEntry).Kapuk;
             Kapuk.Clear();
             foreach (Kapu kapu in orderKapuk)
             {

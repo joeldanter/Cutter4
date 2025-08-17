@@ -9,20 +9,20 @@ using System.Threading.Tasks;
 
 namespace Cutter4.ViewModel
 {
-    public interface IStorageAction
+    public interface IStorageHistoryEntry
     {
         string Summary { get; }
         string Details { get; }
         DateTime DateTime { get; }
     }
 
-    public class StorageEditAction : IStorageAction
+    public class EditStorageHistoryEntry : IStorageHistoryEntry
     {
         public string Summary { get; }
         public string Details { get; }
         public DateTime DateTime { get; }
 
-        public StorageEditAction(StorageEdit storageEdit)
+        public EditStorageHistoryEntry(StorageEdit storageEdit)
         {
             Summary = $"Edited {storageEdit.StorageEditItems.ToList().Sum(entry => entry.Value.Count)} Panels";
             Details = detailsText(storageEdit);
@@ -44,14 +44,14 @@ namespace Cutter4.ViewModel
         }
     }
 
-    public class OrderSaveAction : IStorageAction
+    public class OrderSaveStorageHistoryEntry : IStorageHistoryEntry
     {
         public string Summary { get; }
         public string Details { get; }
         public DateTime DateTime { get; }
         public ReadOnlyCollection<Kapu> Kapuk { get; }
 
-        public OrderSaveAction(Order order, string orderOutput)
+        public OrderSaveStorageHistoryEntry(Order order, string orderOutput)
         {
             Summary = $"Ordered {order.Kapuk.Count} Kapu";
             Details = orderOutput;

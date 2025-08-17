@@ -119,7 +119,7 @@
                         <StackPanel DockPanel.Dock="Bottom" Grid.ColumnSpan="2" Orientation="Horizontal">
                             <Button Content="Revert and Modify" Width="120" Height="24" Margin="3" Command="{Binding RevertOrderCommand}"/>
                         </StackPanel>
-                        <DataGrid ItemsSource="{Binding StorageActions}" SelectedItem="{Binding SelectedStorageAction}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="0" IsReadOnly="True" CanUserReorderColumns="False" SelectionMode="Single">
+                        <DataGrid ItemsSource="{Binding StorageHistory}" SelectedItem="{Binding SelectedStorageHistoryEntry}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="0" IsReadOnly="True" CanUserReorderColumns="False" SelectionMode="Single">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Date" Binding="{Binding DateTime}" Width="1.25*"/>
                                 <DataGridTextColumn Header="Summary" Binding="{Binding Summary}" Width="*"/>
@@ -128,7 +128,7 @@
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Grid.Column="1" Header="Details" Margin="3">
-                    <TextBox Text="{Binding SelectedStorageAction.Details, Mode=OneWay}" Margin="3" IsReadOnly="True"/>
+                    <TextBox Text="{Binding SelectedStorageHistoryEntry.Details, Mode=OneWay}" Margin="3" IsReadOnly="True"/>
                 </GroupBox>
             </Grid>
         </TabItem>
