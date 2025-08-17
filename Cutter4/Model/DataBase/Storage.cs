@@ -607,6 +607,7 @@ WHERE id = (
         #region EditStoragePanels
         public void EditStoragePanels(string message, PanelCollection<StorageEditItem> edits)
         {
+            raiseExceptionIfInvalidEdits(edits);
             raiseExceptionIfCantEditStoragePanels(edits);
 
             using MySqlConnection connection = new MySqlConnection(connString);
@@ -706,6 +707,12 @@ WHERE new.sum_delta_count!=0;";
 
             OnStoragePanelsChanged();
             OnStorageEditsListChanged();
+        }
+
+        void raiseExceptionIfInvalidEdits(PanelCollection<StorageEditItem> edits)
+        {
+            if (edits.All(e => e.Value.Count == 0))
+                throw new ArgumentException("Can't save an edit without edit items");
         }
 
         void raiseExceptionIfCantEditStoragePanels(PanelCollection<StorageEditItem> edits)
