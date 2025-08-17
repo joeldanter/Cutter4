@@ -45,6 +45,7 @@ namespace Cutter4.ViewModel
         PanelColors selectedStorageColor = PanelColors.AF500;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]
         ObservableCollection<IStorageHistoryEntry> storageHistory = new ObservableCollection<IStorageHistoryEntry>();
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]
