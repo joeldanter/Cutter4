@@ -34,15 +34,41 @@ namespace Cutter4.ViewModel
         PanelCollection<Configuration> calculatedConfs;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
+        [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
         [NotifyPropertyChangedFor(nameof(SPs500))]
         [NotifyPropertyChangedFor(nameof(SPs610))]
         PanelCollection<StoragePanel> sPsCollection;
-        public List<StoragePanel> SPs500 { get => SPsCollection[new PanelType("500mm", SelectedStorageColor)]; }
-        public List<StoragePanel> SPs610 { get => SPsCollection[new PanelType("610mm", SelectedStorageColor)]; }
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
+        [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
         [NotifyPropertyChangedFor(nameof(SPs500))]
         [NotifyPropertyChangedFor(nameof(SPs610))]
         PanelColors selectedStorageColor = PanelColors.AF500;
+        public int MaxLength500SPCount
+        {
+            get => SPsCollection[new PanelType("500mm", SelectedStorageColor)]
+                .SingleOrDefault(panel => panel.Length == Kapu.MaxLength, new StoragePanel(Kapu.MaxLength, 0))
+                .Count;
+        }
+        public int MaxLength610SPCount
+        {
+            get => SPsCollection[new PanelType("610mm", SelectedStorageColor)]
+                .SingleOrDefault(panel => panel.Length == Kapu.MaxLength, new StoragePanel(Kapu.MaxLength, 0))
+                .Count;
+        }
+        public List<StoragePanel> SPs500
+        {
+            get => [.. SPsCollection[new PanelType("500mm", SelectedStorageColor)]
+                .Where(panel => panel.Length != Kapu.MaxLength)
+                .SelectMany(panel => Enumerable.Repeat(new StoragePanel(panel.Length, 1), panel.Count)) ];
+        }
+        public List<StoragePanel> SPs610
+        {
+            get => [.. SPsCollection[new PanelType("610mm", SelectedStorageColor)]
+                .Where(panel => panel.Length != Kapu.MaxLength)
+                .SelectMany(panel => Enumerable.Repeat(new StoragePanel(panel.Length, 1), panel.Count)) ];
+        }
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]

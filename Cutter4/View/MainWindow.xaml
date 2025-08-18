@@ -59,43 +59,28 @@
 
                 <GroupBox Grid.Row="1" Header="500 mm" Margin="3">
                     <DockPanel>
-                        <Grid Grid.Row="1" DockPanel.Dock="Bottom">
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                        </Grid>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                            <TextBlock Text="No. 13200mm: " FontWeight="DemiBold" Margin="3"/>
+                            <TextBlock Text="{Binding MaxLength500SPCount}" Margin="3"/>
+                        </StackPanel>
 
                         <DataGrid Margin="3" ItemsSource="{Binding SPs500}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
-                                <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Grid.Row="1" Grid.Column="1" Header="610 mm" Margin="3">
                     <DockPanel>
-                        <Grid Grid.Row="1" DockPanel.Dock="Bottom">
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                        </Grid>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                            <TextBlock Text="No. 13200mm: " FontWeight="DemiBold" Margin="3"/>
+                            <TextBlock Text="{Binding MaxLength610SPCount}" Margin="3"/>
+                        </StackPanel>
+                        
                         <DataGrid Margin="3" ItemsSource="{Binding SPs610}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
-                                <DataGridTextColumn Header="Count" Width="*" Binding="{Binding Count}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>

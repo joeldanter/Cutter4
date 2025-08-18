@@ -10,7 +10,7 @@ namespace Cutter4.Model.DataBase
     {
         public int Length { get; set; }
         public int Count { get; set; }
-        
+
         public StoragePanel(int length, int count)
         {
             Length = length;
