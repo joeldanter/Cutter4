@@ -157,6 +157,12 @@ namespace Cutter4.ViewModel
             OutputText = string.Empty;
         }
 
+        [RelayCommand]
+        void EditStoragePanels()
+        {
+
+        }
+
         [RelayCommand(CanExecute = nameof(canRevertOrder))]
         void RevertOrder()
         {

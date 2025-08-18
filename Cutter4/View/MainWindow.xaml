@@ -54,7 +54,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="100"/>
                 </Grid.ColumnDefinitions>
 
                 <GroupBox Grid.Row="1" Header="500 mm" Margin="3">
@@ -87,8 +87,10 @@
                 </GroupBox>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Height="24" Margin="3" Padding="3" Text="Color:" FontWeight="DemiBold"/>
-                    <ComboBox Height="24" Margin="3 0 3 3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding SelectedStorageColor}"/>
+                    <TextBlock Height="18" Margin="3" Padding="3" Text="Color:" FontWeight="DemiBold"/>
+                    <ComboBox Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding SelectedStorageColor}"/>
+                    <Separator Margin="3 6 3 6"/>
+                    <Button Height="24" Margin="3" Content="Edit storage" Command="{Binding EditStoragePanelsCommand}"/>
                 </StackPanel>
             </Grid>
         </TabItem>
