@@ -15,6 +15,8 @@ namespace Cutter4.Model.DataBase
 
         public StorageEdit(DateTime dateTime, string message, PanelCollection<StorageEditItem> storageEditItems)
         {
+            if (storageEditItems.All(e => e.Value.Count == 0))
+                throw new ArgumentException("Can't save an edit without edit items");
             DateTime = dateTime;
             Message = message;
             StorageEditItems = storageEditItems;
@@ -30,6 +32,8 @@ namespace Cutter4.Model.DataBase
         {
             if (panelLength < 1)
                 throw new ArgumentException(nameof(panelLength) + " can not be smaller than 1");
+            if (deltaCount == 0)
+                throw new ArgumentException(nameof(deltaCount) + " can not be 0");
             PanelLength = panelLength;
             DeltaCount = deltaCount;
         }

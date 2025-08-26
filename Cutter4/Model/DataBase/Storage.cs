@@ -603,12 +603,12 @@ WHERE id = (
 
             return storagePanels;
         }
-
+        
         #region EditStoragePanels
         public void EditStoragePanels(string message, PanelCollection<StorageEditItem> edits)
         {
-            raiseExceptionIfInvalidEdits(edits);
-            raiseExceptionIfCantEditStoragePanels(edits);
+            StorageEdit newStorageEdit = new StorageEdit(DateTime.Now, message, edits);
+            raiseExceptionIfCantEditStoragePanels(newStorageEdit.StorageEditItems);
 
             using MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
@@ -624,7 +624,7 @@ WHERE id = (
                 List<MySqlParameter> parameters = new List<MySqlParameter>();
                 List<string> valuesRows = new List<string>();
                 int i = 0;
-                foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in edits)
+                foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in newStorageEdit.StorageEditItems)
                 {
                     PanelType type = entry.Key;
                     foreach (StorageEditItem editItem in entry.Value)
@@ -666,8 +666,9 @@ SET panels.storage_count=panels.storage_count+new.sum_delta_count;";
 
                 string insertEditsCommandText = $@"
 INSERT INTO storage_edits (date, message)
-VALUES ( NOW(), @message);";
-                MySqlParameter messageParameter = new MySqlParameter("@message", MySqlDbType.VarChar, 255) { Value = message };
+VALUES ( @date, @message);";
+                MySqlParameter dateParameter = new MySqlParameter("@date", MySqlDbType.DateTime) { Value = newStorageEdit.DateTime };
+                MySqlParameter messageParameter = new MySqlParameter("@message", MySqlDbType.VarChar, 255) { Value = newStorageEdit.Message };
                 long editID = executeNonQueryWithTransaction(insertEditsCommandText, connection, transaction, messageParameter);
 
                 string insertEditItemsCommandText = $@"
@@ -707,12 +708,6 @@ WHERE new.sum_delta_count!=0;";
 
             OnStoragePanelsChanged();
             OnStorageEditsListChanged();
-        }
-
-        void raiseExceptionIfInvalidEdits(PanelCollection<StorageEditItem> edits)
-        {
-            if (edits.All(e => e.Value.Count == 0))
-                throw new ArgumentException("Can't save an edit without edit items");
         }
 
         void raiseExceptionIfCantEditStoragePanels(PanelCollection<StorageEditItem> edits)
