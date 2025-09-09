@@ -19,7 +19,7 @@ namespace Cutter4.Model.Cutting
         G103
     }
     
-    public struct PanelType
+    public readonly record struct PanelType
     {
         public string Width { get; }
         public PanelColors Color { get; }
@@ -36,7 +36,7 @@ namespace Cutter4.Model.Cutting
         }
     }
 
-    public struct Panel
+    public readonly record struct Panel
     {
         public PanelType Type { get; }
         public int Length { get; }
@@ -50,7 +50,7 @@ namespace Cutter4.Model.Cutting
         }
     }
 
-    public struct KapuPanel
+    public readonly record struct KapuPanel
     {
         public int Length { get; }
         public string SerialNumber { get; }
