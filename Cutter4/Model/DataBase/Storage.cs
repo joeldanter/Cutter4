@@ -605,10 +605,10 @@ WHERE id = (
         }
         
         #region EditStoragePanels
-        public void EditStoragePanels(string message, PanelCollection<StorageEditItem> edits)
+        public void EditStoragePanels(string message, Dictionary<StorageEditEntry, int> deltaCounts)
         {
-            StorageEdit newStorageEdit = new StorageEdit(DateTime.Now, message, edits);
-            raiseExceptionIfCantEditStoragePanels(newStorageEdit.StorageEditItems);
+            StorageEdit newStorageEdit = new StorageEdit(DateTime.Now, message, deltaCounts);
+            raiseExceptionIfCantEditStoragePanels(newStorageEdit.DeltaCounts);
 
             using MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
@@ -624,18 +624,18 @@ WHERE id = (
                 List<MySqlParameter> parameters = new List<MySqlParameter>();
                 List<string> valuesRows = new List<string>();
                 int i = 0;
-                foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in newStorageEdit.StorageEditItems)
+                foreach (KeyValuePair<StorageEditEntry, int> entry in newStorageEdit.DeltaCounts)
                 {
-                    PanelType type = entry.Key;
-                    foreach (StorageEditItem editItem in entry.Value)
-                    {
-                        valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
-                        parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = editItem.PanelLength });
-                        parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
-                        parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
-                        parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = editItem.DeltaCount });
-                        i++;
-                    }
+                    PanelType type = entry.Key.Type;
+                    int length = entry.Key.Length;
+                    int deltaCount = entry.Value;
+
+                    valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
+                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = length });
+                    parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
+                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                    parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = deltaCount });
+                    i++;
                 }
                 string valuesString = string.Join(",\n", valuesRows);
 
@@ -710,23 +710,23 @@ WHERE new.sum_delta_count!=0;";
             OnStorageEditsListChanged();
         }
 
-        void raiseExceptionIfCantEditStoragePanels(PanelCollection<StorageEditItem> edits)
+        void raiseExceptionIfCantEditStoragePanels(Dictionary<StorageEditEntry, int> deltaCounts)
         {
             List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             int i = 0;
-            foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in edits)
+            foreach (KeyValuePair<StorageEditEntry, int> entry in deltaCounts)
             {
-                PanelType type = entry.Key;
-                foreach (StorageEditItem editItem in entry.Value)
-                {
-                    valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
-                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = editItem.PanelLength });
-                    parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
-                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
-                    parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = editItem.DeltaCount });
-                    i++;
-                }
+                PanelType type = entry.Key.Type;
+                int length = entry.Key.Length;
+                int deltaCount = entry.Value;
+
+                valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
+                parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = length });
+                parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
+                parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = deltaCount });
+                i++;
             }
             string valuesString = string.Join(",\n", valuesRows);
 
@@ -866,7 +866,7 @@ FROM storage_edits;";
                 DateTime date = Convert.ToDateTime(row["date"]);
                 string message = row["message"].ToString();
 
-                StorageEdit newEdit = new StorageEdit(date, message, new PanelCollection<StorageEditItem>());
+                StorageEdit newEdit = new StorageEdit(date, message, []);
                 editsByIds.Add(edit_id, newEdit);
             }
 
@@ -890,8 +890,11 @@ LEFT JOIN colors
                 int delta_count = Convert.ToInt32(row["delta_count"]);
 
                 PanelType type = new PanelType(panel_width, panel_color);
-                StorageEditItem editItem = new StorageEditItem(panel_length, delta_count);
-                editsByIds[edit_id].StorageEditItems[type].Add(editItem);
+                StorageEditEntry editEntry = new StorageEditEntry(type, panel_length);
+                if (!editsByIds[edit_id].DeltaCounts.ContainsKey(editEntry))
+                    editsByIds[edit_id].DeltaCounts.Add(editEntry, 0);
+
+                editsByIds[edit_id].DeltaCounts[editEntry] += delta_count;
             }
 
             return editsByIds.Values.ToList();

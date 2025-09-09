@@ -24,7 +24,7 @@ namespace Cutter4.ViewModel
 
         public EditStorageHistoryEntry(StorageEdit storageEdit)
         {
-            Summary = $"Edited {storageEdit.StorageEditItems.ToList().Sum(entry => entry.Value.Count)} Panels";
+            Summary = $"Edited {storageEdit.DeltaCounts.Count} Panels";
             Details = detailsText(storageEdit);
             DateTime = storageEdit.DateTime;
         }
@@ -32,13 +32,13 @@ namespace Cutter4.ViewModel
         string detailsText(StorageEdit storageEdit)
         {
             string result = $"{storageEdit.DateTime}\n\n{storageEdit.Message}\n";
-            foreach (KeyValuePair<PanelType, List<StorageEditItem>> entry in storageEdit.StorageEditItems)
+            foreach (KeyValuePair<StorageEditEntry, int> entry in storageEdit.DeltaCounts)
             {
-                PanelType type = entry.Key;
-                foreach (StorageEditItem item in entry.Value)
-                {
-                    result += $"\n{item.DeltaCount.ToString("+0;-0;0")} {item.PanelLength}mm {type.Color} {type.Width}";
-                }
+                PanelType type = entry.Key.Type;
+                int length = entry.Key.Length;
+                int deltaCount = entry.Value;
+
+                result += $"\n{deltaCount.ToString("+0;-0;0")} {length}mm {type.Color} {type.Width}";
             }
             return result;
         }
