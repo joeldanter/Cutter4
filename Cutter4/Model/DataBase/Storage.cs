@@ -607,8 +607,9 @@ WHERE id = (
         #region EditStoragePanels
         public void EditStoragePanels(string message, Dictionary<StorageEditEntry, int> deltaCounts)
         {
-            StorageEdit newStorageEdit = new StorageEdit(DateTime.Now, message, deltaCounts);
-            raiseExceptionIfCantEditStoragePanels(newStorageEdit.DeltaCounts);
+            if (deltaCounts.All(x => x.Value == 0)) return;
+
+            raiseExceptionIfCantEditStoragePanels(deltaCounts);
 
             using MySqlConnection connection = new MySqlConnection(connString);
             connection.Open();
@@ -624,18 +625,21 @@ WHERE id = (
                 List<MySqlParameter> parameters = new List<MySqlParameter>();
                 List<string> valuesRows = new List<string>();
                 int i = 0;
-                foreach (KeyValuePair<StorageEditEntry, int> entry in newStorageEdit.DeltaCounts)
+                foreach (KeyValuePair<StorageEditEntry, int> entry in deltaCounts)
                 {
                     PanelType type = entry.Key.Type;
                     int length = entry.Key.Length;
                     int deltaCount = entry.Value;
 
-                    valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
-                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = length });
-                    parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
-                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
-                    parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = deltaCount });
-                    i++;
+                    if (deltaCount != 0)
+                    {
+                        valuesRows.Add($"        ROW(@length{i}, @color{i}, @width{i}, @delta_count{i})");
+                        parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = length });
+                        parameters.Add(new MySqlParameter($"@color{i}", MySqlDbType.VarChar, 255) { Value = type.Color.ToString() });
+                        parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                        parameters.Add(new MySqlParameter($"@delta_count{i}", MySqlDbType.Int16) { Value = deltaCount });
+                        i++;
+                    }
                 }
                 string valuesString = string.Join(",\n", valuesRows);
 
@@ -666,9 +670,8 @@ SET panels.storage_count=panels.storage_count+new.sum_delta_count;";
 
                 string insertEditsCommandText = $@"
 INSERT INTO storage_edits (date, message)
-VALUES ( @date, @message);";
-                MySqlParameter dateParameter = new MySqlParameter("@date", MySqlDbType.DateTime) { Value = newStorageEdit.DateTime };
-                MySqlParameter messageParameter = new MySqlParameter("@message", MySqlDbType.VarChar, 255) { Value = newStorageEdit.Message };
+VALUES ( NOW(), @message);";
+                MySqlParameter messageParameter = new MySqlParameter("@message", MySqlDbType.VarChar, 255) { Value = message };
                 long editID = executeNonQueryWithTransaction(insertEditsCommandText, connection, transaction, messageParameter);
 
                 string insertEditItemsCommandText = $@"
