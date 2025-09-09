@@ -36,6 +36,20 @@ namespace Cutter4.Model.Cutting
         }
     }
 
+    public struct Panel
+    {
+        public PanelType Type { get; }
+        public int Length { get; }
+
+        public Panel(PanelType type, int length)
+        {
+            if (length < 1)
+                throw new ArgumentException("The length of a panel can not be smaller than 1");
+            Type = type;
+            Length = length;
+        }
+    }
+
     public struct KapuPanel
     {
         public int Length { get; }

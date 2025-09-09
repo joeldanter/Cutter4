@@ -32,7 +32,7 @@ namespace Cutter4.ViewModel
         string detailsText(StorageEdit storageEdit)
         {
             string result = $"{storageEdit.DateTime}\n\n{storageEdit.Message}\n";
-            foreach (KeyValuePair<StorageEditEntry, int> entry in storageEdit.DeltaCounts)
+            foreach (KeyValuePair<Panel, int> entry in storageEdit.DeltaCounts)
             {
                 PanelType type = entry.Key.Type;
                 int length = entry.Key.Length;

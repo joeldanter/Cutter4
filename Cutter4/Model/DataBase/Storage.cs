@@ -605,7 +605,7 @@ WHERE id = (
         }
         
         #region EditStoragePanels
-        public void EditStoragePanels(string message, Dictionary<StorageEditEntry, int> deltaCounts)
+        public void EditStoragePanels(string message, Dictionary<Panel, int> deltaCounts)
         {
             if (deltaCounts.All(x => x.Value == 0)) return;
 
@@ -625,7 +625,7 @@ WHERE id = (
                 List<MySqlParameter> parameters = new List<MySqlParameter>();
                 List<string> valuesRows = new List<string>();
                 int i = 0;
-                foreach (KeyValuePair<StorageEditEntry, int> entry in deltaCounts)
+                foreach (KeyValuePair<Panel, int> entry in deltaCounts)
                 {
                     PanelType type = entry.Key.Type;
                     int length = entry.Key.Length;
@@ -713,12 +713,12 @@ WHERE new.sum_delta_count!=0;";
             OnStorageEditsListChanged();
         }
 
-        void raiseExceptionIfCantEditStoragePanels(Dictionary<StorageEditEntry, int> deltaCounts)
+        void raiseExceptionIfCantEditStoragePanels(Dictionary<Panel, int> deltaCounts)
         {
             List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             int i = 0;
-            foreach (KeyValuePair<StorageEditEntry, int> entry in deltaCounts)
+            foreach (KeyValuePair<Panel, int> entry in deltaCounts)
             {
                 PanelType type = entry.Key.Type;
                 int length = entry.Key.Length;
@@ -893,7 +893,7 @@ LEFT JOIN colors
                 int delta_count = Convert.ToInt32(row["delta_count"]);
 
                 PanelType type = new PanelType(panel_width, panel_color);
-                StorageEditEntry editEntry = new StorageEditEntry(type, panel_length);
+                Panel editEntry = new Panel(type, panel_length);
                 if (!editsByIds[edit_id].DeltaCounts.ContainsKey(editEntry))
                     editsByIds[edit_id].DeltaCounts.Add(editEntry, 0);
 

@@ -11,15 +11,13 @@ namespace Cutter4.Model.DataBase
     {
         public DateTime DateTime { get; }
         public string Message { get; }
-        public Dictionary<StorageEditEntry, int> DeltaCounts { get; }
+        public Dictionary<Panel, int> DeltaCounts { get; }
 
-        public StorageEdit(DateTime dateTime, string message, Dictionary<StorageEditEntry, int> deltaCounts)
+        public StorageEdit(DateTime dateTime, string message, Dictionary<Panel, int> deltaCounts)
         {
             DateTime = dateTime;
             Message = message;
             DeltaCounts = deltaCounts;
         }
     }
-    
-    public readonly record struct StorageEditEntry(PanelType Type, int Length);
 }
