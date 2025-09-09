@@ -310,12 +310,15 @@ SET panels.storage_count = panels.storage_count - updates.reduce_by;";
                 PanelType type = item.Key;
                 foreach (Configuration conf in item.Value)
                 {
+                    if (conf.Waste != 0)
+                    {
                     valuesRows.Add($"    ROW(@length{i}, @color_name{i}, @width{i})");
                     parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Waste });
                     parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
                     parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
                     i++;
                 }
+            }
             }
             string valuesString = string.Join(",\n", valuesRows);
 
