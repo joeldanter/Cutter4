@@ -38,7 +38,7 @@ namespace Cutter4.ViewModel
         [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
         [NotifyPropertyChangedFor(nameof(SPs500))]
         [NotifyPropertyChangedFor(nameof(SPs610))]
-        PanelCollection<StoragePanel> sPsCollection;
+        Dictionary<Panel, int> storagePanelCounts;
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
         [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
@@ -47,27 +47,47 @@ namespace Cutter4.ViewModel
         PanelColors selectedStorageColor = PanelColors.AF500;
         public int MaxLength500SPCount
         {
-            get => SPsCollection[new PanelType("500mm", SelectedStorageColor)]
-                .SingleOrDefault(panel => panel.Length == Kapu.MaxLength, new StoragePanel(Kapu.MaxLength, 0))
-                .Count;
+            get
+            {
+                foreach (KeyValuePair<Panel, int> entry in StoragePanelCounts)
+                {
+                    if (entry.Key.Type == new PanelType("500mm", SelectedStorageColor)
+                        && entry.Key.Length == Kapu.MaxLength)
+                    {
+                        return entry.Value;
+                    }
+                }
+                return 0;
+            }
         }
         public int MaxLength610SPCount
         {
-            get => SPsCollection[new PanelType("610mm", SelectedStorageColor)]
-                .SingleOrDefault(panel => panel.Length == Kapu.MaxLength, new StoragePanel(Kapu.MaxLength, 0))
-                .Count;
+            get
+            {
+                foreach(KeyValuePair<Panel, int> entry in StoragePanelCounts)
+                {
+                    if (entry.Key.Type == new PanelType("610mm", SelectedStorageColor)
+                        && entry.Key.Length == Kapu.MaxLength)
+                    {
+                        return entry.Value;
+                    }
+                }
+                return 0;
+            }
         }
-        public List<StoragePanel> SPs500
+        public List<int> SPs500
         {
-            get => [.. SPsCollection[new PanelType("500mm", SelectedStorageColor)]
-                .Where(panel => panel.Length != Kapu.MaxLength)
-                .SelectMany(panel => Enumerable.Repeat(new StoragePanel(panel.Length, 1), panel.Count)) ];
+            get => [.. StoragePanelCounts
+                .Where(entry => entry.Key.Type == new PanelType("500mm", SelectedStorageColor))
+                .Where(entry => entry.Key.Length != Kapu.MaxLength)
+                .SelectMany(entry => Enumerable.Repeat(entry.Key.Length, entry.Value)) ];
         }
-        public List<StoragePanel> SPs610
+        public List<int> SPs610
         {
-            get => [.. SPsCollection[new PanelType("610mm", SelectedStorageColor)]
-                .Where(panel => panel.Length != Kapu.MaxLength)
-                .SelectMany(panel => Enumerable.Repeat(new StoragePanel(panel.Length, 1), panel.Count)) ];
+            get => [.. StoragePanelCounts
+                .Where(entry => entry.Key.Type == new PanelType("610mm", SelectedStorageColor))
+                .Where(entry => entry.Key.Length != Kapu.MaxLength)
+                .SelectMany(entry => Enumerable.Repeat(entry.Key.Length, entry.Value)) ];
         }
 
         [ObservableProperty]
@@ -103,8 +123,8 @@ namespace Cutter4.ViewModel
         public MainViewModel()
         {
             SaveDatabaseSettings();
-            storage.StoragePanelsChanged += (object sender, EventArgs e) => { SPsCollection = storage.StoragePanels(); };
-            SPsCollection = storage.StoragePanels();
+            storage.StoragePanelsChanged += (object sender, EventArgs e) => { StoragePanelCounts = storage.StoragePanels(); };
+            StoragePanelCounts = storage.StoragePanels();
 
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };

@@ -312,13 +312,13 @@ SET panels.storage_count = panels.storage_count - updates.reduce_by;";
                 {
                     if (conf.Waste != 0)
                     {
-                    valuesRows.Add($"    ROW(@length{i}, @color_name{i}, @width{i})");
-                    parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Waste });
-                    parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
-                    parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
-                    i++;
+                        valuesRows.Add($"    ROW(@length{i}, @color_name{i}, @width{i})");
+                        parameters.Add(new MySqlParameter($"@length{i}", MySqlDbType.Int16) { Value = conf.Waste });
+                        parameters.Add(new MySqlParameter($"@color_name{i}", MySqlDbType.VarChar, 255) { Value = type.Color });
+                        parameters.Add(new MySqlParameter($"@width{i}", MySqlDbType.Enum) { Value = type.Width });
+                        i++;
+                    }
                 }
-            }
             }
             string valuesString = string.Join(",\n", valuesRows);
 
@@ -558,7 +558,7 @@ WHERE id = (
         }
         #endregion
 
-        public PanelCollection<StoragePanel> StoragePanels()
+        public Dictionary<Panel, int> StoragePanels()
         {
             string query = @"
                 SELECT colors.name, panels.width, panels.length, panels.storage_count
@@ -568,7 +568,7 @@ WHERE id = (
                 WHERE storage_count != 0;";
             DataSet dataSet = executeQuery(connString, query);
 
-            PanelCollection<StoragePanel> storagePanels = new PanelCollection<StoragePanel>();
+            Dictionary<Panel, int> storagePanels = [];
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 Enum.TryParse(row["name"].ToString(), out PanelColors color);
@@ -577,14 +577,15 @@ WHERE id = (
                 int count = Convert.ToInt32(row["storage_count"]);
 
                 PanelType type = new PanelType(width, color);
-                StoragePanel storagePanel = new StoragePanel(length, count);
-                storagePanels[type].Add(storagePanel);
+                Panel panel = new(type, length);
+                storagePanels.TryAdd(panel, 0);
+                storagePanels[panel] += count;
             }
 
             return storagePanels;
         }
 
-        public List<StoragePanel> StoragePanelsOfType(PanelType type)
+        public Dictionary<Panel, int> StoragePanelsOfType(PanelType type)
         {
             string query = $@"
                 SELECT panels.length, panels.storage_count
@@ -595,13 +596,15 @@ WHERE id = (
                     AND colors.name = ""{type.Color}""
                     AND panels.width = ""{type.Width}"";";
             DataSet dataSet = executeQuery(connString, query);
-            
-            List<StoragePanel> storagePanels = new List<StoragePanel>();
+
+            Dictionary<Panel, int> storagePanels = [];
             foreach (DataRow row in dataSet.Tables[0].Rows)
             {
                 int length = Convert.ToInt32(row["length"]);
                 int count = Convert.ToInt32(row["storage_count"]);
-                storagePanels.Add(new StoragePanel(length, count));
+                Panel panel = new(type, length);
+                storagePanels.TryAdd(panel, 0);
+                storagePanels[panel] += count;
             }
 
             return storagePanels;

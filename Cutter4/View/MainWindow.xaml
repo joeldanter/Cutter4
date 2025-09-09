@@ -66,7 +66,7 @@
 
                         <DataGrid Margin="3" ItemsSource="{Binding SPs500}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
+                                <DataGridTextColumn Header="Length" Width="*" Binding="{Binding}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>
@@ -80,7 +80,7 @@
                         
                         <DataGrid Margin="3" ItemsSource="{Binding SPs610}" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="True" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Length" Width="*" Binding="{Binding Length}"/>
+                                <DataGridTextColumn Header="Length" Width="*" Binding="{Binding}"/>
                             </DataGrid.Columns>
                         </DataGrid>
                     </DockPanel>
