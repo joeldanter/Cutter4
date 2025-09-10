@@ -1,9 +1,11 @@
-﻿using System;
+﻿using MySqlX.XDevAPI.Common;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace Cutter4.Model.Cutting
 {
@@ -33,6 +35,17 @@ namespace Cutter4.Model.Cutting
 
             Width = width;
             Color = color;
+        }
+
+        public static PanelType[] GetAllTypes()
+        {
+            List<PanelType> result = [];
+            foreach (PanelColors color in Enum.GetValues(typeof(PanelColors)))
+            {
+                result.Add(new PanelType("500mm", color));
+                result.Add(new PanelType("610mm", color));
+            }
+            return [.. result];
         }
     }
 

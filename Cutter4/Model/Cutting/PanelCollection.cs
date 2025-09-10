@@ -13,12 +13,11 @@ namespace Cutter4.Model.Cutting
 
         public PanelCollection()
         {
-            panels = new Dictionary<PanelType, List<T>>();
+            panels = [];
 
-            foreach (PanelColors color in Enum.GetValues(typeof(PanelColors)))
+            foreach (PanelType type in PanelType.GetAllTypes())
             {
-                panels.Add(new PanelType("500mm", color), new List<T>());
-                panels.Add(new PanelType("610mm", color), new List<T>());
+                panels.Add(type, []);
             }
         }
 
