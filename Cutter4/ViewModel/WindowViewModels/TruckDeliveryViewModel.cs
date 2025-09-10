@@ -11,6 +11,7 @@ namespace Cutter4.ViewModel
     public partial class TruckDeliveryViewModel : ObservableObject
     {
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanImport))]
         int countToImport;
 
         public bool CanImport => 0 < CountToImport;
