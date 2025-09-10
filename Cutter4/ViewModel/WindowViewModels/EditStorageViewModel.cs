@@ -46,12 +46,14 @@ namespace Cutter4.ViewModel
 
         [ObservableProperty]
         string message = string.Empty;
-        
+
+        public bool CanApplyEdit { get { return DeltaCounts.Count > 0; } }
+
         public EditStorageViewModel()
         {
-            
+            DeltaCounts.CollectionChanged += (sender, e) => { OnPropertyChanged(nameof(CanApplyEdit)); };
         }
-        
+
         [RelayCommand(CanExecute = nameof(CanAddNewEditItem))]
         void AddNewEditItem()
         {
