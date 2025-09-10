@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Cutter4.View"
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
         mc:Ignorable="d"
-        Title="Storage editing" Height="650" Width="400">
+        Title="Storage editing" Height="550" Width="420">
     <Window.DataContext>
         <vm:EditStorageViewModel/>
     </Window.DataContext>
@@ -17,50 +17,20 @@
             </CollectionViewSource.GroupDescriptions>
         </CollectionViewSource>
     </Window.Resources>
-    <DockPanel Margin="3">
-        <DockPanel DockPanel.Dock="Bottom">
-            <Button DockPanel.Dock="Left" Width="80" Height="24" Margin="3" Content="Truck delivery" Click="TruckDelivery_Click"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Width="80" Height="24" Margin="3" Content="Cancel edit" Click="Cancel_Click"/>
-                <Button Width="80" Height="24" Margin="3" Content="Apply edit" Click="Apply_Click"/>
-            </StackPanel>
-        </DockPanel>
-        <GroupBox DockPanel.Dock="Bottom" Header="Message" Margin="3">
-            <TextBox Height="150" Margin="3" Text="{Binding Message}" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap"/>
-        </GroupBox>
-        
-        <GroupBox Header="Panels to edit" Margin="3">
-            <DockPanel>
-                <Grid DockPanel.Dock="Bottom" Margin="3 0 0 0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+    <Grid Margin="3">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="3" Padding="3" Text="Color:"/>
-                    <ComboBox  Grid.Row="1" Grid.Column="0" Margin="3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding NewColor}"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Margin="3" Padding="3" Text="Width:"/>
-                    <ComboBox  Grid.Row="1" Grid.Column="1" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding NewWidth}">
-                        <ComboBoxItem Content="500mm" Tag="500mm"/>
-                        <ComboBoxItem Content="610mm" Tag="610mm"/>
-                    </ComboBox>
-                    <TextBlock Grid.Row="0" Grid.Column="2" Margin="3" Padding="3" Text="Length:"/>
-                    <TextBox   Grid.Row="1" Grid.Column="2" Margin="3" Padding="3" Text="{Binding NewLength, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Grid.Row="0" Grid.Column="3" Margin="3" Padding="3" Text="Delta count:"/>
-                    <TextBox   Grid.Row="1" Grid.Column="3" Margin="3" Padding="3" Text="{Binding NewDeltaCount,UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button    Grid.Row="1" Grid.Column="4" Margin="3" Padding="3" Content="Add" Command="{Binding AddNewEditItemCommand}"/>
-                </Grid>
-                <DockPanel DockPanel.Dock="Bottom">
-                    <TextBlock Text="New edit item" Margin="3"/>
-                    <Separator Margin="3"/>
-                </DockPanel>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Header="Panels to edit" Margin="3">
                 <DataGrid Margin="3" x:Name="DeltaCountsDataGrid" ItemsSource="{Binding Source={StaticResource GroupedDeltaCounts}}" AutoGenerateColumns="False" CanUserResizeRows="False" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" ColumnWidth="auto">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Length" Binding="{Binding Key.Length}"/>
@@ -84,7 +54,54 @@
                         </GroupStyle>
                     </DataGrid.GroupStyle>
                 </DataGrid>
-            </DockPanel>
+            </GroupBox>
+
+            <GroupBox Grid.Column="1" Header="Add panel to edit" Margin="3">
+                <Grid Grid.Row="2" Margin="3 0 0 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="3" Padding="3" Text="Color:"/>
+                    <ComboBox  Grid.Row="0" Grid.Column="1" Margin="3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding NewColor}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="3" Padding="3" Text="Width:"/>
+                    <ComboBox  Grid.Row="1" Grid.Column="1" Margin="3" Padding="3" VerticalContentAlignment="Center" Text="{Binding NewWidth}">
+                        <ComboBoxItem Content="500mm" Tag="500mm"/>
+                        <ComboBoxItem Content="610mm" Tag="610mm"/>
+                    </ComboBox>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Margin="3" Padding="3" Width="80" Text="Length:"/>
+                    <TextBox   Grid.Row="2" Grid.Column="1" Margin="3" Padding="3" Width="80" Text="{Binding NewLength, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Margin="3" Padding="3" Width="80" Text="Delta count:"/>
+                    <TextBox   Grid.Row="3" Grid.Column="1" Margin="3" Padding="3" Width="80" Text="{Binding NewDeltaCount,UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button    Grid.Row="4" Grid.Column="1" Margin="3" Padding="3" Content="Add" Command="{Binding AddNewEditItemCommand}"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+        
+        <GroupBox Grid.Row="1" Header="Message" Margin="3">
+            <TextBox Height="150" Margin="3" Text="{Binding Message}" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap"/>
         </GroupBox>
-    </DockPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <Button Grid.Column="0" Width="80" Height="24" Margin="3" Content="Truck delivery" Click="TruckDelivery_Click"/>
+            <Button Grid.Column="2" Width="80" Height="24" Margin="3" Content="Cancel edit" Click="Cancel_Click"/>
+            <Button Grid.Column="3" Width="80" Height="24" Margin="3" Content="Apply edit" Click="Apply_Click"/>
+        </Grid>
+    </Grid>
 </Window>
