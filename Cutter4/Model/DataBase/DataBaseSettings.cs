@@ -12,5 +12,13 @@ namespace Cutter4.Model.DataBase
         public string DatabaseName { get; set; } = databaseName;
         public string UserName { get; set; } = userName;
         public string Password { get; set; } = password;
+
+        public bool IsAnyPropertyNull()
+        {
+            return Server == null
+                || DatabaseName == null
+                || UserName == null
+                || Password == null;
+        }
     }
 }
