@@ -23,10 +23,22 @@ namespace Cutter4.View
     /// </summary>
     public partial class MainWindow : Window
     {
+        MainViewModel viewModel;
         public MainWindow()
         {
             InitializeComponent();
-            MainViewModel vm = (MainViewModel)DataContext;
+            viewModel = (MainViewModel)DataContext;
+        }
+
+        void EditStorage_Click(object sender, RoutedEventArgs e)
+        {
+            EditStorageWindow editStorageWindow = new();
+            
+            if (editStorageWindow.ShowDialog() == true)
+            {
+                EditStorageViewModel editStorageViewModel = (EditStorageViewModel)editStorageWindow.DataContext;
+                viewModel.EditStorage(editStorageViewModel.Message, editStorageViewModel.ResultDeltaCounts);
+            }
         }
     }
 }

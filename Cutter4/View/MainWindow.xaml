@@ -90,7 +90,7 @@
                     <TextBlock Height="18" Margin="3" Padding="3" Text="Color:" FontWeight="DemiBold"/>
                     <ComboBox Height="24" Margin="3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding SelectedStorageColor}"/>
                     <Separator Margin="3 6 3 6"/>
-                    <Button Height="24" Margin="3" Content="Edit storage" Command="{Binding EditStoragePanelsCommand}"/>
+                    <Button Height="24" Margin="3" Content="Edit storage" Click="EditStorage_Click"/>
                 </StackPanel>
             </Grid>
         </TabItem>
