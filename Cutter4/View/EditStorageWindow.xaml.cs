@@ -30,7 +30,7 @@ namespace Cutter4.View
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.Result = viewModel.DeltaCounts.ToDictionary();
+            viewModel.ResultDeltaCounts = viewModel.DeltaCounts.ToDictionary();
             DialogResult = true;
             Close();
         }

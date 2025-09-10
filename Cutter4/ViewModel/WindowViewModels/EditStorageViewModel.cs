@@ -15,16 +15,8 @@ namespace Cutter4.ViewModel
 {
     public partial class EditStorageViewModel : ObservableObject
     {
-        public ObservableCollection<KeyValuePair<Panel, int>> DeltaCounts { get; } =
-        [
-            new(new Panel (new PanelType("500mm", PanelColors.F100), 1000), 5),
-            new(new Panel (new PanelType("500mm", PanelColors.F100), 2000), 2),
-            new(new Panel (new PanelType("610mm", PanelColors.AF500), 700), -3),
-            new(new Panel (new PanelType("610mm", PanelColors.F100), 1000), 5),
-            new(new Panel (new PanelType("500mm", PanelColors.F301), 13200), 1),
-            new(new Panel (new PanelType("500mm", PanelColors.F301), 2200), 3),
-        ];
-        public Dictionary<Panel, int> Result { get; set; } = null;
+        public ObservableCollection<KeyValuePair<Panel, int>> DeltaCounts { get; } = [];
+        public Dictionary<Panel, int> ResultDeltaCounts { get; set; } = null;
         
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(AddNewEditItemCommand))]
