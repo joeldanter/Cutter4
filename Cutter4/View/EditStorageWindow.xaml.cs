@@ -43,7 +43,13 @@ namespace Cutter4.View
 
         private void TruckDelivery_Click(object sender, RoutedEventArgs e)
         {
+            TruckDeliveryWindow truckDeliveryWindow = new();
 
+            if (truckDeliveryWindow.ShowDialog() == true)
+            {
+                TruckDeliveryViewModel truckDeliveryViewModel = (TruckDeliveryViewModel)truckDeliveryWindow.DataContext;
+                viewModel.TruckDelivery(truckDeliveryViewModel.CountToImport);
+            }
         }
     }
 }
