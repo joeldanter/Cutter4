@@ -98,10 +98,10 @@
                 <ColumnDefinition Width="auto"/>
                 <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
-            
+
             <Button Grid.Column="0" Width="80" Height="24" Margin="3" Content="Truck delivery" Click="TruckDelivery_Click"/>
-            <Button Grid.Column="2" Width="80" Height="24" Margin="3" Content="Cancel edit" Click="Cancel_Click"/>
-            <Button Grid.Column="3" Width="80" Height="24" Margin="3" Content="Apply edit" Click="Apply_Click" IsEnabled="{Binding CanApplyEdit}"/>
+            <Button Grid.Column="2" Width="80" Height="24" Margin="3" Content="Apply edit" Click="Apply_Click" IsEnabled="{Binding CanApplyEdit}"/>
+            <Button Grid.Column="3" Width="80" Height="24" Margin="3" Content="Cancel edit" Click="Cancel_Click"/>
         </Grid>
     </Grid>
 </Window>
