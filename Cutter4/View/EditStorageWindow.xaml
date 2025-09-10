@@ -44,10 +44,8 @@
                                     <DockPanel>
                                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                                             <TextBlock Text="{Binding Name.Color}" FontSize="13" FontWeight="Normal" Margin="3"/>
-                                            <TextBlock Text="|"                    FontSize="13" Margin="3"/>
                                             <TextBlock Text="{Binding Name.Width}" FontSize="13" FontWeight="Normal" Margin="3"/>
                                         </StackPanel>
-                                        <Separator Grid.Column="1" Margin="3"/>
                                     </DockPanel>
                                 </DataTemplate>
                             </GroupStyle.HeaderTemplate>
