@@ -61,10 +61,10 @@
                     <TextBlock Text="New edit item" Margin="3"/>
                     <Separator Margin="3"/>
                 </DockPanel>
-                <DataGrid Margin="3" x:Name="DeltaCountsDataGrid" ItemsSource="{Binding Source={StaticResource GroupedDeltaCounts}}" AutoGenerateColumns="False" CanUserResizeRows="False" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False">
+                <DataGrid Margin="3" x:Name="DeltaCountsDataGrid" ItemsSource="{Binding Source={StaticResource GroupedDeltaCounts}}" AutoGenerateColumns="False" CanUserResizeRows="False" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" ColumnWidth="auto">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="*" Header="Length" Binding="{Binding Key.Length}"/>
-                        <DataGridTextColumn Width="*" Header="Delta count" Binding="{Binding Value}"/>
+                        <DataGridTextColumn Header="Length" Binding="{Binding Key.Length}"/>
+                        <DataGridTextColumn Header="Delta count" Binding="{Binding Value}"/>
                     </DataGrid.Columns>
 
                     <DataGrid.GroupStyle>
