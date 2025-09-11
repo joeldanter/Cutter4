@@ -7,8 +7,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -38,7 +40,7 @@ namespace Cutter4.ViewModel
         [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
         [NotifyPropertyChangedFor(nameof(SPs500))]
         [NotifyPropertyChangedFor(nameof(SPs610))]
-        Dictionary<Panel, int> storagePanelCounts;
+        Dictionary<Panel, int> storagePanelCounts = [];
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
         [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
@@ -105,33 +107,64 @@ namespace Cutter4.ViewModel
         }
         IStorageHistoryEntry lastOrderSaveStorageHistoryEntry => StorageHistory.MaxBy(entry => entry.DateTime.Ticks * (entry is OrderSaveStorageHistoryEntry ? 1 : 0));
 
-        [ObservableProperty]
-        string server = "127.0.0.1";
-        [ObservableProperty]
-        string databaseName = "cutter";
-        [ObservableProperty]
-        string userName = "main";
-        [ObservableProperty]
-        string password = "Almacitrom";
-        [ObservableProperty]
-        string pingResultText = string.Empty;
-        [ObservableProperty]
-        Brush pingResultColor = Brushes.Black;
-        [ObservableProperty]
-        DateTime? lastPingDate = null;
+        const string dataBaseSettingsPath = "dbsettings.json";
 
         public MainViewModel()
         {
-            SaveDatabaseSettings();
-            storage.StoragePanelsChanged += (object sender, EventArgs e) => { StoragePanelCounts = storage.StoragePanels(); };
-            StoragePanelCounts = storage.StoragePanels();
-
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
 
+            storage.StoragePanelsChanged += (object sender, EventArgs e) => { LoadStoragePanels(); };
             storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
             storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
+        }
+
+        public bool TryLoadDatabase(out string errorMessage)
+        {
+            if (!File.Exists(dataBaseSettingsPath))
+            {
+                errorMessage = $"Can't find the database settings file at {Path.GetFullPath(dataBaseSettingsPath)}";
+                return false;
+            }
+
+            string jsonStr = File.ReadAllText(dataBaseSettingsPath);
+            DataBaseSettings settings;
+            try
+            {
+                settings = (DataBaseSettings)JsonSerializer.Deserialize(jsonStr, typeof(DataBaseSettings));
+            }
+            catch (JsonException e)
+            {
+                errorMessage = $"Failed to deserialize database settings file:\n{e.Message}";
+                return false;
+            }
+            
+            if (settings.IsAnyPropertyNull())
+            {
+                errorMessage = $"Failed to load all details from database settings file";
+                return false;
+            }
+
+            storage.Server = settings.Server;
+            storage.DatabaseName = settings.DatabaseName;
+            storage.UserName = settings.UserName;
+            storage.Password = settings.Password;
+
+            if (!storage.CanConnect())
+            {
+                errorMessage = "Failed to connect to the database using the provided credentials";
+                return false;
+            }
+
+            LoadStoragePanels();
             LoadStorageHistory();
+            errorMessage = "";
+            return true;
+        }
+
+        void LoadStoragePanels()
+        {
+            StoragePanelCounts = storage.StoragePanels();
         }
 
         void LoadStorageHistory()
@@ -194,40 +227,6 @@ namespace Cutter4.ViewModel
                 Kapuk.Add(new KapuViewModel(kapu));
             }
             OutputText = string.Empty;
-        }
-
-        [RelayCommand]
-        void SaveDatabaseSettings()
-        {
-            storage.Server = Server;
-            storage.DatabaseName = DatabaseName;
-            storage.UserName = UserName;
-            storage.Password = Password;
-        }
-
-        [RelayCommand]
-        void CancelDatabaseSettings()
-        {
-            Server = storage.Server;
-            DatabaseName = storage.DatabaseName;
-            UserName =storage.UserName;
-            Password = storage.Password;
-        }
-
-        [RelayCommand]
-        void PingDatabase()
-        {
-            if (storage.CanConnect())
-            {
-                PingResultText = "Connected!";
-                PingResultColor = Brushes.Green;
-            }
-            else
-            {
-                PingResultText = "Failed to Connect";
-                PingResultColor = Brushes.Red;
-            }
-            LastPingDate = DateTime.Now;
         }
     }
 }

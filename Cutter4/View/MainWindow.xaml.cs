@@ -28,6 +28,11 @@ namespace Cutter4.View
         {
             InitializeComponent();
             viewModel = (MainViewModel)DataContext;
+            if (!viewModel.TryLoadDatabase(out string errorMessage))
+            {
+                MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Environment.Exit(-1);
+            }
         }
 
         void EditStorage_Click(object sender, RoutedEventArgs e)
