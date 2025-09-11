@@ -55,8 +55,8 @@ namespace Cutter4.Model.Cutting
 
             return resultConfigurations;
         }
-
-        Configuration ConfigurationWithLeastWasteUsingStoragePanels(List<KapuPanel> panelsToCut, Dictionary<int, int> storagePanelCounts, PanelType type)
+        
+        Configuration ConfigurationWithLeastWasteUsingStoragePanels(IList<KapuPanel> panelsToCut, Dictionary<int, int> storagePanelCounts, PanelType type)
         {
             Configuration bestConfiguration = null;
             int leastWaste = int.MaxValue;
