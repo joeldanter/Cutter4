@@ -21,6 +21,49 @@ namespace Cutter4.Model.Cutting
         G103
     }
     
+    public readonly record struct KapuSerialNumber
+    {
+        public string Value { get; }
+
+        const int maxLength = 20;
+
+        public KapuSerialNumber(string value)
+        {
+            if (!IsValid(value, out string errorMessage))
+                throw new ArgumentException(errorMessage);
+            Value = value;
+        }
+
+        public static bool IsValid(string serialNumber, out string errorMessage)
+        {
+            if (serialNumber == null)
+            {
+                errorMessage = "The given serial number was null";
+                return false;
+            }
+            if (serialNumber.Length == 0)
+            {
+                errorMessage = "The serial number can not be empty";
+                return false;
+            }
+            if (char.IsWhiteSpace(serialNumber[0]) || char.IsWhiteSpace(serialNumber[^1]))
+            {
+                errorMessage = "The serial number must not begin or end with whitespace";
+                return false;
+            }
+            if (maxLength < serialNumber.Length)
+            {
+                errorMessage = $"The serial number must be no more than {maxLength} characters";
+                return false;
+            }
+
+            errorMessage = "";
+            return true;
+        }
+
+        public override string ToString() => Value;
+    }
+
     public readonly record struct PanelType
     {
         public string Width { get; }
@@ -66,9 +109,9 @@ namespace Cutter4.Model.Cutting
     public readonly record struct KapuPanel
     {
         public int Length { get; }
-        public string SerialNumber { get; }
+        public KapuSerialNumber SerialNumber { get; }
 
-        public KapuPanel(int length, string serialNumber)
+        public KapuPanel(int length, KapuSerialNumber serialNumber)
         {
             if (length < 1)
                 throw new ArgumentException("The length of a panel can not be smaller than 1");

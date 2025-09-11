@@ -30,10 +30,16 @@ namespace Cutter4.ViewModel
         
         [ObservableProperty]
         [NotifyDataErrorInfo]
-        [Required]
-        [RegularExpression(@"^\S(.*\S)?$")]
-        [MaxLength(Kapu.MaxSerialNumberLength)]
+        [CustomValidation(typeof(KapuViewModel), nameof(ValidateSerialNumber))]
         string serialNumber;
+
+        public static ValidationResult ValidateSerialNumber(string serialNumber, ValidationContext validationContext)
+        {
+            if (KapuSerialNumber.IsValid(serialNumber, out string errorMessage))
+                return ValidationResult.Success;
+
+            return new(errorMessage);
+        }
 
         public KapuViewModel()
         {
@@ -50,8 +56,8 @@ namespace Cutter4.ViewModel
             Length = kapu.Length;
             Height = kapu.Height;
             Color = kapu.Color;
-            SerialNumber = kapu.SerialNumber;
-
+            SerialNumber = kapu.SerialNumber.Value;
+        
             ValidateAllProperties();
         }
 
@@ -62,7 +68,7 @@ namespace Cutter4.ViewModel
                 throw new InvalidOperationException("Can't create a new Kapu instance, because the given data has errors");
             }
 
-            return new Kapu(Length, Height, (PanelColors)Color, SerialNumber);
+            return new Kapu(Length, Height, (PanelColors)Color, new(SerialNumber));
         }
     }
 }

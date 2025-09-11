@@ -807,7 +807,7 @@ INNER JOIN orders
                 Enum.TryParse(row["color_name"].ToString(), out PanelColors color);
                 string serial_number = row["serial_number"].ToString();
 
-                Kapu kapu = new Kapu(length, height, color, serial_number);
+                Kapu kapu = new Kapu(length, height, color, new(serial_number));
                 ordersByIds[order_id].Kapuk.Add(kapu);
             }
 
@@ -854,7 +854,7 @@ INNER JOIN orders
                 int cut_length = Convert.ToInt32(row["cut_length"]);
                 string serial_number = row["serial_number"].ToString();
 
-                KapuPanel kapuPanel = new KapuPanel(cut_length, serial_number);
+                KapuPanel kapuPanel = new KapuPanel(cut_length, new(serial_number));
                 confsByIds[configuration_id].Panels.Add(kapuPanel);
             }
 
