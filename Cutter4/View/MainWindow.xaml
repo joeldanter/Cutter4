@@ -39,7 +39,7 @@
 
                     <StackPanel Grid.Column="1" Margin="0 20 0 0">
                         <Button Grid.Row="1" Margin="3" Height="26" Content="Calculate" Command="{Binding CalculateCommand}"/>
-                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Command="{Binding SaveCommand}"/>
+                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Click="Save_Click" IsEnabled="{Binding CanSave}"/>
                         <Button Grid.Row="2" Margin="3" Height="26" Content="New cut" Command="{Binding NewCutCommand}"/>
                     </StackPanel>
                 </Grid>
@@ -104,7 +104,7 @@
                 <GroupBox Header="Actions on storage" Margin="3">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Grid.ColumnSpan="2" Orientation="Horizontal">
-                            <Button Content="Revert and Modify" Width="120" Height="24" Margin="3" Command="{Binding RevertOrderCommand}"/>
+                            <Button Content="Revert and Modify" Width="120" Height="24" Margin="3" Click="Revert_Click" IsEnabled="{Binding CanRevertOrder}"/>
                         </StackPanel>
                         <DataGrid ItemsSource="{Binding StorageHistory}" SelectedItem="{Binding SelectedStorageHistoryEntry}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="0" IsReadOnly="True" CanUserReorderColumns="False" SelectionMode="Single">
                             <DataGrid.Columns>

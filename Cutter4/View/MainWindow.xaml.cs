@@ -40,5 +40,15 @@ namespace Cutter4.View
             EditStorageWindow editStorageWindow = new();
             editStorageWindow.ShowDialog();
         }
+
+        private void Revert_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.RevertOrder();
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+            viewModel.Save();
+        }
     }
 }

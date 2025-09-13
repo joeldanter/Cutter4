@@ -30,7 +30,6 @@ namespace Cutter4.ViewModel
         string outputText = string.Empty;
         bool canCalculate { get => Kapuk.Count != 0 && Kapuk.All(kapu => !kapu.HasErrors); }
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
         bool canSave = false;
         List<Kapu> calculatedKapuk;
         PanelCollection<Configuration> calculatedConfs;
@@ -93,12 +92,12 @@ namespace Cutter4.ViewModel
         }
 
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]
+        [NotifyPropertyChangedFor(nameof(CanRevertOrder))]
         ObservableCollection<IStorageHistoryEntry> storageHistory = new ObservableCollection<IStorageHistoryEntry>();
         [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(RevertOrderCommand))]
+        [NotifyPropertyChangedFor(nameof(CanRevertOrder))]
         IStorageHistoryEntry selectedStorageHistoryEntry = null;
-        bool canRevertOrder 
+        public bool CanRevertOrder 
         {
             get 
             {
@@ -196,8 +195,7 @@ namespace Cutter4.ViewModel
             CanSave = true;
         }
 
-        [RelayCommand(CanExecute = nameof(CanSave))]
-        void Save()
+        public void Save()
         {
             Storage.SaveNewCut(calculatedKapuk, calculatedConfs);
             CanSave = false;
@@ -210,8 +208,7 @@ namespace Cutter4.ViewModel
             OutputText = string.Empty;
         }
 
-        [RelayCommand(CanExecute = nameof(canRevertOrder))]
-        void RevertOrder()
+        public void RevertOrder()
         {
             ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveStorageHistoryEntry)lastOrderSaveStorageHistoryEntry).Kapuk;
             Storage.UndoLastSavedCut();
