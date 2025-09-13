@@ -20,7 +20,7 @@ namespace Cutter4.ViewModel
     {
         ICuttingStockSolver solver = new GreedySolver();
         ICutOutputGenerator outputGenerator = new CompactOutputGenerator();
-        Storage storage = new Storage();
+        public Storage Storage { get; } = new();
 
         [ObservableProperty]
         int selectedTabIndex;
@@ -114,9 +114,9 @@ namespace Cutter4.ViewModel
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
 
-            storage.StoragePanelsChanged += (object sender, EventArgs e) => { LoadStoragePanels(); };
-            storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
-            storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
+            Storage.StoragePanelsChanged += (object sender, EventArgs e) => { LoadStoragePanels(); };
+            Storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
+            Storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
         }
 
         public bool TryLoadDatabase(out string errorMessage)
@@ -145,12 +145,12 @@ namespace Cutter4.ViewModel
                 return false;
             }
 
-            storage.Server = settings.Server;
-            storage.DatabaseName = settings.DatabaseName;
-            storage.UserName = settings.UserName;
-            storage.Password = settings.Password;
+            Storage.Server = settings.Server;
+            Storage.DatabaseName = settings.DatabaseName;
+            Storage.UserName = settings.UserName;
+            Storage.Password = settings.Password;
 
-            if (!storage.CanConnect())
+            if (!Storage.CanConnect())
             {
                 errorMessage = "Failed to connect to the database using the provided credentials";
                 return false;
@@ -164,19 +164,19 @@ namespace Cutter4.ViewModel
 
         void LoadStoragePanels()
         {
-            StoragePanelCounts = storage.StoragePanels();
+            StoragePanelCounts = Storage.StoragePanels();
         }
 
         void LoadStorageHistory()
         {
             List<IStorageHistoryEntry> history = new List<IStorageHistoryEntry>();
-            foreach (Order order in storage.ListPreviousOrders())
+            foreach (Order order in Storage.ListPreviousOrders())
             {
                 string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations);
                 OrderSaveStorageHistoryEntry orderEntry = new OrderSaveStorageHistoryEntry(order, orderOutput);
                 history.Add(orderEntry);
             }
-            foreach (StorageEdit edit in storage.ListPreviousStorageEdits())
+            foreach (StorageEdit edit in Storage.ListPreviousStorageEdits())
             {
                 EditStorageHistoryEntry editEntry = new EditStorageHistoryEntry(edit);
                 history.Add(editEntry);
@@ -191,7 +191,7 @@ namespace Cutter4.ViewModel
         {
             calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
             PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(calculatedKapuk);
-            calculatedConfs = solver.Solve(panelCollectionToCut, storage.StoragePanels());
+            calculatedConfs = solver.Solve(panelCollectionToCut, Storage.StoragePanels());
             OutputText = outputGenerator.GenerateOutput(calculatedKapuk, calculatedConfs);
             CanSave = true;
         }
@@ -199,7 +199,7 @@ namespace Cutter4.ViewModel
         [RelayCommand(CanExecute = nameof(CanSave))]
         void Save()
         {
-            storage.SaveNewCut(calculatedKapuk, calculatedConfs);
+            Storage.SaveNewCut(calculatedKapuk, calculatedConfs);
             CanSave = false;
         }
 
@@ -212,14 +212,14 @@ namespace Cutter4.ViewModel
 
         public void EditStorage(string message, Dictionary<Panel, int> deltaCounts)
         {
-            storage.EditStoragePanels(message, deltaCounts);
+            Storage.EditStoragePanels(message, deltaCounts);
         }
 
         [RelayCommand(CanExecute = nameof(canRevertOrder))]
         void RevertOrder()
         {
             ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveStorageHistoryEntry)lastOrderSaveStorageHistoryEntry).Kapuk;
-            storage.UndoLastSavedCut();
+            Storage.UndoLastSavedCut();
             SelectedTabIndex = 0;
             Kapuk.Clear();
             foreach (Kapu kapu in orderKapuk)
