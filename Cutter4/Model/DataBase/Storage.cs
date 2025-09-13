@@ -320,6 +320,7 @@ SET panels.storage_count = panels.storage_count - updates.reduce_by;";
                     }
                 }
             }
+            if (valuesRows.Count == 0) return;
             string valuesString = string.Join(",\n", valuesRows);
 
             string commandText =
