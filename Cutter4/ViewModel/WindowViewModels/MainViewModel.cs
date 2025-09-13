@@ -210,11 +210,6 @@ namespace Cutter4.ViewModel
             OutputText = string.Empty;
         }
 
-        public void EditStorage(string message, Dictionary<Panel, int> deltaCounts)
-        {
-            Storage.EditStoragePanels(message, deltaCounts);
-        }
-
         [RelayCommand(CanExecute = nameof(canRevertOrder))]
         void RevertOrder()
         {

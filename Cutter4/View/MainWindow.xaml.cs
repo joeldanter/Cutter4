@@ -38,12 +38,7 @@ namespace Cutter4.View
         void EditStorage_Click(object sender, RoutedEventArgs e)
         {
             EditStorageWindow editStorageWindow = new();
-            
-            if (editStorageWindow.ShowDialog() == true)
-            {
-                EditStorageViewModel editStorageViewModel = (EditStorageViewModel)editStorageWindow.DataContext;
-                viewModel.EditStorage(editStorageViewModel.Message, editStorageViewModel.ResultDeltaCounts);
-            }
+            editStorageWindow.ShowDialog();
         }
     }
 }

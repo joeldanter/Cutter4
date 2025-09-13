@@ -26,11 +26,13 @@ namespace Cutter4.View
         {
             InitializeComponent();
             viewModel = (EditStorageViewModel)DataContext;
+            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
+            viewModel.MainViewModel = (MainViewModel)mainWindow.DataContext;
         }
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.ResultDeltaCounts = viewModel.DeltaCounts.ToDictionary();
+            viewModel.Apply();
             DialogResult = true;
             Close();
         }

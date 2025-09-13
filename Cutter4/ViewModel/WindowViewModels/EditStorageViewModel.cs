@@ -15,8 +15,8 @@ namespace Cutter4.ViewModel
 {
     public partial class EditStorageViewModel : ObservableObject
     {
+        public MainViewModel MainViewModel { get; set; }
         public ObservableCollection<KeyValuePair<Panel, int>> DeltaCounts { get; } = [];
-        public Dictionary<Panel, int> ResultDeltaCounts { get; set; } = null;
         
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(AddNewEditItemCommand))]
@@ -81,6 +81,12 @@ namespace Cutter4.ViewModel
             NewWidth = string.Empty;
             NewLength = string.Empty;
             NewDeltaCount = string.Empty;
+        }
+
+        public void Apply()
+        {
+            Dictionary<Panel, int> deltaCounts = DeltaCounts.ToDictionary();
+            MainViewModel.Storage.EditStoragePanels(Message, deltaCounts);
         }
 
         public void TruckDelivery(int panelCounts)
