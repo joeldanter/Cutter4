@@ -614,8 +614,6 @@ WHERE id = (
         #region EditStoragePanels
         public void EditStoragePanels(string message, Dictionary<Panel, int> deltaCounts)
         {
-            if (deltaCounts.All(x => x.Value == 0)) return;
-
             raiseExceptionIfCantEditStoragePanels(deltaCounts);
 
             using MySqlConnection connection = new MySqlConnection(connString);
@@ -648,6 +646,7 @@ WHERE id = (
                         i++;
                     }
                 }
+                if (valuesRows.Count == 0) return;
                 string valuesString = string.Join(",\n", valuesRows);
 
                 string updatePanelsCommandText = $@"
