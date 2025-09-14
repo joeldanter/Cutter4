@@ -1,4 +1,5 @@
-﻿using Cutter4.ViewModel;
+﻿using Cutter4.Model.DataBase;
+using Cutter4.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -32,9 +33,16 @@ namespace Cutter4.View
 
         private void Apply_Click(object sender, RoutedEventArgs e)
         {
-            viewModel.Apply();
-            DialogResult = true;
-            Close();
+            try
+            {
+                viewModel.Apply();
+                DialogResult = true;
+                Close();
+            }
+            catch (CutterDBException ex)
+            {
+                MessageBox.Show(ex.Message, "Error");
+            }
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e)

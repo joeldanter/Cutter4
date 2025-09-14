@@ -191,7 +191,7 @@ WHERE panels.storage_count < updates.reduce_by;";
                     int reduceBy = Convert.ToInt32(row["reduce_by"]);
                     msg += $"\n{length}mm {color} {width}: at least {reduceBy} are needed, but only {storageCount} are in storage";
                 }
-                throw new InvalidOperationException(msg);
+                throw new CutterDBException(msg);
             }
         }
 
@@ -226,7 +226,7 @@ JOIN kapuk
                     serialNumbers.Add(serial_number);
                 }
                 msg += string.Join(", ", serialNumbers);
-                throw new InvalidOperationException(msg);
+                throw new CutterDBException(msg);
             }
         }
 
@@ -489,7 +489,7 @@ WHERE panels.storage_count<remainder_panels.count
                     int useCount = Convert.ToInt32(row["use_count"]);
                     msg += $"\n{length}mm {color} {width}: {useCount} would need to be reverted, but only {storageCount} are in storage";
                 }
-                throw new InvalidOperationException(msg);
+                throw new CutterDBException(msg);
             }
         }
 
@@ -769,7 +769,7 @@ WHERE IFNULL(panels.storage_count, 0) < -new.sum_delta_count;";
                     string width = row["width"].ToString();
                     msg += $"\n{length}mm {color} {width}: Tried to remove {-delta_count}, but only {storage_count} are in storage";
                 }
-                throw new InvalidOperationException(msg);
+                throw new CutterDBException(msg);
             }
         }
         #endregion
@@ -908,5 +908,15 @@ LEFT JOIN colors
 
             return editsByIds.Values.ToList();
         }
+    }
+
+    [Serializable]
+    class CutterDBException : Exception
+    {
+        public CutterDBException() {  }
+
+        public CutterDBException(string message) : base(message) {  }
+
+        public CutterDBException(string message, Exception inner) : base(message, inner) {  }
     }
 }
