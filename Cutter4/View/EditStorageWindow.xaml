@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Cutter4.View"
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
         mc:Ignorable="d"
-        Title="Storage editing" Height="550" Width="420">
+        Title="Storage editing" Height="550" Width="420" MinHeight="436" MinWidth="339">
     <Window.DataContext>
         <vm:EditStorageViewModel/>
     </Window.DataContext>
