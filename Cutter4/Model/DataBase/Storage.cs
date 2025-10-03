@@ -232,7 +232,7 @@ JOIN kapuk
 
         void saveNewOrder(out long orderId, MySqlConnection connection, MySqlTransaction transaction)
         {
-            string commandText = "INSERT INTO orders (date) VALUES ROW(NOW());";
+            string commandText = "INSERT INTO orders (date) VALUES ROW(NOW(5));";
             orderId = executeNonQueryWithTransaction(commandText, connection, transaction);
         }
 
@@ -676,7 +676,7 @@ SET panels.storage_count=panels.storage_count+new.sum_delta_count;";
 
                 string insertEditsCommandText = $@"
 INSERT INTO storage_edits (date, message)
-VALUES ( NOW(), @message);";
+VALUES ( NOW(5), @message);";
                 MySqlParameter messageParameter = new MySqlParameter("@message", MySqlDbType.VarChar, 255) { Value = message };
                 long editID = executeNonQueryWithTransaction(insertEditsCommandText, connection, transaction, messageParameter);
 
