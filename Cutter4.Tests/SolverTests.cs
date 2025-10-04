@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Cutter4.Tests
 {
-    public class BatchedKapukTestData : IEnumerable<object[]>
+    public class KapuBatchesTestData : IEnumerable<object[]>
     {
         readonly IEnumerable<object[]> data = BatchedKapukData().Select(x => new object[] { x });
 
@@ -66,7 +66,7 @@ namespace Cutter4.Tests
 
         public static List<PanelCollection<KapuPanel>> PanelsData()
         {
-            return [.. BatchedKapukTestData.BatchedKapukData().Select(x => Kapu.ProcessPanels(x))];
+            return [.. KapuBatchesTestData.BatchedKapukData().Select(x => Kapu.ProcessPanels(x))];
         }
 
         public IEnumerator<object[]> GetEnumerator() { return data.GetEnumerator(); }
