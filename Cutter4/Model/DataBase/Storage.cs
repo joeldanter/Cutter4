@@ -16,6 +16,7 @@ namespace Cutter4.Model.DataBase
     public class Storage
     {
         public string Server { get; set; }
+        public uint? Port { get; set; }
         public string DatabaseName { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
@@ -33,6 +34,8 @@ namespace Cutter4.Model.DataBase
                     UserID=UserName,
                     Password=Password
                 };
+                if (Port is not null)
+                    builder.Port = (uint)Port;
                 
                 return builder.ConnectionString;
             }
@@ -77,12 +80,13 @@ namespace Cutter4.Model.DataBase
                 throw new CutterDBConnectionException($"Failed to deserialize database settings file:\n{e.Message}");
             }
 
-            if (settings.IsAnyPropertyNull())
+            if (settings.IsRequiredDataGiven())
             {
                 throw new CutterDBConnectionException($"Failed to load all details from database settings file");
             }
 
             Server = settings.Server;
+            Port = settings.Port;
             DatabaseName = settings.DatabaseName;
             UserName = settings.UserName;
             Password = settings.Password;
