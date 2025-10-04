@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Cutter4.Model.Cutting;
 using MySql.Data;
@@ -13,10 +15,12 @@ namespace Cutter4.Model.DataBase
 {
     public class Storage
     {
-        public string Server { get; set; } 
+        public string Server { get; set; }
         public string DatabaseName { get; set; }
         public string UserName { get; set; }
         public string Password { get; set; }
+
+        const string dataBaseSettingsPath = "dbsettings.json";
 
         string connString
         {
@@ -54,6 +58,40 @@ namespace Cutter4.Model.DataBase
         }
 
         public Storage() {  }
+
+        public void LoadSettings()
+        {
+            if (!File.Exists(dataBaseSettingsPath))
+            {
+                throw new CutterDBConnectionException($"Can't find the database settings file at {Path.GetFullPath(dataBaseSettingsPath)}");
+            }
+
+            string jsonStr = File.ReadAllText(dataBaseSettingsPath);
+            DataBaseSettings settings;
+            try
+            {
+                settings = (DataBaseSettings)JsonSerializer.Deserialize(jsonStr, typeof(DataBaseSettings));
+            }
+            catch (JsonException e)
+            {
+                throw new CutterDBConnectionException($"Failed to deserialize database settings file:\n{e.Message}");
+            }
+
+            if (settings.IsAnyPropertyNull())
+            {
+                throw new CutterDBConnectionException($"Failed to load all details from database settings file");
+            }
+
+            Server = settings.Server;
+            DatabaseName = settings.DatabaseName;
+            UserName = settings.UserName;
+            Password = settings.Password;
+
+            if (!CanConnect())
+            {
+                throw new CutterDBConnectionException("Failed to connect to the database using the provided credentials");
+            }
+        }
 
         public bool CanConnect()
         {
@@ -918,5 +956,15 @@ LEFT JOIN colors
         public CutterDBException(string message) : base(message) {  }
 
         public CutterDBException(string message, Exception inner) : base(message, inner) {  }
+    }
+
+    [Serializable]
+    class CutterDBConnectionException : Exception
+    {
+        public CutterDBConnectionException() { }
+
+        public CutterDBConnectionException(string message) : base(message) { }
+
+        public CutterDBConnectionException(string message, Exception inner) : base(message, inner) { }
     }
 }

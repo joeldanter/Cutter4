@@ -29,9 +29,14 @@ namespace Cutter4.View
         {
             InitializeComponent();
             viewModel = (MainViewModel)DataContext;
-            if (!viewModel.TryLoadDatabase(out string errorMessage))
+
+            try
             {
-                MessageBox.Show(errorMessage, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                viewModel.LoadDatabase();
+            }
+            catch (CutterDBConnectionException e)
+            {
+                MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(-1);
             }
         }

@@ -7,10 +7,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Media;
 
@@ -106,8 +104,6 @@ namespace Cutter4.ViewModel
         }
         IStorageHistoryEntry lastOrderSaveStorageHistoryEntry => StorageHistory.MaxBy(entry => entry.DateTime.Ticks * (entry is OrderSaveStorageHistoryEntry ? 1 : 0));
 
-        const string dataBaseSettingsPath = "dbsettings.json";
-
         public MainViewModel()
         {
             Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
@@ -118,47 +114,12 @@ namespace Cutter4.ViewModel
             Storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
         }
 
-        public bool TryLoadDatabase(out string errorMessage)
+        public void LoadDatabase()
         {
-            if (!File.Exists(dataBaseSettingsPath))
-            {
-                errorMessage = $"Can't find the database settings file at {Path.GetFullPath(dataBaseSettingsPath)}";
-                return false;
-            }
-
-            string jsonStr = File.ReadAllText(dataBaseSettingsPath);
-            DataBaseSettings settings;
-            try
-            {
-                settings = (DataBaseSettings)JsonSerializer.Deserialize(jsonStr, typeof(DataBaseSettings));
-            }
-            catch (JsonException e)
-            {
-                errorMessage = $"Failed to deserialize database settings file:\n{e.Message}";
-                return false;
-            }
-            
-            if (settings.IsAnyPropertyNull())
-            {
-                errorMessage = $"Failed to load all details from database settings file";
-                return false;
-            }
-
-            Storage.Server = settings.Server;
-            Storage.DatabaseName = settings.DatabaseName;
-            Storage.UserName = settings.UserName;
-            Storage.Password = settings.Password;
-
-            if (!Storage.CanConnect())
-            {
-                errorMessage = "Failed to connect to the database using the provided credentials";
-                return false;
-            }
+            Storage.LoadSettings();
 
             LoadStoragePanels();
             LoadStorageHistory();
-            errorMessage = "";
-            return true;
         }
 
         void LoadStoragePanels()
