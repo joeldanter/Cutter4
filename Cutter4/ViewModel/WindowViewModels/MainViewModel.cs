@@ -99,10 +99,10 @@ namespace Cutter4.ViewModel
         {
             get 
             {
-                return SelectedStorageHistoryEntry == lastOrderSaveStorageHistoryEntry;
+                return SelectedStorageHistoryEntry is not null && SelectedStorageHistoryEntry == LastOrderSaveStorageHistoryEntry;
             }
         }
-        IStorageHistoryEntry lastOrderSaveStorageHistoryEntry => StorageHistory.MaxBy(entry => entry.DateTime.Ticks * (entry is OrderSaveStorageHistoryEntry ? 1 : 0));
+        IStorageHistoryEntry LastOrderSaveStorageHistoryEntry => StorageHistory.Where(entry => entry is OrderSaveStorageHistoryEntry).MaxBy(entry => entry.DateTime.Ticks);
 
         public MainViewModel()
         {
@@ -171,7 +171,7 @@ namespace Cutter4.ViewModel
 
         public void RevertOrder()
         {
-            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveStorageHistoryEntry)lastOrderSaveStorageHistoryEntry).Kapuk;
+            ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveStorageHistoryEntry)LastOrderSaveStorageHistoryEntry).Kapuk;
             Storage.UndoLastSavedCut();
             SelectedTabIndex = 0;
             Kapuk.Clear();
