@@ -5,6 +5,7 @@
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
     <StartupObject />
+    <AssemblyVersion>1.0.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System.Configuration" />
