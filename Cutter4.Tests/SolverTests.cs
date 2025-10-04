@@ -1,6 +1,7 @@
 ﻿using Cutter4.Model.Cutting;
 using Cutter4.Model.DataBase;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,44 +11,71 @@ using Xunit;
 
 namespace Cutter4.Tests
 {
-    public class GreedySolverTests
+    public class BatchedKapukTestData : IEnumerable<object[]>
     {
-        public static IEnumerable<object[]> PanelsData()
-        {
-            List<object[]> result = new List<object[]>();
-            StreamReader sr = new StreamReader("C:\\Users\\pixxe\\source\\repos\\Cutter4\\Cutter4.Tests/KapuTestData.csv");
-            Random r = new Random(820);
+        readonly IEnumerable<object[]> data = BatchedKapukData().Select(x => new object[] { x });
 
-            List<Kapu> batchKapuk = new List<Kapu>();
-            int batchCountLeft = r.Next(1, 13);
-            for (int i = 1; !sr.EndOfStream; i++)
+        public static List<Kapu> AllKapukData()
+        {
+            List<Kapu> result = [];
+            StreamReader sr = new("C:\\Users\\pixxe\\source\\repos\\Cutter4\\Cutter4.Tests/KapuTestData.csv");
+
+            for (int i = 0; !sr.EndOfStream; i++)
             {
                 string line = sr.ReadLine();
                 string[] splitted_line = line.Split(';');
-                int length =  int.Parse(splitted_line[0]);
+                int length = int.Parse(splitted_line[0]);
                 int height = int.Parse(splitted_line[1]);
                 Enum.TryParse(splitted_line[2], out PanelColors color);
                 int count = int.Parse(splitted_line[3]);
 
                 for (int j = 0; j < count; j++)
                 {
-                    Kapu kapu = new Kapu(length, height, color, new KapuSerialNumber($"kapu{i}"));
-                    batchKapuk.Add(kapu);
-                }
-
-                batchCountLeft--;
-                if (batchCountLeft == 0 || sr.EndOfStream)
-                {
-                    result.Add(new object[] { Kapu.ProcessPanels(batchKapuk) });
-                    batchKapuk.Clear();
-                    batchCountLeft = r.Next(1, 13);
+                    Kapu kapu = new Kapu(length, height, color, new KapuSerialNumber($"kapu{i}{(count == 1 ? "" : "-" + j)}"));
+                    result.Add(kapu);
                 }
             }
 
             return result;
         }
 
-        Dictionary<Panel, int> storagePanels()
+        public static List<List<Kapu>> BatchedKapukData()
+        {
+            List<List<Kapu>> result = [];
+            List<Kapu> kapuk = AllKapukData();
+            Random r = new(820);
+
+            while (kapuk.Count > 0)
+            {
+                int batchLength = Math.Min(r.Next(1, 13), kapuk.Count);
+                List<Kapu> batchKapuk = kapuk.GetRange(kapuk.Count - batchLength, batchLength);
+                kapuk.RemoveRange(kapuk.Count - batchLength, batchLength);
+                result.Add(batchKapuk);
+            }
+
+            return result;
+        }
+
+        public IEnumerator<object[]> GetEnumerator() { return data.GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+    }
+
+    public class PanelsTestData : IEnumerable<object[]>
+    {
+        readonly IEnumerable<object[]> data = PanelsData().Select(x => new object[] { x });
+
+        public static List<PanelCollection<KapuPanel>> PanelsData()
+        {
+            return [.. BatchedKapukTestData.BatchedKapukData().Select(x => Kapu.ProcessPanels(x))];
+        }
+
+        public IEnumerator<object[]> GetEnumerator() { return data.GetEnumerator(); }
+        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
+    }
+
+    public class GreedySolverTests
+    {
+        Dictionary<Panel, int> StoragePanels()
         {
             Dictionary<Panel, int> result = [];
 
@@ -64,22 +92,18 @@ namespace Cutter4.Tests
 
         [Theory]
         [Trait("Category", "Integration")]
-        [MemberData(nameof(PanelsData))]
+        [ClassData(typeof(PanelsTestData))]
         public void Solve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
         {
             GreedySolver solver = new GreedySolver();
             
-            PanelCollection<Configuration> resultConfigurationsCollection = solver.Solve(panelCollectionToCut, storagePanels());
+            PanelCollection<Configuration> GeneratedConfigurations = solver.Solve(panelCollectionToCut, StoragePanels());
 
-            foreach (KeyValuePair<PanelType, List<Configuration>> entry in resultConfigurationsCollection)
+            foreach (KeyValuePair<PanelType, List<Configuration>> entry in GeneratedConfigurations)
             {
-                PanelType type = entry.Key;
-                List<Configuration> resultConfigurations = entry.Value;
-
-                List<KapuPanel> resultPanels = resultConfigurations.SelectMany(c => c.Panels).ToList();
-
-                HashSet<KapuPanel> set = new HashSet<KapuPanel>(panelCollectionToCut[type]);
-                Assert.True(set.SetEquals(resultPanels));
+                HashSet<KapuPanel> generatedPanels = [.. entry.Value.SelectMany(c => c.Panels)];
+                List<KapuPanel> originalPanels = panelCollectionToCut[entry.Key];
+                Assert.True(generatedPanels.SetEquals(originalPanels));
             }
         }
     }
