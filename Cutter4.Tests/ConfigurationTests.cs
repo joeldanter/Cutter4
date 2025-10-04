@@ -30,7 +30,7 @@ namespace Cutter4.Tests
             List<KapuPanel> panels = new List<KapuPanel>();
             foreach (int length in lengths)
             {
-                KapuPanel panel = new KapuPanel(length, "-");
+                KapuPanel panel = new KapuPanel(length, new KapuSerialNumber("-"));
                 panels.Add(panel);
             }
 
@@ -48,7 +48,7 @@ namespace Cutter4.Tests
             List<KapuPanel> panels = new List<KapuPanel>();
             foreach (int length in lengths)
             {
-                KapuPanel panel = new KapuPanel(length, "-");
+                KapuPanel panel = new KapuPanel(length, new KapuSerialNumber("-"));
                 panels.Add(panel);
             }
 
@@ -68,7 +68,7 @@ namespace Cutter4.Tests
             List<KapuPanel> panels = new List<KapuPanel>();
             foreach (int length in lengths)
             {
-                KapuPanel panel = new KapuPanel(length, "-");
+                KapuPanel panel = new KapuPanel(length, new KapuSerialNumber("-"));
                 panels.Add(panel);
             }
             Configuration configuration = new Configuration(panels, 13200);

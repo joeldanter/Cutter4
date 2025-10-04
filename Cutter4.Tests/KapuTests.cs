@@ -20,7 +20,7 @@ namespace Cutter4.Tests
         [InlineData(5210, 3, 6)]
         public void GetPanelWidths_SetHeight_ReturnsCorrectWidths(int height, int expected_mm500, int expected_mm610)
         {
-            Kapu kapu = new Kapu(1000, height, PanelColors.F100, "test");
+            Kapu kapu = new Kapu(1000, height, PanelColors.F100, new KapuSerialNumber("test"));
 
             kapu.GetPanelWidths(out int mm500, out int mm610);
 

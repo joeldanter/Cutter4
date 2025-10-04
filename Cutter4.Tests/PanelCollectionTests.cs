@@ -30,7 +30,7 @@ namespace Cutter4.Tests
         {
             PanelCollection<KapuPanel> collection = new PanelCollection<KapuPanel>();
             PanelType type = new PanelType("500mm", PanelColors.F201);
-            KapuPanel panel = new KapuPanel(1000, "-");
+            KapuPanel panel = new KapuPanel(1000, new KapuSerialNumber("-"));
             List<KapuPanel> expected = new List<KapuPanel>() { panel };
 
             collection[type].Add(panel);

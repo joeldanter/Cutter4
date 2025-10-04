@@ -31,7 +31,7 @@ namespace Cutter4.Tests
 
                 for (int j = 0; j < count; j++)
                 {
-                    Kapu kapu = new Kapu(length, height, color, $"kapu{i}");
+                    Kapu kapu = new Kapu(length, height, color, new KapuSerialNumber($"kapu{i}"));
                     batchKapuk.Add(kapu);
                 }
 
@@ -47,16 +47,16 @@ namespace Cutter4.Tests
             return result;
         }
 
-        PanelCollection<StoragePanel> storagePanels()
+        Dictionary<Panel, int> storagePanels()
         {
-            PanelCollection<StoragePanel> result = new PanelCollection<StoragePanel>();
+            Dictionary<Panel, int> result = [];
 
-            foreach (KeyValuePair<PanelType, List<StoragePanel>> entry in result)
+            foreach (PanelType type in PanelType.GetAllTypes())
             {
-                result[entry.Key].Add(new StoragePanel(13200, 20));
-                result[entry.Key].Add(new StoragePanel(11000, 8));
-                result[entry.Key].Add(new StoragePanel(8000, 5));
-                result[entry.Key].Add(new StoragePanel(4000, 3));
+                result.Add(new Panel(type, 13200), 20);
+                result.Add(new Panel(type, 11000), 8);
+                result.Add(new Panel(type, 8000), 5);
+                result.Add(new Panel(type, 4000), 3);
             }
 
             return result;
