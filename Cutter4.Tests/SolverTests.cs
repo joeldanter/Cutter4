@@ -11,10 +11,8 @@ using Xunit;
 
 namespace Cutter4.Tests
 {
-    public class KapuBatchesTestData : IEnumerable<object[]>
+    public static class KapuTestData
     {
-        readonly IEnumerable<object[]> data = BatchedKapukData().Select(x => new object[] { x });
-
         public static List<Kapu> AllKapukData()
         {
             List<Kapu> result = [];
@@ -55,26 +53,12 @@ namespace Cutter4.Tests
 
             return result;
         }
-
-        public IEnumerator<object[]> GetEnumerator() { return data.GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
-    }
-
-    public class PanelsTestData : IEnumerable<object[]>
-    {
-        readonly IEnumerable<object[]> data = PanelsData().Select(x => new object[] { x });
-
-        public static List<PanelCollection<KapuPanel>> PanelsData()
-        {
-            return [.. KapuBatchesTestData.BatchedKapukData().Select(x => Kapu.ProcessPanels(x))];
-        }
-
-        public IEnumerator<object[]> GetEnumerator() { return data.GetEnumerator(); }
-        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
     }
 
     public class GreedySolverTests
     {
+        public static IEnumerable<object[]> PanelsData => [..KapuTestData.BatchedKapukData().Select(x => new object[] { Kapu.ProcessPanels(x) })];
+
         Dictionary<Panel, int> StoragePanels()
         {
             Dictionary<Panel, int> result = [];
@@ -92,7 +76,7 @@ namespace Cutter4.Tests
 
         [Theory]
         [Trait("Category", "Integration")]
-        [ClassData(typeof(PanelsTestData))]
+        [MemberData(nameof(PanelsData))]
         public void Solve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
         {
             GreedySolver solver = new GreedySolver();
