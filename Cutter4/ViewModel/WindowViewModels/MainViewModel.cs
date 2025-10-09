@@ -132,7 +132,7 @@ namespace Cutter4.ViewModel
             List<IStorageHistoryEntry> history = new List<IStorageHistoryEntry>();
             foreach (Order order in Storage.ListPreviousOrders())
             {
-                string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations);
+                string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations, order.DateTime);
                 OrderSaveStorageHistoryEntry orderEntry = new OrderSaveStorageHistoryEntry(order, orderOutput);
                 history.Add(orderEntry);
             }
@@ -152,7 +152,7 @@ namespace Cutter4.ViewModel
             calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
             PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(calculatedKapuk);
             calculatedConfs = solver.Solve(panelCollectionToCut, Storage.StoragePanels());
-            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, calculatedConfs);
+            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, calculatedConfs, DateTime.Now);
             CanSave = true;
         }
 

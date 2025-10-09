@@ -8,16 +8,16 @@ namespace Cutter4.Model.Cutting
 {
     public interface ICutOutputGenerator
     {
-        string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations);
+        string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations, DateTime dateOfCut);
     }
 
     public class CompactOutputGenerator : ICutOutputGenerator
     {
-        public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations)
+        public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations, DateTime dateOfCut)
         {
             string outputStr = "";
 
-            outputStr += "Dátum: " + DateTime.Now.ToString("yyyy:MM:dd HH:mm:ss") + "\n\n";
+            outputStr += "Dátum: " + dateOfCut.ToString() + "\n\n";
 
             // Kapuk
             outputStr += "Kapuk:\n";
