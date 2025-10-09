@@ -45,7 +45,7 @@
                 </Grid>
 
                 <GroupBox Grid.Row="1" Header="Output" Margin="3" >
-                    <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" VerticalScrollBarVisibility="Auto"/>
+                    <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 </GroupBox>
             </Grid>
         </TabItem>
@@ -115,7 +115,7 @@
                     </DockPanel>
                 </GroupBox>
                 <GroupBox Grid.Column="1" Header="Details" Margin="3">
-                    <TextBox Text="{Binding SelectedStorageHistoryEntry.Details, Mode=OneWay}" Margin="3" IsReadOnly="True"/>
+                    <TextBox Text="{Binding SelectedStorageHistoryEntry.Details, Mode=OneWay}" Margin="3" Padding="3" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                 </GroupBox>
             </Grid>
         </TabItem>
