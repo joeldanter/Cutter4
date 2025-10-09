@@ -20,7 +20,7 @@ namespace Cutter4.Tests
             ICuttingStockSolver solver = new GreedySolver();
             Storage storage = new();
             storage.Server = "127.0.0.1";
-            storage.Port = 3307;
+            storage.Port = 3306;
             storage.DatabaseName = "cutter_testing";
             storage.UserName = "tester";
             storage.Password = "hoifajhfskahfkh";
@@ -47,7 +47,7 @@ namespace Cutter4.Tests
                     -1000))
                 .ToDictionary());
             Dictionary<Panel, int> newStorage = storage.StoragePanels();
-
+            
             Assert.True(newStorage.ToHashSet().SetEquals(originalStorage));
         }
     }
