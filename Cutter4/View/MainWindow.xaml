@@ -8,7 +8,7 @@
         xmlns:cutting="clr-namespace:Cutter4.Model.Cutting"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
-        Title="Cutter4" Height="650" Width="600" MinHeight="295" MinWidth="342">
+        Title="Cutter4" Height="650" Width="630" MinHeight="295" MinWidth="342">
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
