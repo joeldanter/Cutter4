@@ -239,6 +239,26 @@ WHERE panels.storage_count < updates.reduce_by;";
 
         void raiseExceptionIfCantSaveKapuk(IList<Kapu> kapuk)
         {
+            // ugly ahh but idc imma rewrite this whole shi anyways
+            HashSet<string> repeatingSerialNumbers = [];
+            for (int i = 0; i < kapuk.Count; i++)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (kapuk[i].SerialNumber == kapuk[j].SerialNumber)
+                    {
+                        repeatingSerialNumbers.Add(kapuk[i].SerialNumber.Value);
+                    }
+                }
+            }
+            if (repeatingSerialNumbers.Count > 0) 
+            {
+                string msg = "The order can not be be saved because there are reoccuring serial numbers: ";
+                msg += string.Join(", ", repeatingSerialNumbers);
+                throw new CutterDBException(msg);
+            }
+
+
             List<MySqlParameter> parameters = new List<MySqlParameter>();
             List<string> valuesRows = new List<string>();
             for (int i = 0; i < kapuk.Count; i++)
