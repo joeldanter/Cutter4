@@ -16,7 +16,7 @@ namespace Cutter4.Tests
         public static List<Kapu> AllKapukData()
         {
             List<Kapu> result = [];
-            StreamReader sr = new("C:\\Users\\pixxe\\source\\repos\\Cutter4\\Cutter4.Tests/KapuTestData.csv");
+            StreamReader sr = new(".\\KapuTestData.csv");
 
             for (int i = 0; !sr.EndOfStream; i++)
             {
