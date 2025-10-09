@@ -31,16 +31,23 @@ namespace Cutter4.ViewModel
 
         string detailsText(StorageEdit storageEdit)
         {
-            string result = $"{storageEdit.DateTime}\n\n{storageEdit.Message}\n";
+            StringBuilder result = new StringBuilder();
+            result.AppendLine($"Date: {storageEdit.DateTime}");
+            result.AppendLine();
+            result.AppendLine("Message:");
+            result.AppendLine(storageEdit.Message);
+            result.AppendLine();
+            result.AppendLine("Changes:");
+
             foreach (KeyValuePair<Panel, int> entry in storageEdit.DeltaCounts)
             {
                 PanelType type = entry.Key.Type;
                 int length = entry.Key.Length;
                 int deltaCount = entry.Value;
 
-                result += $"\n{deltaCount.ToString("+0;-0;0")} {length}mm {type.Color} {type.Width}";
+                result.AppendLine($"{type.Color} {type.Width}: {deltaCount.ToString("+0;-0;0")} {length}mm");
             }
-            return result;
+            return result.ToString();
         }
     }
 
