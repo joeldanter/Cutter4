@@ -50,4 +50,62 @@ namespace Cutter4.Model.Cutting
             return outputStr;
         }
     }
+
+    class LongOutputGenerator : ICutOutputGenerator
+    {
+        public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations, DateTime dateOfCut)
+        {
+            StringBuilder output = new();
+            
+            output.AppendLine("Dátum: " + dateOfCut.ToString() + "\n");
+
+            // Kapuk
+            output.AppendLine("# Kapuk");
+            foreach (Kapu kapu in kapuk)
+            {
+                kapu.GetPanelWidths(out int mm500, out int mm610);
+
+                output.AppendLine($"{kapu.SerialNumber} {kapu.Length}*{kapu.Height} {kapu.Color} | {mm500}x500mm, {mm610}x610mm");
+            }
+            output.AppendLine();
+
+            // Panels
+            output.AppendLine("# Vágások");
+            foreach (KeyValuePair<PanelType, List<Configuration>> item in configurations)
+            {
+                foreach (Configuration conf in item.Value)
+                {
+                    output.AppendLine($"Szín: {item.Key.Color}");
+                    output.AppendLine($"Szélesség: {item.Key.Width}");
+                    output.AppendLine($"Hossz: {conf.Capacity}mm");
+
+                    List<string> cutLengths = [];
+                    List<string> cutSerialNumbers = [];
+                    foreach (KapuPanel panel in conf.Panels)
+                    {
+                        string panelLength = panel.Length.ToString();
+                        string serialNumber = panel.SerialNumber.Value;
+                        int padSize = Math.Max(panelLength.Length, serialNumber.Length);
+                        
+                        cutLengths.Add(panelLength.PadRight(padSize));
+                        cutSerialNumbers.Add(serialNumber.PadRight(padSize));
+                    }
+                    output.AppendLine("Kivágott hosszak: " + string.Join(" ", cutLengths));
+                    output.AppendLine("Gyártási számaik: " + string.Join(" ", cutSerialNumbers));
+                    
+                    output.AppendLine($"Maradék: {conf.Waste}mm");
+                    output.AppendLine();
+                }
+            }
+
+            // Other data
+            IEnumerable<Configuration> allConfs = configurations.SelectMany(x => x.Value);
+            int AddedWaste = allConfs.Where(x => x.Capacity == 13200).Sum(x => x.Capacity);
+            int removedWaste = allConfs.Sum(x => x.Used);
+            output.AppendLine($"Összes kivágott panel hossza: {removedWaste}mm");
+            output.AppendLine($"Raktáron keletkezett maradék: {AddedWaste - removedWaste}mm");
+
+            return output.ToString();
+        }
+    }
 }
