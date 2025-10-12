@@ -16,7 +16,7 @@ namespace Cutter4.ViewModel
 {
     public partial class MainViewModel : ObservableObject
     {
-        ICuttingStockSolver solver = new GreedySolver();
+        ICuttingStockSolver solver = new LPSolver();
         ICutOutputGenerator outputGenerator = new LongOutputGenerator();
         public Storage Storage { get; } = new();
 

@@ -1,5 +1,7 @@
 ﻿using Cutter4.Model.Cutting;
 using Cutter4.Model.DataBase;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
+using Org.BouncyCastle.Asn1.BC;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -55,7 +57,7 @@ namespace Cutter4.Tests
         }
     }
 
-    public class GreedySolverTests
+    public class SolverTests
     {
         public static IEnumerable<object[]> PanelsData => [..KapuTestData.BatchedKapukData().Select(x => new object[] { Kapu.ProcessPanels(x) })];
 
@@ -77,18 +79,48 @@ namespace Cutter4.Tests
         [Theory]
         [Trait("Category", "Integration")]
         [MemberData(nameof(PanelsData))]
-        public void Solve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
+        public void GreedySolve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
         {
             GreedySolver solver = new GreedySolver();
             
-            PanelCollection<Configuration> GeneratedConfigurations = solver.Solve(panelCollectionToCut, StoragePanels());
+            PanelCollection<Configuration> generatedConfigurations = solver.Solve(panelCollectionToCut, StoragePanels());
 
-            foreach (KeyValuePair<PanelType, List<Configuration>> entry in GeneratedConfigurations)
+            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, panelCollectionToCut));
+        }
+
+        [Theory]
+        [Trait("Category", "Integration")]
+        [MemberData(nameof(PanelsData))]
+        public void LPSolve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
+        {
+            LPSolver solver = new();
+            
+            PanelCollection<Configuration> generatedConfigurations = solver.Solve(panelCollectionToCut, StoragePanels());
+
+            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, panelCollectionToCut));
+        }
+
+        static bool DoConfigurationsUsePanels(PanelCollection<Configuration> generatedConfigurations, PanelCollection<KapuPanel> panelCollectionToCut)
+        {
+            foreach (KeyValuePair<PanelType, List<Configuration>> entry in generatedConfigurations)
             {
-                HashSet<KapuPanel> generatedPanels = [.. entry.Value.SelectMany(c => c.Panels)];
+                List<KapuPanel> generatedPanels = [.. entry.Value.SelectMany(c => c.Panels)];
                 List<KapuPanel> originalPanels = panelCollectionToCut[entry.Key];
-                Assert.True(generatedPanels.SetEquals(originalPanels));
+                if (!DoListsHaveSameElements(generatedPanels, originalPanels)) return false;
             }
+            return true;
+        }
+
+        static bool DoListsHaveSameElements<T>(IList<T> first, IList<T> second)
+        {
+            List<T> secondCopy = [.. second];
+            foreach (T item in first)
+            {
+                int secondIndex = secondCopy.IndexOf(item);
+                if (secondIndex == -1) return false;
+                secondCopy.RemoveAt(secondIndex);
+            }
+            return secondCopy.Count == 0;
         }
     }
 }
