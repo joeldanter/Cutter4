@@ -208,7 +208,13 @@ namespace Cutter4.Model.Cutting
 
         double DeltaLoss(Configuration conf)
         {
-            return conf.Waste != 13200 ? conf.Waste : 0;
+            if (conf.Waste < 1600)
+                return 2.5 * conf.Waste;
+            if (conf.Waste < 3200)
+                return 4960 - (0.6 * conf.Waste);
+            if (conf.Waste < 13200)
+                return 2081 + 0.3 * conf.Waste;
+            return 0;
         }
     }
 }
