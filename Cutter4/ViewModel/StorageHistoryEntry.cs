@@ -1,11 +1,10 @@
-﻿using Cutter4.Model.Cutting;
-using Cutter4.Model.DataBase;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cutter4.Domain;
 
 namespace Cutter4.ViewModel
 {
@@ -24,28 +23,29 @@ namespace Cutter4.ViewModel
 
         public EditStorageHistoryEntry(StorageEdit storageEdit)
         {
-            Summary = $"Edited {storageEdit.DeltaCounts.Count} Panels";
+            Summary = $"Edited {storageEdit.StorageEditItems.Count} Panels";
             Details = detailsText(storageEdit);
-            DateTime = storageEdit.DateTime;
+            DateTime = storageEdit.Date;
         }
 
         string detailsText(StorageEdit storageEdit)
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine($"Date: {storageEdit.DateTime}");
+            result.AppendLine($"Date: {storageEdit.Date}");
             result.AppendLine();
             result.AppendLine("Message:");
             result.AppendLine(storageEdit.Message);
             result.AppendLine();
             result.AppendLine("Changes:");
-
-            foreach (KeyValuePair<Panel, int> entry in storageEdit.DeltaCounts)
+             
+            foreach (KeyValuePair<PanelKey, int> entry in storageEdit.StorageEditItems)
             {
-                PanelType type = entry.Key.Type;
+                PanelColors color = entry.Key.Color;
+                PanelWidths width = entry.Key.Width;
                 int length = entry.Key.Length;
                 int deltaCount = entry.Value;
 
-                result.AppendLine($"{type.Color} {type.Width}: {deltaCount.ToString("+0;-0;0")} {length}mm");
+                result.AppendLine($"{color} {width}: {deltaCount.ToString("+0;-0;0")} {length}mm");
             }
             return result.ToString();
         }
@@ -62,8 +62,8 @@ namespace Cutter4.ViewModel
         {
             Summary = $"Ordered {order.Kapuk.Count} Kapu";
             Details = orderOutput;
-            DateTime = order.DateTime;
-            Kapuk = new ReadOnlyCollection<Kapu>(order.Kapuk);
+            DateTime = order.Date;
+            Kapuk = order.Kapuk.ToList().AsReadOnly();
         }
     }
 }

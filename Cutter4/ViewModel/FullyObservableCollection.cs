@@ -13,7 +13,7 @@ namespace Cutter4.ViewModel
     public class FullyObservableCollection<T> : ObservableCollection<T> where T : INotifyPropertyChanged
     {
         public delegate void ElementsPropertyChangedEventHandler(object sender, ElementPropertyChangedEventArgs e);
-        public event ElementsPropertyChangedEventHandler ElementsPropertyChanged;
+        public event ElementsPropertyChangedEventHandler? ElementsPropertyChanged;
 
         public FullyObservableCollection() : base() { }
         public FullyObservableCollection(IEnumerable<T> collection) : base(collection)
@@ -32,7 +32,7 @@ namespace Cutter4.ViewModel
             base.OnCollectionChanged(e);
         }
 
-        private void Subscribe(IList iList)
+        private void Subscribe(IList? iList)
         {
             if (iList != null)
             {
@@ -41,7 +41,7 @@ namespace Cutter4.ViewModel
             }
         }
 
-        private void Unsubscribe(IList iList)
+        private void Unsubscribe(IList? iList)
         {
             if (iList != null)
             {
@@ -50,7 +50,7 @@ namespace Cutter4.ViewModel
             }
         }
 
-        protected virtual void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+        protected virtual void OnElementPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             ElementsPropertyChanged?.Invoke(this, new ElementPropertyChangedEventArgs(sender, e.PropertyName));
         }
@@ -58,10 +58,10 @@ namespace Cutter4.ViewModel
 
     public class ElementPropertyChangedEventArgs : EventArgs
     {
-        public object SenderElement { get; }
-        public string ElementsPropertyName { get; }
+        public object? SenderElement { get; }
+        public string? ElementsPropertyName { get; }
 
-        public ElementPropertyChangedEventArgs(object elementSender, string ElementsPropertyName)
+        public ElementPropertyChangedEventArgs(object? elementSender, string? ElementsPropertyName)
         {
             this.ElementsPropertyName = ElementsPropertyName;
             SenderElement = elementSender;

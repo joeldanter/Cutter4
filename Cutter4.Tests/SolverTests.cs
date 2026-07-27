@@ -1,12 +1,11 @@
-﻿using Cutter4.Model.Cutting;
-using Cutter4.Model.DataBase;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
-using Org.BouncyCastle.Asn1.BC;
+﻿using Cutter4.Domain.Cutting;
+using Cutter4.Domain;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -18,7 +17,7 @@ namespace Cutter4.Tests
         public static List<Kapu> AllKapukData()
         {
             List<Kapu> result = [];
-            StreamReader sr = new(".\\KapuTestData.csv");
+            StreamReader sr = new(Path.Combine(GetProjectRoot(), "KapuTestData.csv"));
 
             for (int i = 0; !sr.EndOfStream; i++)
             {
@@ -31,7 +30,7 @@ namespace Cutter4.Tests
 
                 for (int j = 0; j < count; j++)
                 {
-                    Kapu kapu = new Kapu(length, height, color, new KapuSerialNumber($"kapu{i}{(count == 1 ? "" : "-" + j)}"));
+                    Kapu kapu = new Kapu(length, height, color, $"kapu{i}{(count == 1 ? "" : "-" + j)}");
                     result.Add(kapu);
                 }
             }
@@ -45,32 +44,42 @@ namespace Cutter4.Tests
             List<Kapu> kapuk = AllKapukData();
             Random r = new(820);
 
-            while (kapuk.Count > 0)
+            for (int batchNumber = 0; batchNumber < 10000; batchNumber++)
             {
-                int batchLength = Math.Min(r.Next(1, 13), kapuk.Count);
-                List<Kapu> batchKapuk = kapuk.GetRange(kapuk.Count - batchLength, batchLength);
-                kapuk.RemoveRange(kapuk.Count - batchLength, batchLength);
-                result.Add(batchKapuk);
+                int batchSize = Math.Min(r.Next(1, 20), kapuk.Count);
+                List<Kapu> batchItems = new(batchSize);
+
+                for (int n = 0; n < batchSize; n++)
+                {
+                    int index = r.Next(kapuk.Count);
+                    batchItems.Add(kapuk[index]);
+                }
+                result.Add(batchItems);
             }
 
             return result;
         }
+
+        private static string GetProjectRoot([CallerFilePath] string thisFile = "")
+            => Path.GetDirectoryName(thisFile)!;
     }
 
     public class SolverTests
     {
         public static IEnumerable<object[]> PanelsData => [..KapuTestData.BatchedKapukData().Select(x => new object[] { Kapu.ProcessPanels(x) })];
 
-        Dictionary<Panel, int> StoragePanels()
+        Dictionary<PanelKey, int> StoragePanels()
         {
-            Dictionary<Panel, int> result = [];
+            Dictionary<PanelKey, int> result = [];
 
             foreach (PanelType type in PanelType.GetAllTypes())
             {
-                result.Add(new Panel(type, 13200), 20);
-                result.Add(new Panel(type, 11000), 8);
-                result.Add(new Panel(type, 8000), 5);
-                result.Add(new Panel(type, 4000), 3);
+                //result[new PanelKey(type.Color, type.Width, 13200)] = 100;
+                //result[new PanelKey(type.Color, type.Width, 11000)] = 30;
+                result[new PanelKey(type.Color, type.Width, 8000)] = 100;
+                //result[new PanelKey(type.Color, type.Width, 4000)] = 7;
+                result[new PanelKey(type.Color, type.Width, 3102)] = 7;
+                //result[new PanelKey(type.Color, type.Width, 2000)] = 19;
             }
 
             return result;
@@ -79,48 +88,62 @@ namespace Cutter4.Tests
         [Theory]
         [Trait("Category", "Integration")]
         [MemberData(nameof(PanelsData))]
-        public void GreedySolve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
+        public void GreedySolve_GivenPanels_UsesThosePanels(Dictionary<PanelType, List<Kapu>> toCut)
         {
-            GreedySolver solver = new GreedySolver();
-            
-            PanelCollection<Configuration> generatedConfigurations = solver.Solve(panelCollectionToCut, StoragePanels());
+            CutManager cutManager = new (new GreedySolver());
+            Dictionary<PanelKey, int> storage = StoragePanels();
 
-            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, panelCollectionToCut));
+            Dictionary<PanelType, List<Configuration>> generatedConfigurations = cutManager.Solve(toCut, storage);
+
+            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, toCut));
+            Assert.True(IsStorageUsageLegal(generatedConfigurations, storage));
         }
 
         [Theory]
         [Trait("Category", "Integration")]
         [MemberData(nameof(PanelsData))]
-        public void LPSolve_GivenPanels_UsesThosePanels(PanelCollection<KapuPanel> panelCollectionToCut)
+        public void LPSolve_GivenPanels_UsesThosePanels(Dictionary<PanelType, List<Kapu>> toCut)
         {
-            LPSolver solver = new();
-            
-            PanelCollection<Configuration> generatedConfigurations = solver.Solve(panelCollectionToCut, StoragePanels());
+            CutManager cutManager = new(new LPSolver());
+            Dictionary<PanelKey, int> storage = StoragePanels();
 
-            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, panelCollectionToCut));
+            Dictionary<PanelType, List<Configuration>> generatedConfigurations = cutManager.Solve(toCut, storage);
+
+            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, toCut));
+            Assert.True(IsStorageUsageLegal(generatedConfigurations, storage));
         }
 
-        static bool DoConfigurationsUsePanels(PanelCollection<Configuration> generatedConfigurations, PanelCollection<KapuPanel> panelCollectionToCut)
+        static bool DoConfigurationsUsePanels(Dictionary<PanelType, List<Configuration>> generatedConfs, Dictionary<PanelType, List<Kapu>> toCut)
         {
-            foreach (KeyValuePair<PanelType, List<Configuration>> entry in generatedConfigurations)
+            foreach (KeyValuePair<PanelType, List<Configuration>> entry in generatedConfs)
             {
-                List<KapuPanel> generatedPanels = [.. entry.Value.SelectMany(c => c.Panels)];
-                List<KapuPanel> originalPanels = panelCollectionToCut[entry.Key];
-                if (!DoListsHaveSameElements(generatedPanels, originalPanels)) return false;
+                List<Kapu> generatedPanels = [.. entry.Value.SelectMany(c => c.ConfigurationItems).SelectMany(i => Enumerable.Repeat(i.Key, i.Value))];
+                List<Kapu> originalPanels = toCut[entry.Key];
+                if (!AreMultisetsEqual(generatedPanels, originalPanels)) return false;
             }
             return true;
         }
 
-        static bool DoListsHaveSameElements<T>(IList<T> first, IList<T> second)
+        static bool AreMultisetsEqual<T>(IEnumerable<T> first, IEnumerable<T> second) where T : notnull
         {
-            List<T> secondCopy = [.. second];
+            Dictionary<T, int> secondCounts = second.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
+
             foreach (T item in first)
             {
-                int secondIndex = secondCopy.IndexOf(item);
-                if (secondIndex == -1) return false;
-                secondCopy.RemoveAt(secondIndex);
+                if (!secondCounts.TryGetValue(item, out int count) || count == 0)
+                    return false;
+                secondCounts[item] = count - 1;
             }
-            return secondCopy.Count == 0;
+
+            return secondCounts.Values.All(c => c == 0);
+        }
+
+        static bool IsStorageUsageLegal(Dictionary<PanelType, List<Configuration>> generatedConfigurations, Dictionary<PanelKey, int> storage)
+        {
+            return generatedConfigurations.All(entry => entry.Value
+                .GroupBy(x => x.PanelKey)
+                .ToDictionary(g => g.Key, g => g.Count())
+                .All(g => storage.GetValueOrDefault(g.Key, 0) - g.Value >= 0));
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Cutter4.Model.Cutting;
-using Org.BouncyCastle.Crypto.Agreement;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cutter4.Domain;
 
 namespace Cutter4.ViewModel
 {
@@ -15,7 +15,7 @@ namespace Cutter4.ViewModel
     {
         [ObservableProperty]
         [NotifyDataErrorInfo]
-        [Range(1, Kapu.MaxLength)]
+        [Range(1, PanelKey.MaxLength)]
         int length;
         
         [ObservableProperty]
@@ -33,7 +33,7 @@ namespace Cutter4.ViewModel
         [CustomValidation(typeof(KapuViewModel), nameof(ValidateSerialNumber))]
         string serialNumber;
 
-        public static ValidationResult ValidateSerialNumber(string serialNumber, ValidationContext validationContext)
+        public static ValidationResult? ValidateSerialNumber(string serialNumber, ValidationContext validationContext)
         {
             if (KapuSerialNumber.IsValid(serialNumber, out string errorMessage))
                 return ValidationResult.Success;
@@ -56,8 +56,8 @@ namespace Cutter4.ViewModel
             Length = kapu.Length;
             Height = kapu.Height;
             Color = kapu.Color;
-            SerialNumber = kapu.SerialNumber.Value;
-        
+            SerialNumber = kapu.SerialNumber;
+
             ValidateAllProperties();
         }
 
@@ -68,7 +68,7 @@ namespace Cutter4.ViewModel
                 throw new InvalidOperationException("Can't create a new Kapu instance, because the given data has errors");
             }
 
-            return new Kapu(Length, Height, (PanelColors)Color, new(SerialNumber));
+            return new Kapu(Length, Height, (PanelColors)Color, SerialNumber);
         }
     }
 }

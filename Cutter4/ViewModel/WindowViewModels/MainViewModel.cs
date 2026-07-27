@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Cutter4.Model.Cutting;
-using Cutter4.Model.DataBase;
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,33 +10,40 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using Cutter4.Domain;
+using Cutter4.Domain.Cutting;
+using Cutter4.Persistence;
+using Cutter4.Persistence.Repositories;
 
 namespace Cutter4.ViewModel
 {
     public partial class MainViewModel : ObservableObject
     {
-        ICuttingStockSolver solver = new LPSolver();
-        ICutOutputGenerator outputGenerator = new LongOutputGenerator();
-        public Storage Storage { get; } = new();
+        CutManager cutManager = new CutManager(new LPSolver());
+        IOrderRepository orderRepository;
+        IStorageRepository storageRepository;
+        ICutOutputGenerator outputGenerator = new CompactOutputGenerator();
+        IDialogService dialogService;
+        ILocalizationService localizationService;
 
         [ObservableProperty]
         int selectedTabIndex;
 
-        public FullyObservableCollection<KapuViewModel> Kapuk { get; } = new FullyObservableCollection<KapuViewModel>();
+        public FullyObservableCollection<KapuViewModel> Kapuk { get; } = [];
         [ObservableProperty]
         string outputText = string.Empty;
         bool canCalculate { get => Kapuk.Count != 0 && Kapuk.All(kapu => !kapu.HasErrors); }
         [ObservableProperty]
         bool canSave = false;
-        List<Kapu> calculatedKapuk;
-        PanelCollection<Configuration> calculatedConfs;
+        List<Kapu> calculatedKapuk = [];
+        Dictionary<PanelType, List<Configuration>> calculatedConfs = [];
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
         [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
         [NotifyPropertyChangedFor(nameof(SPs500))]
         [NotifyPropertyChangedFor(nameof(SPs610))]
-        Dictionary<Panel, int> storagePanelCounts = [];
+        IDictionary<PanelKey, int> storage = new Dictionary<PanelKey, int>();
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
         [NotifyPropertyChangedFor(nameof(MaxLength610SPCount))]
@@ -48,44 +54,34 @@ namespace Cutter4.ViewModel
         {
             get
             {
-                foreach (KeyValuePair<Panel, int> entry in StoragePanelCounts)
-                {
-                    if (entry.Key.Type == new PanelType("500mm", SelectedStorageColor)
-                        && entry.Key.Length == Kapu.MaxLength)
-                    {
-                        return entry.Value;
-                    }
-                }
-                return 0;
+                PanelKey key = new(SelectedStorageColor, PanelWidths.Width500mm, PanelKey.MaxLength);
+
+                return Storage.TryGetValue(key, out var value) ? value : 0;
             }
         }
         public int MaxLength610SPCount
         {
             get
             {
-                foreach(KeyValuePair<Panel, int> entry in StoragePanelCounts)
-                {
-                    if (entry.Key.Type == new PanelType("610mm", SelectedStorageColor)
-                        && entry.Key.Length == Kapu.MaxLength)
-                    {
-                        return entry.Value;
-                    }
-                }
-                return 0;
+                PanelKey key = new(SelectedStorageColor, PanelWidths.Width610mm, PanelKey.MaxLength);
+
+                return Storage.TryGetValue(key, out var value) ? value : 0;
             }
         }
         public List<int> SPs500
         {
-            get => [.. StoragePanelCounts
-                .Where(entry => entry.Key.Type == new PanelType("500mm", SelectedStorageColor))
-                .Where(entry => entry.Key.Length != Kapu.MaxLength)
+            get => [.. Storage
+                .Where(entry => entry.Key.Color == SelectedStorageColor
+                    && entry.Key.Width == PanelWidths.Width500mm
+                    && entry.Key.Length != PanelKey.MaxLength)
                 .SelectMany(entry => Enumerable.Repeat(entry.Key.Length, entry.Value)) ];
         }
         public List<int> SPs610
         {
-            get => [.. StoragePanelCounts
-                .Where(entry => entry.Key.Type == new PanelType("610mm", SelectedStorageColor))
-                .Where(entry => entry.Key.Length != Kapu.MaxLength)
+            get => [.. Storage
+                .Where(entry => entry.Key.Color == SelectedStorageColor
+                    && entry.Key.Width == PanelWidths.Width610mm
+                    && entry.Key.Length != PanelKey.MaxLength)
                 .SelectMany(entry => Enumerable.Repeat(entry.Key.Length, entry.Value)) ];
         }
 
@@ -94,7 +90,7 @@ namespace Cutter4.ViewModel
         ObservableCollection<IStorageHistoryEntry> storageHistory = new ObservableCollection<IStorageHistoryEntry>();
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CanRevertOrder))]
-        IStorageHistoryEntry selectedStorageHistoryEntry = null;
+        IStorageHistoryEntry? selectedStorageHistoryEntry = null;
         public bool CanRevertOrder 
         {
             get 
@@ -102,41 +98,50 @@ namespace Cutter4.ViewModel
                 return SelectedStorageHistoryEntry is not null && SelectedStorageHistoryEntry == LastOrderSaveStorageHistoryEntry;
             }
         }
-        IStorageHistoryEntry LastOrderSaveStorageHistoryEntry => StorageHistory.Where(entry => entry is OrderSaveStorageHistoryEntry).MaxBy(entry => entry.DateTime.Ticks);
+        IStorageHistoryEntry? LastOrderSaveStorageHistoryEntry => StorageHistory.Where(entry => entry is OrderSaveStorageHistoryEntry).MaxBy(entry => entry.DateTime.Ticks);
 
-        public MainViewModel()
+        public MainViewModel(IOrderRepository orderRepository, IStorageRepository storageRepository, IMessenger messenger, IDialogService dialogService, ILocalizationService localizationService)
         {
-            Kapuk.CollectionChanged += (object sender, NotifyCollectionChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
-            Kapuk.ElementsPropertyChanged += (object sender, ElementPropertyChangedEventArgs e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
+            Kapuk.CollectionChanged += (sender, e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
+            Kapuk.ElementsPropertyChanged += (sender, e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
 
-            Storage.StoragePanelsChanged += (object sender, EventArgs e) => { LoadStoragePanels(); };
-            Storage.StorageEditsListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
-            Storage.OrderListChanged += (object sender, EventArgs e) => { LoadStorageHistory(); };
+            messenger.Register<StorageChangedMessage>(this, (r, m) => LoadStoragePanels());
+            messenger.Register<EditsChangedMessage>(this, (r, m) => LoadStorageHistory());
+            messenger.Register<OrdersChangedMessage>(this, (r, m) => LoadStorageHistory());
+            this.orderRepository = orderRepository;
+            this.storageRepository = storageRepository;
+            this.dialogService = dialogService;
+            this.localizationService = localizationService;
+
+            Kapuk.Add(new KapuViewModel() { Length = 2100, Height = 3000, Color = PanelColors.F100, SerialNumber = "aaa" }); // TODO remove
+            Kapuk.Add(new KapuViewModel() { Length = 2300, Height = 4000, Color = PanelColors.F100, SerialNumber = "bbb" });
         }
 
-        public void LoadDatabase()
+        public async Task LoadDatabase()
         {
-            Storage.LoadSettings();
-
-            LoadStoragePanels();
-            LoadStorageHistory();
+            await LoadStoragePanels();
+            await LoadStorageHistory();
         }
-
-        void LoadStoragePanels()
+         
+        async Task LoadStoragePanels()
         {
-            StoragePanelCounts = Storage.StoragePanels();
+            Storage = await storageRepository.StoragePanelsAsync();
         }
-
-        void LoadStorageHistory()
+ 
+        async Task LoadStorageHistory()
         {
-            List<IStorageHistoryEntry> history = new List<IStorageHistoryEntry>();
-            foreach (Order order in Storage.ListPreviousOrders())
+            List<IStorageHistoryEntry> history = [];
+            foreach (Order order in await orderRepository.ListOrdersAsync())
             {
-                string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, order.Configurations, order.DateTime);
-                OrderSaveStorageHistoryEntry orderEntry = new OrderSaveStorageHistoryEntry(order, orderOutput);
+                Dictionary<PanelType, List<Configuration>> confs = order.Configurations
+                    .GroupBy(c => new PanelType(c.PanelKey.Color, c.PanelKey.Width))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                string orderOutput = outputGenerator.GenerateOutput(order.Kapuk, confs, order.Date);
+                OrderSaveStorageHistoryEntry orderEntry = new(order, orderOutput);
                 history.Add(orderEntry);
             }
-            foreach (StorageEdit edit in Storage.ListPreviousStorageEdits())
+            foreach (StorageEdit edit in await storageRepository.ListStorageEditsAsync())
             {
                 EditStorageHistoryEntry editEntry = new EditStorageHistoryEntry(edit);
                 history.Add(editEntry);
@@ -147,21 +152,46 @@ namespace Cutter4.ViewModel
         }
 
         [RelayCommand(CanExecute = nameof(canCalculate))]
-        void Calculate()
+        async Task Calculate()
         {
             calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
-            PanelCollection<KapuPanel> panelCollectionToCut = Kapu.ProcessPanels(calculatedKapuk);
-            calculatedConfs = solver.Solve(panelCollectionToCut, Storage.StoragePanels());
+            Dictionary<PanelType, List<Kapu>> panelsToCut = Kapu.ProcessPanels(calculatedKapuk);
+            IDictionary<PanelKey, int> storage = await storageRepository.StoragePanelsAsync();
+
+            try
+            {
+                calculatedConfs = cutManager.Solve(panelsToCut, storage);
+            }
+            catch (UserFacingException e)
+            {
+                dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
+                return;
+            }
             OutputText = outputGenerator.GenerateOutput(calculatedKapuk, calculatedConfs, DateTime.Now);
             CanSave = true;
         }
 
-        public void Save()
+        [RelayCommand]
+        public async Task Save()
         {
-            Storage.SaveNewCut(calculatedKapuk, calculatedConfs);
+            Order newOrder = new()
+            {
+                Date = DateTime.Now,
+                Kapuk = calculatedKapuk,
+                Configurations = [.. calculatedConfs.SelectMany(x => x.Value)]
+            };
+            try
+            {
+                await orderRepository.SaveNewOrderAsync(newOrder);
+            }
+            catch (UserFacingException e)
+            {
+                dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
+                return;
+            }
             CanSave = false;
         }
-
+        
         [RelayCommand]
         void NewCut()
         {
@@ -169,10 +199,24 @@ namespace Cutter4.ViewModel
             OutputText = string.Empty;
         }
 
-        public void RevertOrder()
+        [RelayCommand]
+        public async Task RevertOrder()
         {
+            if (LastOrderSaveStorageHistoryEntry is not OrderSaveStorageHistoryEntry)
+                return;
+
             ReadOnlyCollection<Kapu> orderKapuk = ((OrderSaveStorageHistoryEntry)LastOrderSaveStorageHistoryEntry).Kapuk;
-            Storage.UndoLastSavedCut();
+
+            try 
+            { 
+                await orderRepository.UndoLastOrderAsync();
+            }
+            catch (UserFacingException e)
+            {
+                dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
+                return;
+            }
+
             SelectedTabIndex = 0;
             Kapuk.Clear();
             foreach (Kapu kapu in orderKapuk)

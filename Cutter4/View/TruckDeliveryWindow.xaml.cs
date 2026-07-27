@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cutter4.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,8 +20,9 @@ namespace Cutter4.View
     /// </summary>
     public partial class TruckDeliveryWindow : Window
     {
-        public TruckDeliveryWindow()
+        public TruckDeliveryWindow(TruckDeliveryViewModel viewModel)
         {
+            DataContext = viewModel;
             InitializeComponent();
         }
 

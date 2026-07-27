@@ -5,13 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Cutter4.View"
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
-        xmlns:cutting="clr-namespace:Cutter4.Model.Cutting"
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:EditStorageViewModel}"
+        Loaded="Window_Loaded"
         Title="Cutter4" Height="650" Width="630" MinHeight="295" MinWidth="342">
-    <Window.DataContext>
-        <vm:MainViewModel/>
-    </Window.DataContext>
     <TabControl SelectedIndex="{Binding SelectedTabIndex}">
         <TabItem Header="Cutting" Padding="3">
             <Grid>
@@ -39,7 +37,7 @@
 
                     <StackPanel Grid.Column="1" Margin="0 20 0 0">
                         <Button Grid.Row="1" Margin="3" Height="26" Content="Calculate" Command="{Binding CalculateCommand}"/>
-                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Click="Save_Click" IsEnabled="{Binding CanSave}"/>
+                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}"/>
                         <Button Grid.Row="2" Margin="3" Height="26" Content="New cut" Command="{Binding NewCutCommand}"/>
                     </StackPanel>
                 </Grid>
@@ -104,7 +102,7 @@
                 <GroupBox Header="Actions on storage" Margin="3">
                     <DockPanel>
                         <StackPanel DockPanel.Dock="Bottom" Grid.ColumnSpan="2" Orientation="Horizontal">
-                            <Button Content="Revert and Modify" Width="120" Height="24" Margin="3" Click="Revert_Click" IsEnabled="{Binding CanRevertOrder}"/>
+                            <Button Content="Revert and Modify" Width="120" Height="24" Margin="3" Command="{Binding RevertCommand}" IsEnabled="{Binding CanRevertOrder}"/>
                         </StackPanel>
                         <DataGrid ItemsSource="{Binding StorageHistory}" SelectedItem="{Binding SelectedStorageHistoryEntry}" Margin="3" AutoGenerateColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="0" IsReadOnly="True" CanUserReorderColumns="False" SelectionMode="Single">
                             <DataGrid.Columns>

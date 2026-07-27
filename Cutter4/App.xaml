@@ -3,13 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Cutter4"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:cutting="clr-namespace:Cutter4.Model.Cutting"
-             StartupUri="View/MainWindow.xaml">
+             xmlns:domain="clr-namespace:Cutter4.Domain"
+             xmlns:vm="clr-namespace:Cutter4.ViewModel"
+             Startup="Application_Startup">
     <Application.Resources>
         <ObjectDataProvider x:Key="PanelColors" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
             <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="cutting:PanelColors"/>
+                <x:Type TypeName="domain:PanelColors"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+        <ObjectDataProvider x:Key="PanelWidths" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="domain:PanelWidths"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <vm:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
     </Application.Resources>
 </Application>

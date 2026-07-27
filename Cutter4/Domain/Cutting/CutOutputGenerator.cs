@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Cutter4.Model.Cutting
+namespace Cutter4.Domain.Cutting
 {
     public interface ICutOutputGenerator
     {
-        string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations, DateTime dateOfCut);
+        string GenerateOutput(IEnumerable<Kapu> kapuk, IDictionary<PanelType, List<Configuration>> configurations, DateTime dateOfCut);
     }
 
     public class CompactOutputGenerator : ICutOutputGenerator
     {
-        public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations, DateTime dateOfCut)
+        public string GenerateOutput(IEnumerable<Kapu> kapuk, IDictionary<PanelType, List<Configuration>> configurations, DateTime dateOfCut)
         {
             string outputStr = "";
 
@@ -37,7 +37,7 @@ namespace Cutter4.Model.Cutting
             {
                 if (0 < item.Value.Count)
                 {
-                    outputStr += "===== " + item.Key.Width + " " + item.Key.Color + " =====\n";
+                    outputStr += "===== " + item.Key.Width.GetDescription() + " " + item.Key.Color + " =====\n";
 
                     foreach (Configuration conf in item.Value)
                     {
@@ -53,7 +53,7 @@ namespace Cutter4.Model.Cutting
 
     class LongOutputGenerator : ICutOutputGenerator
     {
-        public string GenerateOutput(IList<Kapu> kapuk, PanelCollection<Configuration> configurations, DateTime dateOfCut)
+        public string GenerateOutput(IEnumerable<Kapu> kapuk, IDictionary<PanelType, List<Configuration>> configurations, DateTime dateOfCut)
         {
             StringBuilder output = new();
             
@@ -76,19 +76,25 @@ namespace Cutter4.Model.Cutting
                 foreach (Configuration conf in item.Value)
                 {
                     output.AppendLine($"Szín: {item.Key.Color}");
-                    output.AppendLine($"Szélesség: {item.Key.Width}");
+                    output.AppendLine($"Szélesség: {item.Key.Width.GetDescription()}");
                     output.AppendLine($"Hossz: {conf.Capacity}mm");
 
                     List<string> cutLengths = [];
                     List<string> cutSerialNumbers = [];
-                    foreach (KapuPanel panel in conf.Panels)
+                    foreach (KeyValuePair<Kapu, int> entry in conf.ConfigurationItems)
                     {
-                        string panelLength = panel.Length.ToString();
-                        string serialNumber = panel.SerialNumber.Value;
-                        int padSize = Math.Max(panelLength.Length, serialNumber.Length);
-                        
-                        cutLengths.Add(panelLength.PadRight(padSize));
-                        cutSerialNumbers.Add(serialNumber.PadRight(padSize));
+                        Kapu kapu = entry.Key;
+                        int count = entry.Value;
+
+                        for (int _ = 0; _ < count; _++)
+                        {
+                            string panelLength = kapu.Length.ToString();
+                            string serialNumber = kapu.SerialNumber;
+                            int padSize = Math.Max(panelLength.Length, serialNumber.Length);
+
+                            cutLengths.Add(panelLength.PadRight(padSize));
+                            cutSerialNumbers.Add(serialNumber.PadRight(padSize));
+                        }
                     }
                     output.AppendLine("Kivágott hosszak: " + string.Join(" ", cutLengths));
                     output.AppendLine("Gyártási számaik: " + string.Join(" ", cutSerialNumbers));

@@ -1,5 +1,6 @@
-﻿using Cutter4.Model.DataBase;
+﻿using Cutter4.Persistence;
 using Cutter4.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,25 +24,19 @@ namespace Cutter4.View
     public partial class EditStorageWindow : Window
     {
         EditStorageViewModel viewModel;
-        public EditStorageWindow()
+        public EditStorageWindow(EditStorageViewModel viewModel)
         {
+            this.viewModel = viewModel;
+            DataContext = viewModel;
             InitializeComponent();
-            viewModel = (EditStorageViewModel)DataContext;
-            MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
-            viewModel.MainViewModel = (MainViewModel)mainWindow.DataContext;
         }
 
-        private void Apply_Click(object sender, RoutedEventArgs e)
+        private async void Apply_Click(object sender, RoutedEventArgs e)
         {
-            try
+            if (await viewModel.Apply())
             {
-                viewModel.Apply();
                 DialogResult = true;
                 Close();
-            }
-            catch (CutterDBException ex)
-            {
-                MessageBox.Show(ex.Message, "Error");
             }
         }
 
@@ -53,7 +48,8 @@ namespace Cutter4.View
 
         private void TruckDelivery_Click(object sender, RoutedEventArgs e)
         {
-            TruckDeliveryWindow truckDeliveryWindow = new();
+            // this still isnt the prettiest but idc
+            TruckDeliveryWindow truckDeliveryWindow = App.Current.Services.GetRequiredService<TruckDeliveryWindow>();
 
             if (truckDeliveryWindow.ShowDialog() == true)
             {

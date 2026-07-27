@@ -6,10 +6,8 @@
         xmlns:local="clr-namespace:Cutter4.View"
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:TruckDeliveryViewModel}"
         Title="Truck delivery" SizeToContent="WidthAndHeight" ResizeMode="NoResize">
-    <Window.DataContext>
-        <vm:TruckDeliveryViewModel/>
-    </Window.DataContext>
     <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>

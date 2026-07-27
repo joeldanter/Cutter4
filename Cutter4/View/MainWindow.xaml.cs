@@ -14,8 +14,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Cutter4.Model.DataBase;
+using Cutter4.Persistence;
 using Cutter4.ViewModel;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cutter4.View
 {
@@ -25,50 +26,22 @@ namespace Cutter4.View
     public partial class MainWindow : Window
     {
         MainViewModel viewModel;
-        public MainWindow()
+        public MainWindow(MainViewModel viewModel)
         {
+            this.viewModel = viewModel;
+            DataContext = viewModel;
             InitializeComponent();
-            viewModel = (MainViewModel)DataContext;
+        }
 
-            try
-            {
-                viewModel.LoadDatabase();
-            }
-            catch (CutterDBConnectionException e)
-            {
-                MessageBox.Show(e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Environment.Exit(-1);
-            }
+        async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await viewModel.LoadDatabase();
         }
 
         void EditStorage_Click(object sender, RoutedEventArgs e)
         {
-            EditStorageWindow editStorageWindow = new();
+            EditStorageWindow editStorageWindow = App.Current.Services.GetRequiredService<EditStorageWindow>();
             editStorageWindow.ShowDialog();
         }
-
-        private void Revert_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                viewModel.RevertOrder();
-            }
-            catch (CutterDBException ex)
-            {
-                MessageBox.Show(ex.Message, "Error");
-            }
-        }
-
-        private void Save_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                viewModel.Save();
-            }
-            catch (CutterDBException ex)
-            {
-                MessageBox.Show(ex.Message, "Error");
-            }
-}
     }
 }

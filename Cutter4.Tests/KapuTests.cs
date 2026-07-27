@@ -1,8 +1,8 @@
-﻿using Cutter4.Model.Cutting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Cutter4.Domain;
 
 namespace Cutter4.Tests
 {
@@ -20,7 +20,7 @@ namespace Cutter4.Tests
         [InlineData(5210, 3, 6)]
         public void GetPanelWidths_SetHeight_ReturnsCorrectWidths(int height, int expected_mm500, int expected_mm610)
         {
-            Kapu kapu = new Kapu(1000, height, PanelColors.F100, new KapuSerialNumber("test"));
+            Kapu kapu = new Kapu(1000, height, PanelColors.F100, "test");
 
             kapu.GetPanelWidths(out int mm500, out int mm610);
 
@@ -31,24 +31,14 @@ namespace Cutter4.Tests
         [Fact]
         public void ProcessPanels_GivenEmtpyList_ReturnsEmptyCollection()
         {
-            List<Kapu> kapuk = new List<Kapu>();
+            List<Kapu> kapuk = [];
 
-            PanelCollection<KapuPanel> panels = Kapu.ProcessPanels(kapuk);
+            Dictionary<PanelType, List<Kapu>> panels = Kapu.ProcessPanels(kapuk);
 
-            foreach (KeyValuePair<PanelType, List<KapuPanel>> entry in panels)
+            foreach (KeyValuePair<PanelType, List<Kapu>> entry in panels)
             {
                 Assert.Empty(panels[entry.Key]);
             }
-        }
-
-        [Fact]
-        public void ProcessPanels_GivenNullList_ThrowsArgumentNullException()
-        {
-            List<Kapu> kapuk = null;
-
-            Action action = () => Kapu.ProcessPanels(kapuk);
-
-            Assert.Throws<ArgumentNullException>(action);
         }
     }
 }
