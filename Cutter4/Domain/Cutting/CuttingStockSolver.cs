@@ -67,7 +67,7 @@ namespace Cutter4.Domain.Cutting
         }
     }
 
-    public class LPSolver : ICuttingStockSolver // TODO insufficient stock handling
+    public class LPSolver : ICuttingStockSolver
     {
         public List<CutConfiguration>? Solve(IList<int> toCut, IDictionary<int, int> storage)
         {
@@ -116,7 +116,7 @@ namespace Cutter4.Domain.Cutting
             solver.passMip(model);
             solver.run();
             HighsModelStatus status = solver.GetModelStatus();
-            if (status != HighsModelStatus.kOptimal) // TODO other error reasons
+            if (status != HighsModelStatus.kOptimal)
                 return null;
 
             HighsSolution solution = solver.getSolution();
