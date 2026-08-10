@@ -69,6 +69,15 @@ namespace Cutter4.Domain.Cutting
 
     public class LPSolver : ICuttingStockSolver
     {
+        Func<CutConfiguration, double> deltaLoss;
+
+        public LPSolver() : this(BumpedLoss) {  }
+
+        public LPSolver(Func<int, double> loss)
+        {
+            deltaLoss = conf => -loss(conf.Capacity) + loss(conf.Waste);
+        }
+
         public List<CutConfiguration>? Solve(IList<int> toCut, IDictionary<int, int> storage)
         {
             if (toCut.Count == 0) return [];
@@ -86,7 +95,7 @@ namespace Cutter4.Domain.Cutting
 
             int numColums = possibleConfs.Count;
             int numRows = demand.Count + storage.Count;
-            double[] costs = [.. possibleConfs.Select(DeltaLoss)];
+            double[] costs = [.. possibleConfs.Select(deltaLoss)];
             double[] variableLowerBounds = [.. Enumerable.Repeat(0, numColums)];
             double[] variableUpperBounds = [.. Enumerable.Repeat(double.PositiveInfinity, numColums)];
             double[] constraintLowerBounds = [.. demandCounts.Concat(Enumerable.Repeat(0, storage.Count))];
@@ -112,7 +121,7 @@ namespace Cutter4.Domain.Cutting
             //astart.Add(avalue.Count);
             astart.Add(numRows * numColums - avalue.Count);
             int[] integrality = [.. Enumerable.Repeat((int)HighsIntegrality.kInteger, numColums)];
-
+             
             HighsLpSolver solver = new();
             HighsModel model = new(costs, variableLowerBounds, variableUpperBounds, constraintLowerBounds, constraintUpperBounds, [.. astart], [.. aindex], [.. avalue], integrality);
             solver.passMip(model);
@@ -156,20 +165,25 @@ namespace Cutter4.Domain.Cutting
                     }
                 }
             }
-
+            
             return [.. configurations
                 .Where(x => x.Count > 0)
                 .Select(numbers => new CutConfiguration(maxLength, [.. numbers]))];
         }
 
-        double DeltaLoss(CutConfiguration conf)
+        public static double FlatLoss(int length)
         {
-            if (conf.Waste < 1600)
-                return 2.5 * conf.Waste;
-            if (conf.Waste < 3200)
-                return 4960 - (0.6 * conf.Waste);
-            if (conf.Waste < 13200)
-                return 2081 + 0.3 * conf.Waste;
+            return length == 13200 ? 0 : length;
+        }
+
+        public static double BumpedLoss(int length)
+        {
+            if (length < 1600)
+                return 2.5 * length;
+            if (length < 3200)
+                return 4960 - (0.6 * length);
+            if (length < 13200)
+                return 2081 + 0.3 * length;
             return 0;
         }
     }
