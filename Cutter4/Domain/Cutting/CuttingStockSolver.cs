@@ -71,6 +71,8 @@ namespace Cutter4.Domain.Cutting
     {
         public List<CutConfiguration>? Solve(IList<int> toCut, IDictionary<int, int> storage)
         {
+            if (toCut.Count == 0) return [];
+
             Dictionary<int, int> demand = toCut
                 .GroupBy(x => x)
                 .ToDictionary(g => g.Key, g => g.Count());
