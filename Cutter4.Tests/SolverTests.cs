@@ -9,15 +9,23 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
+using FluentAssertions;
 
 namespace Cutter4.Tests
 {
-    public static class KapuTestData
+    public class SolverTests
     {
-        public static List<Kapu> AllKapukData()
+        ITestOutputHelper outputHelper;
+
+        public SolverTests(ITestOutputHelper outputHelper)
         {
-            List<Kapu> result = [];
-            StreamReader sr = new(Path.Combine(GetProjectRoot(), "KapuTestData.csv"));
+            this.outputHelper = outputHelper;
+        }
+
+        static IEnumerable<Kapu> ReadData()
+        {
+            using StreamReader sr = new(Path.Combine(GetProjectRoot(), "kaputraindata.csv"));
 
             for (int i = 0; !sr.EndOfStream; i++)
             {
@@ -26,124 +34,84 @@ namespace Cutter4.Tests
                 int length = int.Parse(splitted_line[0]);
                 int height = int.Parse(splitted_line[1]);
                 Enum.TryParse(splitted_line[2], out PanelColors color);
-                int count = int.Parse(splitted_line[3]);
 
-                for (int j = 0; j < count; j++)
-                {
-                    Kapu kapu = new Kapu(length, height, color, $"kapu{i}{(count == 1 ? "" : "-" + j)}");
-                    result.Add(kapu);
-                }
+                yield return new Kapu(length, height, color, $"kapu{i}");
             }
-
-            return result;
         }
 
-        public static List<List<Kapu>> BatchedKapukData()
-        {
-            List<List<Kapu>> result = [];
-            List<Kapu> kapuk = AllKapukData();
-            Random r = new(820);
-
-            for (int batchNumber = 0; batchNumber < 10000; batchNumber++)
-            {
-                int batchSize = Math.Min(r.Next(1, 20), kapuk.Count);
-                List<Kapu> batchItems = new(batchSize);
-
-                for (int n = 0; n < batchSize; n++)
-                {
-                    int index = r.Next(kapuk.Count);
-                    batchItems.Add(kapuk[index]);
-                }
-                result.Add(batchItems);
-            }
-
-            return result;
-        }
-
-        private static string GetProjectRoot([CallerFilePath] string thisFile = "")
+        static string GetProjectRoot([CallerFilePath] string thisFile = "")
             => Path.GetDirectoryName(thisFile)!;
-    }
 
-    public class SolverTests
-    {
-        public static IEnumerable<object[]> PanelsData => [..KapuTestData.BatchedKapukData().Select(x => new object[] { Kapu.ProcessPanels(x) })];
-
-        Dictionary<PanelKey, int> StoragePanels()
+        static IEnumerable<Kapu> GenerateDemand(List<Kapu> kapuk, Random r)
         {
-            Dictionary<PanelKey, int> result = [];
+            int batchSize = Math.Min(r.Next(5, 6), kapuk.Count);
 
-            foreach (PanelType type in PanelType.GetAllTypes())
-            {
-                //result[new PanelKey(type.Color, type.Width, 13200)] = 100;
-                //result[new PanelKey(type.Color, type.Width, 11000)] = 30;
-                result[new PanelKey(type.Color, type.Width, 8000)] = 100;
-                //result[new PanelKey(type.Color, type.Width, 4000)] = 7;
-                result[new PanelKey(type.Color, type.Width, 3102)] = 7;
-                //result[new PanelKey(type.Color, type.Width, 2000)] = 19;
-            }
-
-            return result;
+            for (int n = 0; n < batchSize; n++)
+                yield return kapuk[r.Next(kapuk.Count)];
         }
+
+        public static IEnumerable<object[]> SolversData =>
+            [
+                [new GreedySolver()],
+                [new LPSolver(LPSolver.FlatLoss)],
+                [new LPSolver(LPSolver.BumpedLoss)],
+            ];
 
         [Theory]
-        [Trait("Category", "Integration")]
-        [MemberData(nameof(PanelsData))]
-        public void GreedySolve_GivenPanels_UsesThosePanels(Dictionary<PanelType, List<Kapu>> toCut)
+        [MemberData(nameof(SolversData))]
+        public void SolverComparisons(ICuttingStockSolver solver)
         {
-            CutManager cutManager = new (new GreedySolver());
-            Dictionary<PanelKey, int> storage = StoragePanels();
+            Random r = new(820);
+            List<Kapu> kapuData = ReadData().ToList();
+            Dictionary<int, int> startStorage = new() { { 13200, 1000 } };
+            double repWaste = 0;
 
-            Dictionary<PanelType, List<Configuration>> generatedConfigurations = cutManager.Solve(toCut, storage);
-
-            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, toCut));
-            Assert.True(IsStorageUsageLegal(generatedConfigurations, storage));
-        }
-
-        [Theory]
-        [Trait("Category", "Integration")]
-        [MemberData(nameof(PanelsData))]
-        public void LPSolve_GivenPanels_UsesThosePanels(Dictionary<PanelType, List<Kapu>> toCut)
-        {
-            CutManager cutManager = new(new LPSolver());
-            Dictionary<PanelKey, int> storage = StoragePanels();
-
-            Dictionary<PanelType, List<Configuration>> generatedConfigurations = cutManager.Solve(toCut, storage);
-
-            Assert.True(DoConfigurationsUsePanels(generatedConfigurations, toCut));
-            Assert.True(IsStorageUsageLegal(generatedConfigurations, storage));
-        }
-
-        static bool DoConfigurationsUsePanels(Dictionary<PanelType, List<Configuration>> generatedConfs, Dictionary<PanelType, List<Kapu>> toCut)
-        {
-            foreach (KeyValuePair<PanelType, List<Configuration>> entry in generatedConfs)
+            int reps = 5;
+            int orders = 10;
+            for (int rep = 0; rep < reps; rep++)
             {
-                List<Kapu> generatedPanels = [.. entry.Value.SelectMany(c => c.ConfigurationItems).SelectMany(i => Enumerable.Repeat(i.Key, i.Value))];
-                List<Kapu> originalPanels = toCut[entry.Key];
-                if (!AreMultisetsEqual(generatedPanels, originalPanels)) return false;
+                outputHelper.WriteLine("");
+                outputHelper.WriteLine($"===== {rep+1}. repetition =====");
+                outputHelper.WriteLine("");
+                outputHelper.WriteLine($"Start storage: {string.Join(", ", startStorage.Select(x => x.Key + ": " + x.Value))}");
+
+                Dictionary<int, int> storage = new(startStorage);
+                int sumWaste = 0;
+
+                for (int order = 0; order < orders; order++ )
+                {
+                    List<Kapu> demand = GenerateDemand(kapuData, r).ToList();
+                    List<int> panels = demand.SelectMany(x => { x.GetPanelWidths(out int a, out int b); return Enumerable.Repeat(x.Length, a); }).ToList();
+                    List<CutConfiguration>? configurations = solver.Solve(panels, storage);
+
+                    Assert.NotNull(configurations);
+                    configurations.SelectMany(c => c.Items).Should().BeEquivalentTo(panels);
+
+                    foreach (CutConfiguration conf in configurations)
+                    {
+                        storage[conf.Capacity]--;
+
+                        if (conf.Waste > 0)
+                            storage[conf.Waste] = storage.GetValueOrDefault(conf.Waste, 0) + 1;
+                    }
+
+                    Assert.True(storage.All(x => x.Value >= 0));
+
+                    int waste = configurations.Sum(c => c.Waste) - configurations.Where(c => c.Capacity != 13200).Sum(x => configurations.Capacity);
+                    sumWaste += waste;
+                    outputHelper.WriteLine($"Demand: {string.Join(", ", panels.OrderBy(l => -l))}");
+                    outputHelper.WriteLine($"Configurations: {string.Concat(configurations.OrderBy(c => c.Waste).Select(c => "\n\t" + c.ToDebugString()))}");
+                    outputHelper.WriteLine($"New storage: {string.Join(", ", storage.Where(x => x.Value > 0).OrderBy(x => -x.Key).Select(x => x.Key+": "+x.Value))}");
+                    outputHelper.WriteLine($"Delta waste: {waste}");
+                    outputHelper.WriteLine("");
+                }
+                
+                repWaste += sumWaste;
+                outputHelper.WriteLine($"{rep+1}. repetition summed added waste: {sumWaste}");
+                outputHelper.WriteLine("");
             }
-            return true;
-        }
 
-        static bool AreMultisetsEqual<T>(IEnumerable<T> first, IEnumerable<T> second) where T : notnull
-        {
-            Dictionary<T, int> secondCounts = second.GroupBy(x => x).ToDictionary(g => g.Key, g => g.Count());
-
-            foreach (T item in first)
-            {
-                if (!secondCounts.TryGetValue(item, out int count) || count == 0)
-                    return false;
-                secondCounts[item] = count - 1;
-            }
-
-            return secondCounts.Values.All(c => c == 0);
-        }
-
-        static bool IsStorageUsageLegal(Dictionary<PanelType, List<Configuration>> generatedConfigurations, Dictionary<PanelKey, int> storage)
-        {
-            return generatedConfigurations.All(entry => entry.Value
-                .GroupBy(x => x.PanelKey)
-                .ToDictionary(g => g.Key, g => g.Count())
-                .All(g => storage.GetValueOrDefault(g.Key, 0) - g.Value >= 0));
+            outputHelper.WriteLine($"Average added waste: {repWaste/reps}");
         }
     }
 }

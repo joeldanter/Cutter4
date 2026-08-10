@@ -86,5 +86,10 @@ namespace Cutter4.Domain.Cutting
 
             return new CutConfiguration(capacity, itemsSelected);
         }
+
+        public string ToDebugString()
+        {
+            return $"{Capacity} | {string.Join(", ", Items)} -> {Waste}";
+        }
     }
 }
