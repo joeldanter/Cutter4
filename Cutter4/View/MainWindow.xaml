@@ -42,9 +42,14 @@
                     </StackPanel>
                 </Grid>
 
-                <GroupBox Grid.Row="1" Header="Output" Margin="3" >
-                    <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-                </GroupBox>
+                <TabControl Grid.Row="1" Margin="3">
+                    <TabItem Header="Output">
+                        <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                    </TabItem>
+                    <TabItem Header="Configurations">
+                        
+                    </TabItem>
+                </TabControl>
             </Grid>
         </TabItem>
         <TabItem Header="Storage" Padding="3">
