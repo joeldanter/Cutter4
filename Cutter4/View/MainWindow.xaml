@@ -44,7 +44,15 @@
 
                 <TabControl Grid.Row="1" Margin="3">
                     <TabItem Header="Output">
-                        <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+                            <Button Grid.Column="1" Margin="3" Height="26" Content="Print" VerticalAlignment="Top" Click="Button_Click" IsEnabled="{Binding CanPrint}"/>
+                        </Grid>
                     </TabItem>
                     <TabItem Header="Configurations">
                         

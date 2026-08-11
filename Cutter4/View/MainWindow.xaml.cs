@@ -43,5 +43,26 @@ namespace Cutter4.View
             EditStorageWindow editStorageWindow = App.Current.Services.GetRequiredService<EditStorageWindow>();
             editStorageWindow.ShowDialog();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            PrintDialog printDialog = new PrintDialog();
+
+            if (printDialog.ShowDialog() == true)
+            {
+                FlowDocument doc = new FlowDocument();
+                Paragraph para = new Paragraph(new Run(viewModel.OutputText));
+                para.FontFamily = new FontFamily("Consolas");
+                para.FontSize = 13;
+                doc.Blocks.Add(para);
+
+                doc.PageWidth = printDialog.PrintableAreaWidth;
+                doc.PageHeight = printDialog.PrintableAreaHeight;
+                doc.PagePadding = new Thickness(50);
+
+                IDocumentPaginatorSource idpSource = doc;
+                printDialog.PrintDocument(idpSource.DocumentPaginator, "Cutter print");
+            }
+        }
     }
 }

@@ -31,7 +31,9 @@ namespace Cutter4.ViewModel
 
         public FullyObservableCollection<KapuViewModel> Kapuk { get; } = [];
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanPrint))]
         string outputText = string.Empty;
+        public bool CanPrint { get => OutputText != ""; }
         bool canCalculate { get => Kapuk.Count != 0 && Kapuk.All(kapu => !kapu.HasErrors); }
         [ObservableProperty]
         bool canSave = false;
