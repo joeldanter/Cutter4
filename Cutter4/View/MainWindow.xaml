@@ -51,7 +51,7 @@
                     <StackPanel Grid.Column="1">
                         <Button Content="Reorder cut" Click="ReorderCut_Click" IsEnabled="{Binding CanSave}" Height="26" Margin="3"/>
                         <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}"/>
-                        <Button Content="Print" Click="Button_Click" IsEnabled="{Binding CanSave}" Height="26" Margin="3"/>
+                        <Button Content="Print" Click="Print_Click" IsEnabled="{Binding CanSave}" Height="26" Margin="3"/>
                     </StackPanel>
                 </Grid>
             </Grid>

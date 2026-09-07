@@ -53,7 +53,7 @@ namespace Cutter4.View
                 viewModel.ReOrder(vm.Result);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Print_Click(object sender, RoutedEventArgs e)
         {
             PrintDialog printDialog = new PrintDialog();
 
