@@ -17,8 +17,9 @@ namespace Cutter4.ViewModel
     public partial class EditStorageViewModel : ObservableObject
     {
         IStorageRepository storageRepository;
-        IDialogService dialogService;
+        IMessageDialogService dialogService;
         ILocalizationService localizationService;
+        ITruckDeliveryDialogService truckDeliveryDialogService;
         public ObservableCollection<DeltaCountEntry> DeltaCounts { get; } = [];
         
         [ObservableProperty]
@@ -52,13 +53,14 @@ namespace Cutter4.ViewModel
 
         public bool CanApplyEdit { get { return DeltaCounts.Count > 0; } }
 
-        public EditStorageViewModel(IStorageRepository storageRepository, IDialogService dialogService, ILocalizationService localizationService)
+        public EditStorageViewModel(IStorageRepository storageRepository, IMessageDialogService dialogService, ILocalizationService localizationService, ITruckDeliveryDialogService truckDeliveryDialogService)
         {
             this.storageRepository = storageRepository;
             DeltaCounts.CollectionChanged += (sender, e) => { OnPropertyChanged(nameof(CanApplyEdit)); };
 
             this.dialogService = dialogService;
             this.localizationService = localizationService;
+            this.truckDeliveryDialogService = truckDeliveryDialogService;
         }
 
         [RelayCommand(CanExecute = nameof(CanAddNewEditItem))]
@@ -110,13 +112,18 @@ namespace Cutter4.ViewModel
             return true;
         }
 
-        public void TruckDelivery(int panelCounts)
+        [RelayCommand]
+        public void TruckDelivery()
         {
+            int? panelCounts = truckDeliveryDialogService.ShowDialog();
+            if (panelCounts == null)
+                return;
+
             DeltaCounts.Clear();
             foreach (PanelType type in PanelType.GetAllTypes())
             {
                 PanelKey panelKey = new(type.Color, type.Width, PanelKey.MaxLength);
-                DeltaCounts.Add(new(panelKey, panelCounts));
+                DeltaCounts.Add(new(panelKey, (int)panelCounts));
             }
         }
     }

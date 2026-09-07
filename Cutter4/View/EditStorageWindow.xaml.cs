@@ -45,17 +45,5 @@ namespace Cutter4.View
             DialogResult = false;
             Close();
         }
-
-        private void TruckDelivery_Click(object sender, RoutedEventArgs e)
-        {
-            // this still isnt the prettiest but idc
-            TruckDeliveryWindow truckDeliveryWindow = App.Current.Services.GetRequiredService<TruckDeliveryWindow>();
-
-            if (truckDeliveryWindow.ShowDialog() == true)
-            {
-                TruckDeliveryViewModel truckDeliveryViewModel = (TruckDeliveryViewModel)truckDeliveryWindow.DataContext;
-                viewModel.TruckDelivery(truckDeliveryViewModel.CountToImport);
-            }
-        }
     }
 }

@@ -23,8 +23,10 @@ namespace Cutter4.ViewModel
         IOrderRepository orderRepository;
         IStorageRepository storageRepository;
         ICutOutputGenerator outputGenerator = new CompactOutputGenerator();
-        IDialogService dialogService;
+        IMessageDialogService messageDialogService;
         ILocalizationService localizationService;
+        IConfigurationLayoutDialogService configurationLayoutDialogService;
+        IEditStorageDialogService editStorageDialogService;
 
         [ObservableProperty]
         int selectedTabIndex;
@@ -100,7 +102,7 @@ namespace Cutter4.ViewModel
         }
         IStorageHistoryEntry? LastOrderSaveStorageHistoryEntry => StorageHistory.Where(entry => entry is OrderSaveStorageHistoryEntry).MaxBy(entry => entry.DateTime.Ticks);
 
-        public MainViewModel(IOrderRepository orderRepository, IStorageRepository storageRepository, IMessenger messenger, IDialogService dialogService, ILocalizationService localizationService)
+        public MainViewModel(IOrderRepository orderRepository, IStorageRepository storageRepository, IMessenger messenger, IMessageDialogService messageDialogService, ILocalizationService localizationService, IConfigurationLayoutDialogService configurationLayoutDialogService, IEditStorageDialogService editStorageDialogService)
         {
             Kapuk.CollectionChanged += (sender, e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
             Kapuk.ElementsPropertyChanged += (sender, e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
@@ -110,8 +112,10 @@ namespace Cutter4.ViewModel
             messenger.Register<OrdersChangedMessage>(this, (r, m) => LoadStorageHistory());
             this.orderRepository = orderRepository;
             this.storageRepository = storageRepository;
-            this.dialogService = dialogService;
+            this.messageDialogService = messageDialogService;
             this.localizationService = localizationService;
+            this.configurationLayoutDialogService = configurationLayoutDialogService;
+            this.editStorageDialogService = editStorageDialogService;
 
             Kapuk.Add(new KapuViewModel() { Length = 2100, Height = 3000, Color = PanelColors.F100, SerialNumber = "aaa" }); // TODO remove
             Kapuk.Add(new KapuViewModel() { Length = 2300, Height = 4000, Color = PanelColors.F100, SerialNumber = "bbb" });
@@ -122,7 +126,7 @@ namespace Cutter4.ViewModel
             await LoadStoragePanels();
             await LoadStorageHistory();
         }
-         
+        
         async Task LoadStoragePanels()
         {
             Storage = await storageRepository.StoragePanelsAsync();
@@ -164,17 +168,11 @@ namespace Cutter4.ViewModel
             }
             catch (UserFacingException e)
             {
-                dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
+                messageDialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
                 return;
             }
             OutputText = outputGenerator.GenerateOutput(calculatedKapuk, CalculatedConfs, DateTime.Now);
             CanSave = true;
-        }
-
-        public void ReOrder(Dictionary<PanelType, List<Configuration>> newValidOrder)
-        {
-            CalculatedConfs = newValidOrder;
-            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, CalculatedConfs, DateTime.Now);
         }
 
         [RelayCommand]
@@ -192,7 +190,7 @@ namespace Cutter4.ViewModel
             }
             catch (UserFacingException e)
             {
-                dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
+                messageDialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
                 return;
             }
             CanSave = false;
@@ -203,6 +201,23 @@ namespace Cutter4.ViewModel
         {
             Kapuk.Clear();
             OutputText = string.Empty;
+        }
+
+        [RelayCommand]
+        public void ReorderCut()
+        {
+            Dictionary<PanelType, List<Configuration>>? result = configurationLayoutDialogService.ShowDialog(CalculatedConfs, Storage);
+            if (result == null)
+                return;
+
+            CalculatedConfs = result;
+            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, CalculatedConfs, DateTime.Now);
+        }
+
+        [RelayCommand]
+        public void EditStorage()
+        {
+            editStorageDialogService.ShowDialog(Storage);
         }
 
         [RelayCommand]
@@ -219,7 +234,7 @@ namespace Cutter4.ViewModel
             }
             catch (UserFacingException e)
             {
-                dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
+                messageDialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
                 return;
             }
 

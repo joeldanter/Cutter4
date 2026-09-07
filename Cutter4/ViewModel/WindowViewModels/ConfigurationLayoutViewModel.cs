@@ -21,10 +21,10 @@ namespace Cutter4.ViewModel
         IDictionary<PanelKey, int> storage;
         Dictionary<PanelType, List<Configuration>> originalConfs;
         
-        IDialogService dialogService;
+        IMessageDialogService dialogService;
         ILocalizationService localizationService;
 
-        public ConfigurationLayoutViewModel(IDialogService dialogService, ILocalizationService localizationService, Dictionary<PanelType, List<Configuration>> confs, IDictionary<PanelKey, int> storage)
+        public ConfigurationLayoutViewModel(IMessageDialogService dialogService, ILocalizationService localizationService, Dictionary<PanelType, List<Configuration>> confs, IDictionary<PanelKey, int> storage)
         {
             this.dialogService = dialogService;
             this.localizationService = localizationService;

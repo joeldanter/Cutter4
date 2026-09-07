@@ -47,15 +47,13 @@ namespace Cutter4
             services.AddTransient<IOrderRepository, OrderRepository>();
             services.AddTransient<IStorageRepository, StorageRepository>();
 
-            services.AddTransient<MainWindow>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<EditStorageWindow>();
-            services.AddTransient<EditStorageViewModel>();
-            services.AddTransient<TruckDeliveryWindow>();
-            services.AddTransient<TruckDeliveryViewModel>();
-            services.AddTransient<ConfigurationLayoutWindow>();
+            services.AddSingleton<MainWindow>();
+            services.AddSingleton<MainViewModel>();
+            services.AddTransient<IConfigurationLayoutDialogService, ConfigurationLayoutDialogService>();
+            services.AddTransient<IEditStorageDialogService, EditStorageDialogService>();
+            services.AddTransient<ITruckDeliveryDialogService, TruckDeliveryDialogService>();
+            services.AddSingleton<IMessageDialogService, MessageBoxDialogService>();
 
-            services.AddSingleton<IDialogService, MessageBoxDialogService>();
             services.AddSingleton<ILocalizationService, LocalizationService>();
 
             CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("en-US");

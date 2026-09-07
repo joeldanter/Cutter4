@@ -38,21 +38,6 @@ namespace Cutter4.View
             await viewModel.LoadDatabase();
         }
 
-        void EditStorage_Click(object sender, RoutedEventArgs e)
-        {
-            EditStorageWindow editStorageWindow = App.Current.Services.GetRequiredService<EditStorageWindow>();
-            editStorageWindow.ShowDialog();
-        }
-
-        private void ReorderCut_Click(object sender, RoutedEventArgs e)
-        {
-            ConfigurationLayoutViewModel vm = ActivatorUtilities.CreateInstance<ConfigurationLayoutViewModel>(App.Current.Services, viewModel.CalculatedConfs, viewModel.Storage);
-            ConfigurationLayoutWindow window = new(vm);
-
-            if (window.ShowDialog() == true)
-                viewModel.ReOrder(vm.Result);
-        }
-
         private void Print_Click(object sender, RoutedEventArgs e)
         {
             PrintDialog printDialog = new PrintDialog();
