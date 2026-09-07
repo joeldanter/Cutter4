@@ -160,11 +160,10 @@ namespace Cutter4.ViewModel
         {
             calculatedKapuk = Kapuk.Select(kapu => kapu.ActualKapu()).ToList();
             Dictionary<PanelType, List<Kapu>> panelsToCut = Kapu.ProcessPanels(calculatedKapuk);
-            IDictionary<PanelKey, int> storage = await storageRepository.StoragePanelsAsync();
 
             try
             {
-                CalculatedConfs = cutManager.Solve(panelsToCut, storage);
+                CalculatedConfs = cutManager.Solve(panelsToCut, Storage);
             }
             catch (UserFacingException e)
             {
