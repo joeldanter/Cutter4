@@ -67,8 +67,6 @@ namespace Cutter4.ViewModel
 
         public async Task<bool> Apply()
         {
-            // TODO add check
-
             Dictionary<PanelType, List<Configuration>> newConfs = [];
 
             foreach (ConfigurationGroupViewModel group in ConfigurationGroups)
@@ -103,6 +101,20 @@ namespace Cutter4.ViewModel
                     if (!newConfs.ContainsKey(type))
                         newConfs[type] = [];
                     newConfs[type].Add(newConfiguration);
+                }
+            }
+
+            foreach (KeyValuePair<PanelKey, int> entry in Configuration.PanelCountChanges(newConfs.SelectMany(x => x.Value)))
+            {
+                PanelKey key = entry.Key;
+                int delta = entry.Value;
+                if (!storage.TryGetValue(key, out int available))
+                    available = 0;
+
+                if (available + delta < 0)
+                {
+                    dialogService.ShowError($"{available} < {-delta}"); // TODO
+                    return false;
                 }
             }
 
