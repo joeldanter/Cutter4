@@ -15,7 +15,8 @@ namespace Cutter4.ViewModel
     public partial class ConfigurationLayoutViewModel : ObservableObject
     {
         public ObservableCollection<ConfigurationGroupViewModel> ConfigurationGroups { get; }
-        public bool CanApply { get; } = true; // TODO add check
+        [ObservableProperty]
+        bool canApply;
         public Dictionary<PanelType, List<Configuration>> Result { get; private set; }
 
         IDictionary<PanelKey, int> storage;
@@ -33,6 +34,7 @@ namespace Cutter4.ViewModel
             foreach (KeyValuePair<PanelType, List<Configuration>> entry in confs)
             {
                 ConfigurationGroupViewModel group = new(entry.Key);
+                group.Configurations.CollectionChanged += Configurations_CollectionChanged;
 
                 foreach (Configuration conf in entry.Value)
                     group.Configurations.Add(new ConfigurationViewModel(conf, group));
@@ -44,7 +46,25 @@ namespace Cutter4.ViewModel
             originalConfs = confs;
             Result = [];
         }
-        
+
+        private void Configurations_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (ConfigurationViewModel conf in e.OldItems)
+                    conf.ErrorsChanged -= (_, _) => UpdateCanApply();
+
+            if (e.NewItems != null)
+                foreach (ConfigurationViewModel conf in e.NewItems)
+                    conf.ErrorsChanged += (_, _) => UpdateCanApply();
+
+            UpdateCanApply();
+        }
+
+        private void UpdateCanApply()
+        {
+            CanApply = ConfigurationGroups.All(g => g.Configurations.All(i => !i.HasErrors));
+        }
+
         public async Task<bool> Apply()
         {
             // TODO add check
