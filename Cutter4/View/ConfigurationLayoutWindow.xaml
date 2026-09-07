@@ -1,0 +1,65 @@
+﻿<Window x:Class="Cutter4.View.ConfigurationLayoutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Cutter4.View"
+        xmlns:vm="clr-namespace:Cutter4.ViewModel"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:ConfigurationLayoutViewModel}"
+        Title="Reorder cut" Height="380" Width="600">
+    <Window.Resources>
+        <DataTemplate x:Key="ConfigurationTemplate">
+            <StackPanel Orientation="Horizontal">
+                <ComboBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" local:AutoCompleteBehavior.Enabled="True" Width="50" Margin="3" Padding="3"/>
+
+                <Border BorderThickness="1 0 0 0" BorderBrush="LightGray" Margin="3" AllowDrop="True" Drop="ConfItems_Drop" PreviewMouseMove="ConfItems_PreviewMouseMove" PreviewMouseLeftButtonDown="ConfItems_PreviewMouseLeftButtonDown" DragEnter="ConfItems_DragEnter" DragOver="ConfItems_DragOver" DragLeave="ConfItems_DragLeave">
+                    <ItemsControl ItemsSource="{Binding Items}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="{Binding PixelWidth}" BorderThickness="0 1 1 1" BorderBrush="LightGray" Background="{Binding Background}">
+                                    <TextBlock Text="{Binding RealLength}" HorizontalAlignment="Center" Padding="3" ToolTip="{Binding RealLength}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+                <Button Content="Delete" Command="{Binding DeleteCommand}" Visibility="{Binding DeleteVisibility}" Margin="3" Padding="3"/>
+            </StackPanel>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="3">
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Margin="3">
+            <ItemsControl ItemsSource="{Binding ConfigurationGroups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Expander Header="{Binding DisplayName}" IsExpanded="True">
+                            <StackPanel>
+                                <ItemsControl ItemsSource="{Binding Configurations}" ItemTemplate="{StaticResource ConfigurationTemplate}"/>
+                                <Button Content="+ Add" Command="{Binding AddConfigurationCommand}" HorizontalAlignment="Left" Margin="3" Padding="3"/>
+                            </StackPanel>
+                        </Expander>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Width="80" Height="24" Margin="3" Content="Apply" Click="Apply_Click" IsEnabled="{Binding CanApply}"/>
+            <Button Width="80" Height="24" Margin="3" Content="Cancel" Click="Cancel_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

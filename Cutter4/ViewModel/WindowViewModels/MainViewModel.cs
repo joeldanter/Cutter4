@@ -30,15 +30,13 @@ namespace Cutter4.ViewModel
         int selectedTabIndex;
 
         public FullyObservableCollection<KapuViewModel> Kapuk { get; } = [];
-        [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CanPrint))]
-        string outputText = string.Empty;
-        public bool CanPrint { get => OutputText != ""; }
         bool canCalculate { get => Kapuk.Count != 0 && Kapuk.All(kapu => !kapu.HasErrors); }
+        [ObservableProperty]
+        string outputText = string.Empty;
         [ObservableProperty]
         bool canSave = false;
         List<Kapu> calculatedKapuk = [];
-        Dictionary<PanelType, List<Configuration>> calculatedConfs = [];
+        public Dictionary<PanelType, List<Configuration>> CalculatedConfs { get; private set; } = [];
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(MaxLength500SPCount))]
@@ -118,7 +116,7 @@ namespace Cutter4.ViewModel
             Kapuk.Add(new KapuViewModel() { Length = 2100, Height = 3000, Color = PanelColors.F100, SerialNumber = "aaa" }); // TODO remove
             Kapuk.Add(new KapuViewModel() { Length = 2300, Height = 4000, Color = PanelColors.F100, SerialNumber = "bbb" });
         }
-
+        
         public async Task LoadDatabase()
         {
             await LoadStoragePanels();
@@ -162,15 +160,21 @@ namespace Cutter4.ViewModel
 
             try
             {
-                calculatedConfs = cutManager.Solve(panelsToCut, storage);
+                CalculatedConfs = cutManager.Solve(panelsToCut, storage);
             }
             catch (UserFacingException e)
             {
                 dialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
                 return;
             }
-            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, calculatedConfs, DateTime.Now);
+            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, CalculatedConfs, DateTime.Now);
             CanSave = true;
+        }
+
+        public void ReOrder(Dictionary<PanelType, List<Configuration>> newValidOrder)
+        {
+            CalculatedConfs = newValidOrder;
+            OutputText = outputGenerator.GenerateOutput(calculatedKapuk, CalculatedConfs, DateTime.Now);
         }
 
         [RelayCommand]
@@ -180,7 +184,7 @@ namespace Cutter4.ViewModel
             {
                 Date = DateTime.Now,
                 Kapuk = calculatedKapuk,
-                Configurations = [.. calculatedConfs.SelectMany(x => x.Value)]
+                Configurations = [.. CalculatedConfs.SelectMany(x => x.Value)]
             };
             try
             {

@@ -53,6 +53,7 @@ namespace Cutter4
             services.AddTransient<EditStorageViewModel>();
             services.AddTransient<TruckDeliveryWindow>();
             services.AddTransient<TruckDeliveryViewModel>();
+            services.AddTransient<ConfigurationLayoutWindow>();
 
             services.AddSingleton<IDialogService, MessageBoxDialogService>();
             services.AddSingleton<ILocalizationService, LocalizationService>();
