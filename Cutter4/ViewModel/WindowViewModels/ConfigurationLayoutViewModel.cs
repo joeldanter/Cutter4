@@ -83,7 +83,7 @@ namespace Cutter4.ViewModel
 
                 foreach (ConfigurationViewModel conf in group.Configurations)
                 {
-                    if (conf.Items.Count == 0) continue;
+                    if (conf.Items.Count == 1) continue;
 
                     Dictionary<Kapu, int> decoratedItems = [];
 
