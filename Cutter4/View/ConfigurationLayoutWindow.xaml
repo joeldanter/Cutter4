@@ -49,7 +49,7 @@
                         <Expander Header="{Binding DisplayName}" IsExpanded="True">
                             <StackPanel>
                                 <ItemsControl ItemsSource="{Binding Configurations}" ItemTemplate="{StaticResource ConfigurationTemplate}"/>
-                                <Button Content="+ Add" Command="{Binding AddConfigurationCommand}" HorizontalAlignment="Left" Margin="3" Padding="3"/>
+                                <Button Content="+ Add" Command="{Binding AddEmptyConfigurationCommand}" HorizontalAlignment="Left" Margin="3" Padding="3"/>
                             </StackPanel>
                         </Expander>
                     </DataTemplate>
