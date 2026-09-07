@@ -33,7 +33,7 @@ namespace Cutter4.Persistence.Repositories
         
         public async Task SaveNewOrderAsync(Order order)
         {
-            Dictionary<PanelKey, int> changedPanels = PanelCountChanges(order.Configurations);
+            Dictionary<PanelKey, int> changedPanels = Configuration.PanelCountChanges(order.Configurations);
             Dictionary<PanelKey, PanelEntity> panels = await PanelHelper.GetOrCreatePanelsAsync(changedPanels.Keys.AsEnumerable(), contextFactory);
             
             foreach (KeyValuePair<PanelKey, int> entry in changedPanels)
@@ -95,7 +95,7 @@ namespace Cutter4.Persistence.Repositories
                     .ThenInclude(c => c.Panel)
                 .FirstOrDefaultAsync() ?? throw OrderRepositoryErrors.OrderUndo_NoOrder();
 
-            Dictionary<PanelKey, int> changedPanels = PanelCountChanges(lastOrder.Configurations.Select(c => c.ToDomain()));
+            Dictionary<PanelKey, int> changedPanels = Configuration.PanelCountChanges(lastOrder.Configurations.Select(c => c.ToDomain()));
             Dictionary<PanelKey, PanelEntity> panels = await PanelHelper.GetOrCreatePanelsAsync(changedPanels.Keys.AsEnumerable(), contextFactory);
 
             foreach (KeyValuePair<PanelKey, int> entry in changedPanels)
@@ -126,25 +126,6 @@ namespace Cutter4.Persistence.Repositories
 
             messenger.Send(new OrdersChangedMessage());
             messenger.Send(new StorageChangedMessage());
-        }
-
-        static Dictionary<PanelKey, int> PanelCountChanges(IEnumerable<Configuration> configurations)
-        {
-            Dictionary<PanelKey, int> changes = configurations
-                .GroupBy(c => new PanelKey(c.PanelKey.Color, c.PanelKey.Width, c.Capacity))
-                .ToDictionary(g => g.Key, g => -g.Count());
-
-            Dictionary<PanelKey, int> waste = configurations
-                .GroupBy(c => (c.PanelKey.Color, c.PanelKey.Width, c.Capacity - c.ConfigurationItems.Sum(x => x.Key.Length * x.Value)))
-                .Where(g => g.Key.Item3 != 0)
-                .ToDictionary(g => new PanelKey(g.Key.Color, g.Key.Width, g.Key.Item3), g => g.Count());
-
-            foreach (var (panel, count) in waste)
-            {
-                changes[panel] = changes.GetValueOrDefault(panel) + count;
-            }
-
-            return changes;
         }
 
         public async Task<IList<Order>> ListOrdersAsync()

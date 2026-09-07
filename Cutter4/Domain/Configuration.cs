@@ -45,5 +45,24 @@ namespace Cutter4.Domain
             builder.Remove(builder.Length - 1, 1);
             return builder.ToString();
         }
+
+        public static Dictionary<PanelKey, int> PanelCountChanges(IEnumerable<Configuration> configurations)
+        {
+            Dictionary<PanelKey, int> changes = configurations
+                .GroupBy(c => new PanelKey(c.PanelKey.Color, c.PanelKey.Width, c.Capacity))
+                .ToDictionary(g => g.Key, g => -g.Count());
+
+            Dictionary<PanelKey, int> waste = configurations
+                .GroupBy(c => (c.PanelKey.Color, c.PanelKey.Width, c.Capacity - c.ConfigurationItems.Sum(x => x.Key.Length * x.Value)))
+                .Where(g => g.Key.Item3 != 0)
+                .ToDictionary(g => new PanelKey(g.Key.Color, g.Key.Width, g.Key.Item3), g => g.Count());
+
+            foreach (var (panel, count) in waste)
+            {
+                changes[panel] = changes.GetValueOrDefault(panel) + count;
+            }
+
+            return changes;
+        }
     }
 }
