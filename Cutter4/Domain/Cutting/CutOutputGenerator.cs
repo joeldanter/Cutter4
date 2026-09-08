@@ -81,7 +81,7 @@ namespace Cutter4.Domain.Cutting
 
                     List<string> cutLengths = [];
                     List<string> cutSerialNumbers = [];
-                    foreach (KeyValuePair<Kapu, int> entry in conf.ConfigurationItems)
+                    foreach (KeyValuePair<Kapu, int> entry in conf.ConfigurationItems.OrderByDescending(x => x.Key.Length))
                     {
                         Kapu kapu = entry.Key;
                         int count = entry.Value;

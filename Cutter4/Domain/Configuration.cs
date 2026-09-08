@@ -31,7 +31,7 @@ namespace Cutter4.Domain
         public override string ToString()
         {
             StringBuilder builder = new();
-            foreach (KeyValuePair<Kapu, int> entry in ConfigurationItems)
+            foreach (KeyValuePair<Kapu, int> entry in ConfigurationItems.OrderByDescending(x => x.Key.Length))
             {
                 int length = entry.Key.Length;
                 string serialNumber = entry.Key.SerialNumber;
