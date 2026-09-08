@@ -168,7 +168,7 @@ namespace Cutter4.ViewModel
                 CalculatedConfs = cutManager.Solve(panelsToCut, Storage)
                     .Select(x => new KeyValuePair<PanelType, List<Configuration>>(
                         x.Key,
-                        x.Value.OrderBy(p => p.Waste).ToList()))
+                        x.Value.OrderByDescending(c => c.Capacity).ThenBy(c => c.Waste).ToList()))
                     .OrderBy(x => x.Key)
                     .ToDictionary();
             }
