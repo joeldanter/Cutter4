@@ -37,7 +37,7 @@ namespace Cutter4.Domain
         }
     }
 
-    public readonly record struct PanelType
+    public readonly record struct PanelType : IComparable<PanelType>
     {
         public PanelColors Color { get; }
         public PanelWidths Width { get; }
@@ -64,6 +64,16 @@ namespace Cutter4.Domain
         public override string ToString()
         {
             return $"{Color.GetDescription()} {Width.GetDescription()}";
+        }
+
+        public int CompareTo(PanelType other)
+        {
+            int result = Color.CompareTo(other.Color);
+
+            if (result != 0)
+                return result;
+
+            return Width.CompareTo(other.Width);
         }
     }
 

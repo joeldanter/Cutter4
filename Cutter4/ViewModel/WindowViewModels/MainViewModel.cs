@@ -165,7 +165,12 @@ namespace Cutter4.ViewModel
 
             try
             {
-                CalculatedConfs = cutManager.Solve(panelsToCut, Storage);
+                CalculatedConfs = cutManager.Solve(panelsToCut, Storage)
+                    .Select(x => new KeyValuePair<PanelType, List<Configuration>>(
+                        x.Key,
+                        x.Value.OrderBy(p => p.Waste).ToList()))
+                    .OrderBy(x => x.Key)
+                    .ToDictionary();
             }
             catch (UserFacingException e)
             {
