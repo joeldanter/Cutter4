@@ -36,7 +36,9 @@ namespace Cutter4.ViewModel
         [ObservableProperty]
         string outputText = string.Empty;
         [ObservableProperty]
-        bool canSave = false;
+        bool canSaveAndReorder = false;
+        [ObservableProperty]
+        bool canPrint = false;
         List<Kapu> calculatedKapuk = [];
         public Dictionary<PanelType, List<Configuration>> CalculatedConfs { get; private set; } = [];
 
@@ -106,8 +108,8 @@ namespace Cutter4.ViewModel
 
         public MainViewModel(IOrderRepository orderRepository, IStorageRepository storageRepository, IMessenger messenger, IMessageDialogService messageDialogService, ILocalizationService localizationService, IConfigurationLayoutDialogService configurationLayoutDialogService, IEditStorageDialogService editStorageDialogService)
         {
-            Kapuk.CollectionChanged += (sender, e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
-            Kapuk.ElementsPropertyChanged += (sender, e) => { CanSave = false; CalculateCommand.NotifyCanExecuteChanged(); };
+            Kapuk.CollectionChanged += (sender, e) => { CanSaveAndReorder = false; CalculateCommand.NotifyCanExecuteChanged(); };
+            Kapuk.ElementsPropertyChanged += (sender, e) => { CanSaveAndReorder = false; CalculateCommand.NotifyCanExecuteChanged(); };
 
             messenger.Register<StorageChangedMessage>(this, (r, m) => LoadStoragePanels());
             messenger.Register<EditsChangedMessage>(this, (r, m) => LoadStorageHistory());
@@ -178,7 +180,8 @@ namespace Cutter4.ViewModel
                 return;
             }
             OutputText = outputGenerator.GenerateOutput(calculatedKapuk, CalculatedConfs, DateTime.Now);
-            CanSave = true;
+            CanSaveAndReorder = true;
+            CanPrint = true;
         }
 
         [RelayCommand]
@@ -199,7 +202,7 @@ namespace Cutter4.ViewModel
                 messageDialogService.ShowError(localizationService.GetString(e.ErrorKey, e.Arguments));
                 return;
             }
-            CanSave = false;
+            CanSaveAndReorder = false;
         }
         
         [RelayCommand]
@@ -207,6 +210,7 @@ namespace Cutter4.ViewModel
         {
             Kapuk.Clear();
             OutputText = string.Empty;
+            CanPrint = false;
         }
 
         [RelayCommand]

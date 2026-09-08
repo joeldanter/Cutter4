@@ -49,9 +49,9 @@
 
                     <TextBox Margin="3" Padding="3" Text="{Binding OutputText}" IsReadOnly="True" FontFamily="Consolas" FontSize="13" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
                     <StackPanel Grid.Column="1">
-                        <Button Content="Reorder cut" Command="{Binding ReorderCutCommand}" IsEnabled="{Binding CanSave}" Height="26" Margin="3"/>
-                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}"/>
-                        <Button Content="Print" Click="Print_Click" IsEnabled="{Binding CanSave}" Height="26" Margin="3"/>
+                        <Button Content="Reorder cut" Command="{Binding ReorderCutCommand}" IsEnabled="{Binding CanSaveAndReorder}" Height="26" Margin="3"/>
+                        <Button Grid.Row="1" Margin="3" Height="26" Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSaveAndReorder}"/>
+                        <Button Content="Print" Click="Print_Click" IsEnabled="{Binding CanPrint}" Height="26" Margin="3"/>
                     </StackPanel>
                 </Grid>
             </Grid>
