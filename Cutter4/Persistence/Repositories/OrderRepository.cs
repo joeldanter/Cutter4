@@ -46,6 +46,18 @@ namespace Cutter4.Persistence.Repositories
                     throw OrderRepositoryErrors.OrderSave_InsufficientStock(key, available, -delta);
             }
 
+            List<string> newSerialNumbers = order.Kapuk.Select(k => k.SerialNumber).ToList();
+
+            using CutterContext context = contextFactory.CreateDbContext();
+
+            string? serialNumberCollision = await context.Kapuk
+                .Where(k => newSerialNumbers.Contains(k.SerialNumber))
+                .Select(k => k.SerialNumber)
+                .FirstOrDefaultAsync();
+
+            if (serialNumberCollision != null)
+                throw OrderRepositoryErrors.OrderSave_DuplicateSerialNumber(serialNumberCollision);
+
             Dictionary<Kapu, KapuEntity> kapuk = order.Kapuk.ToDictionary(k => k, KapuEntity.FromDomain);
             OrderEntity orderEntity = new()
             {
@@ -62,8 +74,6 @@ namespace Cutter4.Persistence.Repositories
                         Panel = panels[c.PanelKey],
                     }).ToList()
             };
-
-            using CutterContext context = contextFactory.CreateDbContext();
 
             context.Panels.AttachRange(panels.Values.AsEnumerable());
 

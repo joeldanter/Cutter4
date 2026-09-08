@@ -13,6 +13,12 @@ namespace Cutter4.Persistence.Repositories
                 $"Save denied: saving would require {needed} of {panelKey}, only {available} available",
                 panelKey, available, needed);
 
+        public static UserFacingException OrderSave_DuplicateSerialNumber(string serialNumber)
+            => new UserFacingException(
+                "Error_Persistence_OrderSave_DuplicateSerialNumber",
+                $"Save denied: duplicate serial number {serialNumber}",
+                serialNumber);
+
         public static UserFacingException OrderUndo_InsufficientStock(PanelKey panelKey, int available, int needed)
             => new UserFacingException(
                 "Error_Persistence_OrderUndo_InsufficientStock",

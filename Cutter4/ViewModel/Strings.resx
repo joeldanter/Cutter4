@@ -120,6 +120,9 @@
   <data name="Error_Domain_CutSolve_InsufficientStock" xml:space="preserve">
     <value>Cannot complete the cut because there is not enough of {0} available in stock.</value>
   </data>
+  <data name="Error_Persistence_OrderSave_DuplicateSerialNumber" xml:space="preserve">
+    <value>The order can not be saved because a garage door has already been saved with the serial number {0}.</value>
+  </data>
   <data name="Error_Persistence_OrderSave_InsufficientStock" xml:space="preserve">
     <value>The order cannot be saved because there is not enough of {0} available. Required: {2}, available: {1}.</value>
   </data>

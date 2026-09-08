@@ -70,6 +70,15 @@ namespace Cutter4.ViewModel {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The order can not be saved because a garage door has already been saved with the serial number {0}..
+        /// </summary>
+        internal static string Error_Persistence_OrderSave_DuplicateSerialNumber {
+            get {
+                return ResourceManager.GetString("Error_Persistence_OrderSave_DuplicateSerialNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The order cannot be saved because there is not enough of {0} available. Required: {2}, available: {1}..
         /// </summary>
         internal static string Error_Persistence_OrderSave_InsufficientStock {
