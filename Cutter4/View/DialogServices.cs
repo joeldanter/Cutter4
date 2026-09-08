@@ -4,6 +4,7 @@ using Cutter4.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text;
 using System.Windows;
 
@@ -31,7 +32,11 @@ namespace Cutter4.View
         public Dictionary<PanelType, List<Configuration>>? ShowDialog(Dictionary<PanelType, List<Configuration>> confs, IDictionary<PanelKey, int> storage)
         {
             ConfigurationLayoutViewModel vm = new(dialogService, localizationService, confs, storage);
-            ConfigurationLayoutWindow window = new(vm);
+            ConfigurationLayoutWindow window = new(vm)
+            {
+                Owner = WindowHelper.GetActiveWindow(),
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
             return window.ShowDialog() == true ? vm.Result : null;
         }
     }
@@ -54,7 +59,11 @@ namespace Cutter4.View
         public bool ShowDialog(IDictionary<PanelKey, int> storage)
         {
             EditStorageViewModel vm = new(storageRepository, dialogService, localizationService, truckDeliveryDialogService);
-            EditStorageWindow window = new(vm);
+            EditStorageWindow window = new(vm)
+            {
+                Owner = WindowHelper.GetActiveWindow(),
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
             return window.ShowDialog() == true;
         }
     }
@@ -64,8 +73,23 @@ namespace Cutter4.View
         public int? ShowDialog()
         {
             TruckDeliveryViewModel vm = new();
-            TruckDeliveryWindow window = new(vm);
+            TruckDeliveryWindow window = new(vm)
+            {
+                Owner = WindowHelper.GetActiveWindow(),
+                WindowStartupLocation = WindowStartupLocation.CenterOwner
+            };
             return window.ShowDialog() == true ? vm.CountToImport : null;
+        }
+    }
+
+    public static class WindowHelper
+    {
+        public static Window? GetActiveWindow()
+        {
+            return Application.Current.Windows
+                .OfType<Window>()
+                .FirstOrDefault(w => w.IsActive)
+                ?? Application.Current.MainWindow;
         }
     }
 }
