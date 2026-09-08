@@ -7,11 +7,11 @@
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:ConfigurationLayoutViewModel}"
-        Title="Reorder cut" Height="380" Width="600">
+        Title="Reorder cut" Height="380" Width="640">
     <Window.Resources>
         <DataTemplate x:Key="ConfigurationTemplate">
             <StackPanel Orientation="Horizontal">
-                <ComboBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" local:AutoCompleteBehavior.Enabled="True" Width="50" Margin="3" Padding="3"/>
+                <ComboBox Text="{Binding Capacity, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding DataContext.LengthChoices, ElementName=GroupBox}" Width="64" VerticalContentAlignment="Center" Margin="3" Padding="3"/>
 
                 <Border BorderThickness="1 0 0 0" BorderBrush="LightGray" Margin="3" AllowDrop="True" Drop="ConfItems_Drop" PreviewMouseMove="ConfItems_PreviewMouseMove" PreviewMouseLeftButtonDown="ConfItems_PreviewMouseLeftButtonDown" DragEnter="ConfItems_DragEnter" DragOver="ConfItems_DragOver" DragLeave="ConfItems_DragLeave">
                     <ItemsControl ItemsSource="{Binding Items}">
@@ -46,12 +46,12 @@
             <ItemsControl ItemsSource="{Binding ConfigurationGroups}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Expander Header="{Binding DisplayName}" IsExpanded="True">
+                        <GroupBox Header="{Binding DisplayName}" x:Name="GroupBox" Margin="3" Padding="3">
                             <StackPanel>
                                 <ItemsControl ItemsSource="{Binding Configurations}" ItemTemplate="{StaticResource ConfigurationTemplate}"/>
                                 <Button Content="+ Add" Command="{Binding AddEmptyConfigurationCommand}" HorizontalAlignment="Left" Margin="3" Padding="3"/>
                             </StackPanel>
-                        </Expander>
+                        </GroupBox>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

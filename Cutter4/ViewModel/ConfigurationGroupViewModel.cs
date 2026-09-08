@@ -13,12 +13,14 @@ namespace Cutter4.ViewModel
     {
         public PanelType Type { get; }
         public string DisplayName => $"{Type.Color} {Type.Width.GetDescription()}";
+        public List<int> LengthChoices { get; }
 
         public ObservableCollection<ConfigurationViewModel> Configurations { get; }
         
-        public ConfigurationGroupViewModel(PanelType type)
+        public ConfigurationGroupViewModel(PanelType type, List<int> lengthChoices)
         {
             Type = type;
+            LengthChoices = lengthChoices;
             Configurations = [];
         }
 

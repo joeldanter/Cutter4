@@ -104,5 +104,14 @@ namespace Cutter4.ViewModel {
                 return ResourceManager.GetString("Error_Persistence_StorageEdit_InsufficientStock", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot proceed with this ordering, because there is not enough of {0} available. Required: {2}, available {1}..
+        /// </summary>
+        internal static string Error_View_CutReorder_InsufficientStock {
+            get {
+                return ResourceManager.GetString("Error_View_CutReorder_InsufficientStock", resourceCulture);
+            }
+        }
     }
 }

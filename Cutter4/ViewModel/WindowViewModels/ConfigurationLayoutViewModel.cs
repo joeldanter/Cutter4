@@ -24,7 +24,7 @@ namespace Cutter4.ViewModel
         
         IMessageDialogService dialogService;
         ILocalizationService localizationService;
-
+         
         public ConfigurationLayoutViewModel(IMessageDialogService dialogService, ILocalizationService localizationService, Dictionary<PanelType, List<Configuration>> confs, IDictionary<PanelKey, int> storage)
         {
             this.dialogService = dialogService;
@@ -33,7 +33,14 @@ namespace Cutter4.ViewModel
             ConfigurationGroups = [];
             foreach (KeyValuePair<PanelType, List<Configuration>> entry in confs)
             {
-                ConfigurationGroupViewModel group = new(entry.Key);
+                PanelType type = entry.Key;
+                List<int> lengthChoices = storage
+                    .Where(x => entry.Key.Color == x.Key.Color && entry.Key.Width == x.Key.Width)
+                    .Select(x => x.Key.Length)
+                    .OrderDescending()
+                    .ToList();
+
+                ConfigurationGroupViewModel group = new(type, lengthChoices);
                 group.Configurations.CollectionChanged += Configurations_CollectionChanged;
 
                 foreach (Configuration conf in entry.Value)
@@ -113,7 +120,7 @@ namespace Cutter4.ViewModel
 
                 if (available + delta < 0)
                 {
-                    dialogService.ShowError($"{available} < {-delta}"); // TODO
+                    dialogService.ShowError(localizationService.GetString("Error_View_CutReorder_InsufficientStock", key, available, -delta));
                     return false;
                 }
             }
