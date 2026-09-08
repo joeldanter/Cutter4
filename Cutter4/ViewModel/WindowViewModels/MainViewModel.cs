@@ -76,6 +76,7 @@ namespace Cutter4.ViewModel
                 .Where(entry => entry.Key.Color == SelectedStorageColor
                     && entry.Key.Width == PanelWidths.Width500mm
                     && entry.Key.Length != PanelKey.MaxLength)
+                .OrderByDescending(entry => entry.Key.Length)
                 .SelectMany(entry => Enumerable.Repeat(entry.Key.Length, entry.Value)) ];
         }
         public List<int> SPs610
@@ -84,6 +85,7 @@ namespace Cutter4.ViewModel
                 .Where(entry => entry.Key.Color == SelectedStorageColor
                     && entry.Key.Width == PanelWidths.Width610mm
                     && entry.Key.Length != PanelKey.MaxLength)
+                .OrderByDescending(entry => entry.Key.Length)
                 .SelectMany(entry => Enumerable.Repeat(entry.Key.Length, entry.Value)) ];
         }
 
