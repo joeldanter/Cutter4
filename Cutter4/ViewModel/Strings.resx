@@ -133,7 +133,7 @@
     <value>The order cannot be undone because no previous order change was found.</value>
   </data>
   <data name="Error_Persistence_StorageEdit_InsufficientStock" xml:space="preserve">
-    <value>The storage change cannot be applied because there is not enough of {0} available. Requested to remove: {2}, available: {1}.</value>
+    <value>The storage edit cannot be applied because there is not enough of {0} available. Requested to remove: {2}, available: {1}.</value>
   </data>
   <data name="Error_View_CutReorder_InsufficientStock" xml:space="preserve">
     <value>Cannot proceed with this ordering, because there is not enough of {0} available. Required: {2}, available {1}.</value>

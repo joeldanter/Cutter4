@@ -106,7 +106,7 @@ namespace Cutter4.ViewModel {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The storage change cannot be applied because there is not enough of {0} available. Requested to remove: {2}, available: {1}..
+        ///   Looks up a localized string similar to The storage edit cannot be applied because there is not enough of {0} available. Requested to remove: {2}, available: {1}..
         /// </summary>
         internal static string Error_Persistence_StorageEdit_InsufficientStock {
             get {
