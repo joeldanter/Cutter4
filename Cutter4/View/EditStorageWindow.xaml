@@ -7,15 +7,7 @@
         xmlns:vm="clr-namespace:Cutter4.ViewModel"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:EditStorageViewModel}"
-        Title="Storage editing" Height="550" Width="420" MinHeight="436" MinWidth="339">
-    <Window.Resources>
-        <CollectionViewSource x:Key="GroupedDeltaCounts" Source="{Binding DeltaCounts}">
-            <CollectionViewSource.GroupDescriptions>
-                <PropertyGroupDescription PropertyName="PanelKey.Width"/>
-                <PropertyGroupDescription PropertyName="PanelKey.Color"/>
-            </CollectionViewSource.GroupDescriptions>
-        </CollectionViewSource>
-    </Window.Resources>
+        Title="Storage editing" Height="550" Width="500" MinHeight="436" MinWidth="360">
     <Grid Margin="3">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -26,80 +18,98 @@
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <GroupBox Header="Panels to edit" Margin="3">
-                <DataGrid Margin="3" x:Name="DeltaCountsDataGrid" ItemsSource="{Binding Source={StaticResource GroupedDeltaCounts}}" AutoGenerateColumns="False" CanUserResizeRows="False" RowHeaderWidth="0" CanUserResizeColumns="False" IsReadOnly="True" CanUserReorderColumns="False" ColumnWidth="auto">
+            <GroupBox Header="Added" Margin="3">
+                <DataGrid Margin="3" ItemsSource="{Binding AddedCounts}" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" RowHeaderWidth="0" CanUserReorderColumns="False" ColumnWidth="auto">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Width="*" Header="Length" Binding="{Binding PanelKey.Length}"/>
-                        <DataGridTextColumn Width="*" Header="Delta count" Binding="{Binding DeltaCount}"/>
+                        <DataGridComboBoxColumn Width="5*" Header="Color" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItemBinding="{Binding Color, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                        <DataGridComboBoxColumn Width="5*" Header="Width" ItemsSource="{Binding Source={StaticResource PanelWidths}}" SelectedItemBinding="{Binding Width, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}">
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridTextColumn Width="6*" Header="Length" Binding="{Binding Length, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                        <DataGridTextColumn Width="5*" Header="Count" Binding="{Binding Count, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
                     </DataGrid.Columns>
 
-                    <DataGrid.GroupStyle>
-                        <GroupStyle>
-                            <GroupStyle.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name, Converter={StaticResource EnumDescriptionConverter}}" FontSize="13" FontWeight="Bold" Margin="3"/>
-                                </DataTemplate>
-                            </GroupStyle.HeaderTemplate>
-                            <GroupStyle.Panel>
-                                <ItemsPanelTemplate>
-                                    <DataGridRowsPresenter/>
-                                </ItemsPanelTemplate>
-                            </GroupStyle.Panel>
-                        </GroupStyle>
-
-                        <GroupStyle>
-                            <GroupStyle.HeaderTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="Normal" Margin="3"/>
-                                </DataTemplate>
-                            </GroupStyle.HeaderTemplate>
-                            <GroupStyle.Panel>
-                                <ItemsPanelTemplate>
-                                    <DataGridRowsPresenter/>
-                                </ItemsPanelTemplate>
-                            </GroupStyle.Panel>
-                        </GroupStyle>
-                    </DataGrid.GroupStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDuplicate}" Value="True">
+                                    <Setter Property="Background" Value="#ff3838"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                 </DataGrid>
             </GroupBox>
             
-            <GroupBox Grid.Column="1" Header="Add panel to edit" Margin="3">
-                <Grid Grid.Row="2" Margin="3 0 0 0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
-                    </Grid.ColumnDefinitions>
+            <GroupBox Header="Removed" Margin="3" Grid.Column="1">
+                <DataGrid Margin="3" ItemsSource="{Binding RemovedCounts}" AutoGenerateColumns="False" CanUserSortColumns="False" CanUserResizeRows="False" RowHeaderWidth="0" CanUserReorderColumns="False" ColumnWidth="auto">
+                    <DataGrid.Columns>
+                        <DataGridComboBoxColumn Width="5*" Header="Color" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItemBinding="{Binding Color, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                        <DataGridComboBoxColumn Width="5*" Header="Width" ItemsSource="{Binding Source={StaticResource PanelWidths}}" SelectedItemBinding="{Binding Width, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}">
+                            <DataGridComboBoxColumn.ElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.ElementStyle>
+                            <DataGridComboBoxColumn.EditingElementStyle>
+                                <Style TargetType="ComboBox">
+                                    <Setter Property="ItemTemplate">
+                                        <Setter.Value>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
+                                            </DataTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DataGridComboBoxColumn.EditingElementStyle>
+                        </DataGridComboBoxColumn>
+                        <DataGridTextColumn Width="6*" Header="Length" Binding="{Binding Length, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                        <DataGridTextColumn Width="5*" Header="Count" Binding="{Binding Count, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged, NotifyOnValidationError=True}"/>
+                    </DataGrid.Columns>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="3" Padding="3" Text="Color:"/>
-                    <ComboBox  Grid.Row="0" Grid.Column="1" Margin="3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelColors}}" SelectedItem="{Binding NewColor}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="3" Padding="3" Text="Width:"/>
-                    <ComboBox  Grid.Row="1" Grid.Column="1" Margin="3" Padding="3" VerticalContentAlignment="Center" ItemsSource="{Binding Source={StaticResource PanelWidths}}" SelectedItem="{Binding NewWidth}">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                    <TextBlock Grid.Row="2" Grid.Column="0" Margin="3" Padding="3" Width="80" Text="Length:"/>
-                    <TextBox   Grid.Row="2" Grid.Column="1" Margin="3" Padding="3" Width="80" Text="{Binding NewLength, UpdateSourceTrigger=PropertyChanged}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="0" Margin="3" Padding="3" Width="80" Text="Delta count:"/>
-                    <TextBox   Grid.Row="3" Grid.Column="1" Margin="3" Padding="3" Width="80" Text="{Binding NewDeltaCount,UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button    Grid.Row="4" Grid.Column="1" Margin="3" Padding="3" Content="Add" Command="{Binding AddNewEditItemCommand}"/>
-                </Grid>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDuplicate}" Value="True">
+                                    <Setter Property="Background" Value="#ff3838"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
             </GroupBox>
         </Grid>
-        
+
         <GroupBox Grid.Row="1" Header="Message" Margin="3">
             <TextBox Height="150" Margin="3" Text="{Binding Message}" VerticalScrollBarVisibility="Auto" AcceptsReturn="True" TextWrapping="Wrap"/>
         </GroupBox>

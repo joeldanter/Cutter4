@@ -20,85 +20,92 @@ namespace Cutter4.ViewModel
         IMessageDialogService dialogService;
         ILocalizationService localizationService;
         ITruckDeliveryDialogService truckDeliveryDialogService;
-        public ObservableCollection<DeltaCountEntry> DeltaCounts { get; } = [];
-        
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(AddNewEditItemCommand))]
-        PanelColors? newColor = null;
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(AddNewEditItemCommand))]
-        PanelWidths? newWidth = null;
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(AddNewEditItemCommand))]
-        string newLength = string.Empty;
-        [ObservableProperty]
-        [NotifyCanExecuteChangedFor(nameof(AddNewEditItemCommand))]
-        string newDeltaCount = string.Empty;
-        bool CanAddNewEditItem
-        {
-            get
-            {
-                return NewColor != null
-                    && NewWidth != null
-                    && int.TryParse(NewLength, out int newLength)
-                    && 0 < newLength
-                    && newLength <= PanelKey.MaxLength
-                    && int.TryParse(NewDeltaCount, out int newDeltaCount)
-                    && 0 != newDeltaCount;
-            }
-        }
+        public ObservableCollection<DeltaCountEntry> AddedCounts { get; } = [];
+        public ObservableCollection<DeltaCountEntry> RemovedCounts { get; } = [];
 
         [ObservableProperty]
         string message = string.Empty;
 
-        public bool CanApplyEdit { get { return DeltaCounts.Count > 0; } }
+        public bool CanApplyEdit
+        {
+            get => AddedCounts.All(x => !x.HasErrors)
+                && RemovedCounts.All(x => !x.HasErrors);
+        }
 
         public EditStorageViewModel(IStorageRepository storageRepository, IMessageDialogService dialogService, ILocalizationService localizationService, ITruckDeliveryDialogService truckDeliveryDialogService)
         {
             this.storageRepository = storageRepository;
-            DeltaCounts.CollectionChanged += (sender, e) => { OnPropertyChanged(nameof(CanApplyEdit)); };
-
             this.dialogService = dialogService;
             this.localizationService = localizationService;
             this.truckDeliveryDialogService = truckDeliveryDialogService;
+
+            AddedCounts.CollectionChanged += AddedCounts_CollectionChanged;
+            RemovedCounts.CollectionChanged += AddedCounts_CollectionChanged;
         }
 
-        [RelayCommand(CanExecute = nameof(CanAddNewEditItem))]
-        void AddNewEditItem()
+        void AddedCounts_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (NewColor == null || NewWidth == null)
-                throw new UnreachableException();
-
-            PanelKey panelKey = new ((PanelColors)NewColor, (PanelWidths)NewWidth, int.Parse(NewLength));
-            int newDeltaCount = int.Parse(NewDeltaCount);
-            
-            int modifiedPanelIndex = DeltaCounts
-                .ToList()
-                .FindIndex(entry => entry.PanelKey == panelKey);
-
-            if (modifiedPanelIndex == -1)
+            if (e.OldItems != null)
             {
-                DeltaCounts.Add(new(panelKey, newDeltaCount));
-            }
-            else
-            {
-                DeltaCounts[modifiedPanelIndex] = new(panelKey, DeltaCounts[modifiedPanelIndex].DeltaCount + newDeltaCount);
-                
-                if (DeltaCounts[modifiedPanelIndex].DeltaCount == 0)
+                foreach (DeltaCountEntry item in e.OldItems)
                 {
-                    DeltaCounts.RemoveAt(modifiedPanelIndex);
+                    item.PropertyChanged -= Item_PropertyChanged;
+                    item.ErrorsChanged -= Item_ErrorsChanged;
                 }
             }
 
-            NewColor = null;
-            NewWidth = null;
-            NewLength = string.Empty;
-            NewDeltaCount = string.Empty;
+            if (e.NewItems != null)
+            {
+                foreach (DeltaCountEntry item in e.NewItems)
+                {
+                    item.PropertyChanged += Item_PropertyChanged;
+                    item.ErrorsChanged += Item_ErrorsChanged;
+                }
+            }
+
+            MarkDuplicates();
+            OnPropertyChanged(nameof(CanApplyEdit));
+        }
+
+        void Item_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(DeltaCountEntry.Color)
+             || e.PropertyName == nameof(DeltaCountEntry.Width)
+             || e.PropertyName == nameof(DeltaCountEntry.Length))
+                MarkDuplicates();
+        }
+
+        private void Item_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(CanApplyEdit));
+        }
+
+        void MarkDuplicates()
+        {
+            List<DeltaCountEntry> all = AddedCounts.Concat(RemovedCounts).ToList();
+            
+            HashSet<(PanelColors?, PanelWidths?, int)> collisions = all
+                .Where(e => !e.GetErrors(nameof(DeltaCountEntry.Color)).Any())
+                .Where(e => !e.GetErrors(nameof(DeltaCountEntry.Width)).Any())
+                .Where(e => !e.GetErrors(nameof(DeltaCountEntry.Length)).Any())
+                .GroupBy(e => (e.Color, e.Width, e.Length))
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet();
+
+            foreach (DeltaCountEntry entry in all)
+                entry.IsDuplicate = collisions.Contains((entry.Color, entry.Width, entry.Length));
         }
 
         public async Task<bool> Apply()
         {
-            StorageEdit edit = new(DateTime.Now, Message, DeltaCounts.ToDictionary(x => x.PanelKey, x => x.DeltaCount));
+            Dictionary<PanelKey, int> editItems = [];
+            foreach (DeltaCountEntry entry in AddedCounts)
+                editItems[new PanelKey((PanelColors)entry.Color, (PanelWidths)entry.Width, entry.Length)] = entry.Count;
+            foreach (DeltaCountEntry entry in RemovedCounts)
+                editItems[new PanelKey((PanelColors)entry.Color, (PanelWidths)entry.Width, entry.Length)] = -entry.Count;
+
+            StorageEdit edit = new(DateTime.Now, Message, editItems);
 
             try
             {
@@ -119,14 +126,67 @@ namespace Cutter4.ViewModel
             if (panelCounts == null)
                 return;
 
-            DeltaCounts.Clear();
+            AddedCounts.Clear();
+            RemovedCounts.Clear();
             foreach (PanelType type in PanelType.GetAllTypes())
             {
                 PanelKey panelKey = new(type.Color, type.Width, PanelKey.MaxLength);
-                DeltaCounts.Add(new(panelKey, (int)panelCounts));
+                AddedCounts.Add(new(panelKey.Color, panelKey.Width, panelKey.Length, (int)panelCounts));
             }
         }
     }
 
-    public record DeltaCountEntry(PanelKey PanelKey, int DeltaCount);
+    public partial class DeltaCountEntry : ObservableValidator
+    {
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        PanelColors? color;
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Required]
+        PanelWidths? width;
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Range(1, PanelKey.MaxLength)]
+        int length;
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [Range(1, int.MaxValue)]
+        int count;
+        [ObservableProperty]
+        [NotifyDataErrorInfo]
+        [MustBeFalse]
+        bool isDuplicate;
+
+        public DeltaCountEntry()
+        {
+            Color = null;
+            Width = null;
+            Length = 0;
+            count = 0;
+            IsDuplicate = false;
+            
+            ValidateAllProperties();
+        }
+
+        public DeltaCountEntry(PanelColors color, PanelWidths width, int length, int count)
+        {
+            Color = color;
+            Width = width;
+            Length = length;
+            Count = count;
+            IsDuplicate = false;
+
+            ValidateAllProperties();
+        }
+    }
+
+    public class MustBeFalseAttribute : ValidationAttribute
+    {
+        public override bool IsValid(object? value)
+        {
+            return value is bool b && !b;
+        }
+    }
 }
