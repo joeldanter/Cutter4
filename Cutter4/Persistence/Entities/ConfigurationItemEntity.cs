@@ -5,6 +5,7 @@ namespace Cutter4.Persistence.Entities;
 public partial class ConfigurationItemEntity
 {
     public long Id { get; set; }
+    public int Position { get; set; }
     public long KapuId { get; set; }
     public long ConfigurationId { get; set; }
     public int Count { get; set; }

@@ -30,12 +30,12 @@ namespace Cutter4.Persistence.Repositories
             this.contextFactory = contextFactory;
             this.messenger = messenger;
         }
-        
+
         public async Task SaveNewOrderAsync(Order order)
         {
             Dictionary<PanelKey, int> changedPanels = Configuration.PanelCountChanges(order.Configurations);
             Dictionary<PanelKey, PanelEntity> panels = await PanelHelper.GetOrCreatePanelsAsync(changedPanels.Keys.AsEnumerable(), contextFactory);
-            
+
             foreach (KeyValuePair<PanelKey, int> entry in changedPanels)
             {
                 PanelKey key = entry.Key;
@@ -58,20 +58,24 @@ namespace Cutter4.Persistence.Repositories
             if (serialNumberCollision != null)
                 throw OrderRepositoryErrors.OrderSave_DuplicateSerialNumber(serialNumberCollision);
 
-            Dictionary<Kapu, KapuEntity> kapuk = order.Kapuk.ToDictionary(k => k, KapuEntity.FromDomain);
+            Dictionary<Kapu, KapuEntity> kapuk = order.Kapuk
+                .Select((k, i) => (k, KapuEntity.FromDomain(k, i)))
+                .ToDictionary();
             OrderEntity orderEntity = new()
             {
                 Date = order.Date,
                 Kapuk = kapuk.Values.ToList(),
                 Configurations = order.Configurations
-                    .Select(c => new ConfigurationEntity()
+                    .Select((c, i) => new ConfigurationEntity()
                     {
-                        ConfigurationItems = c.ConfigurationItems.Select(i => new ConfigurationItemEntity()
+                        ConfigurationItems = c.ConfigurationItems.Select((i, j) => new ConfigurationItemEntity()
                         {
                             Kapu = kapuk[i.Key],
-                            Count = i.Value
+                            Count = i.Value,
+                            Position = j
                         }).ToList(),
                         Panel = panels[c.PanelKey],
+                        Position = i
                     }).ToList()
             };
 

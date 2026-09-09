@@ -8,18 +8,20 @@ public class KapuEntity
     public int Length { get; set; }
     public int Height { get; set; }
     public string SerialNumber { get; set; }
+    public int Position { get; set; }
     public PanelColors Color { get; set; }
     public long OrderId { get; set; }
     public OrderEntity Order { get; set; }
     public ICollection<ConfigurationItemEntity> ConfigurationItems { get; set; } = [];
 
-    public static KapuEntity FromDomain(Kapu kapu)
+    public static KapuEntity FromDomain(Kapu kapu, int position)
         => new KapuEntity()
         {
             Length = kapu.Length,
             Height = kapu.Height,
             SerialNumber = kapu.SerialNumber,
-            Color = kapu.Color
+            Color = kapu.Color,
+            Position = position
         };
 
     public Kapu ToDomain()

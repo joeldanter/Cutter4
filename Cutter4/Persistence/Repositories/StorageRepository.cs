@@ -55,10 +55,11 @@ namespace Cutter4.Persistence.Repositories
             }
 
             List<StorageEditItemEntity> editItems = edit.StorageEditItems
-                .Select(x => new StorageEditItemEntity()
+                .Select((x, i) => new StorageEditItemEntity()
                 {
                     Panel = panels[x.Key],
-                    DeltaCount = x.Value
+                    DeltaCount = x.Value,
+                    Position = i
                 })
                 .ToList();
             StorageEditEntity editEntity = new()

@@ -38,6 +38,7 @@ CREATE TABLE panels (
 DROP TABLE IF EXISTS configurations;
 CREATE TABLE configurations (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  position INTEGER NOT NULL,
   order_id INTEGER NOT NULL,
   panel_id INTEGER NOT NULL,
   color_id INTEGER NOT NULL,
@@ -52,6 +53,7 @@ CREATE TABLE kapuk (
   length INTEGER NOT NULL,
   height INTEGER NOT NULL,
   serial_number TEXT NOT NULL UNIQUE,
+  position INTEGER NOT NULL,
   color_id INTEGER NOT NULL,
   order_id INTEGER NOT NULL,
   UNIQUE (id, order_id, color_id),
@@ -64,6 +66,7 @@ CREATE TABLE kapuk (
 DROP TABLE IF EXISTS configuration_items;
 CREATE TABLE configuration_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  position INTEGER NOT NULL,
   kapu_id INTEGER NOT NULL,
   configuration_id INTEGER NOT NULL,
   count INTEGER NOT NULL,
@@ -85,6 +88,7 @@ CREATE TABLE storage_edits (
 DROP TABLE IF EXISTS storage_edit_items;
 CREATE TABLE storage_edit_items (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
+  position INTEGER NOT NULL,
   panel_id INTEGER NOT NULL,
   edit_id INTEGER NOT NULL,
   delta_count INTEGER NOT NULL,

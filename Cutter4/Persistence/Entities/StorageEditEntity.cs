@@ -15,5 +15,6 @@ public class StorageEditEntity
 
     public StorageEdit ToDomain()
         => new StorageEdit(Date, Message, StorageEditItems
+                .OrderBy(x => x.Position)
                 .ToDictionary(x => x.Panel.ToKey(), x => x.DeltaCount));
 }

@@ -40,6 +40,7 @@ public partial class CutterContext : DbContext
             entity.HasIndex(e => new { e.Id, e.OrderId, e.Color }, "IX_configurations_id_order_id_color_id").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Position).HasColumnName("position");
             entity.Property(e => e.Color).HasColumnName("color_id");
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.PanelId).HasColumnName("panel_id");
@@ -60,6 +61,7 @@ public partial class CutterContext : DbContext
             entity.HasIndex(e => new { e.KapuId, e.ConfigurationId }, "IX_configuration_items_kapu_id_configuration_id").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Position).HasColumnName("position");
             entity.Property(e => e.Color).HasColumnName("color_id");
             entity.Property(e => e.ConfigurationId).HasColumnName("configuration_id");
             entity.Property(e => e.KapuId).HasColumnName("kapu_id");
@@ -88,6 +90,7 @@ public partial class CutterContext : DbContext
             entity.Property(e => e.Length).HasColumnName("length");
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.SerialNumber).HasColumnName("serial_number");
+            entity.Property(e => e.Position).HasColumnName("position");
 
             entity.HasOne(d => d.Order).WithMany(p => p.Kapuk)
                 .HasForeignKey(d => d.OrderId);
@@ -139,6 +142,7 @@ public partial class CutterContext : DbContext
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.DeltaCount).HasColumnName("delta_count");
+            entity.Property(e => e.Position).HasColumnName("position");
             entity.Property(e => e.EditId).HasColumnName("edit_id");
             entity.Property(e => e.PanelId).HasColumnName("panel_id");
 

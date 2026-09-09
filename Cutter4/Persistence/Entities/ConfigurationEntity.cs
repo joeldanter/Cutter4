@@ -7,6 +7,7 @@ namespace Cutter4.Persistence.Entities;
 public class ConfigurationEntity
 {
     public long Id { get; set; }
+    public int Position { get; set; }
     public long OrderId { get; set; }
     public long PanelId { get; set; }
     public PanelColors Color { get; set; }
@@ -15,5 +16,5 @@ public class ConfigurationEntity
     public ICollection<ConfigurationItemEntity> ConfigurationItems { get; set; } = [];
 
     public Configuration ToDomain()
-        => new Configuration(Panel.ToKey(), ConfigurationItems.ToDictionary(x => x.Kapu.ToDomain(), x => x.Count));
+        => new Configuration(Panel.ToKey(), ConfigurationItems.OrderBy(x => x.Position).ToDictionary(x => x.Kapu.ToDomain(), x => x.Count));
 }

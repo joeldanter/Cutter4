@@ -16,7 +16,7 @@ public class OrderEntity
         => new Order()
         {
             Date = Date,
-            Kapuk = [.. Kapuk.Select(k => k.ToDomain())],
-            Configurations = [.. Configurations.Select(c => c.ToDomain())]
+            Kapuk = [.. Kapuk.OrderBy(k => k.Position).Select(k => k.ToDomain())],
+            Configurations = [.. Configurations.OrderBy(c => c.Position).Select(c => c.ToDomain())]
         };
 }
