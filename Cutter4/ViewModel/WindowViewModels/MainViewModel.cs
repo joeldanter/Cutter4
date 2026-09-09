@@ -22,7 +22,7 @@ namespace Cutter4.ViewModel
         CutManager cutManager = new CutManager(new LPSolver());
         IOrderRepository orderRepository;
         IStorageRepository storageRepository;
-        ICutOutputGenerator outputGenerator = new CompactOutputGenerator();
+        ICutOutputGenerator outputGenerator = new LongOutputGenerator();
         IMessageDialogService messageDialogService;
         ILocalizationService localizationService;
         IConfigurationLayoutDialogService configurationLayoutDialogService;
@@ -121,8 +121,8 @@ namespace Cutter4.ViewModel
             this.configurationLayoutDialogService = configurationLayoutDialogService;
             this.editStorageDialogService = editStorageDialogService;
 
-            Kapuk.Add(new KapuViewModel() { Length = 2100, Height = 3000, Color = PanelColors.F100, SerialNumber = "aaa" }); // TODO remove
-            Kapuk.Add(new KapuViewModel() { Length = 2300, Height = 4000, Color = PanelColors.F100, SerialNumber = "bbb" });
+            //Kapuk.Add(new KapuViewModel() { Length = 2100, Height = 3000, Color = PanelColors.F100, SerialNumber = "aaa" });
+            //Kapuk.Add(new KapuViewModel() { Length = 2300, Height = 4000, Color = PanelColors.F100, SerialNumber = "bbb" });
         }
         
         public async Task LoadDatabase()
