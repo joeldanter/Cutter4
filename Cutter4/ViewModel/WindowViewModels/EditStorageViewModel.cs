@@ -28,7 +28,8 @@ namespace Cutter4.ViewModel
 
         public bool CanApplyEdit
         {
-            get => AddedCounts.All(x => !x.HasErrors)
+            get => (AddedCounts.Any() || RemovedCounts.Any())
+                && AddedCounts.All(x => !x.HasErrors)
                 && RemovedCounts.All(x => !x.HasErrors);
         }
 
