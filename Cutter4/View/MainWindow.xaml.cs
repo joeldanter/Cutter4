@@ -47,12 +47,13 @@ namespace Cutter4.View
                 FlowDocument doc = new FlowDocument();
                 Paragraph para = new Paragraph(new Run(viewModel.OutputText));
                 para.FontFamily = new FontFamily("Consolas");
-                para.FontSize = 13;
+                para.FontSize = 14.5;
                 doc.Blocks.Add(para);
 
                 doc.PageWidth = printDialog.PrintableAreaWidth;
                 doc.PageHeight = printDialog.PrintableAreaHeight;
-                doc.PagePadding = new Thickness(50);
+                doc.PagePadding = new Thickness(75, 95, 75, 95);
+                doc.ColumnWidth = double.PositiveInfinity; // rihihihi
 
                 IDocumentPaginatorSource idpSource = doc;
                 printDialog.PrintDocument(idpSource.DocumentPaginator, "Cutter print");
